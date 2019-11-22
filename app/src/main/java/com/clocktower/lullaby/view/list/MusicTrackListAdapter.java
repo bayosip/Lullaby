@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.clocktower.lullaby.interfaces.ListItemClickListener;
 import com.clocktower.lullaby.R;
+import com.clocktower.lullaby.model.SongInfo;
 
 import java.io.File;
 import java.util.List;
@@ -16,17 +17,24 @@ import java.util.List;
 public class MusicTrackListAdapter extends RecyclerView.Adapter<MusicTrackVH> {
 
     private List<File> musictracks;
+    private List<SongInfo> tracks;
     private ListItemClickListener listener;
 
-    public MusicTrackListAdapter(List<File> musictracks, ListItemClickListener listener) {
+    /*public MusicTrackListAdapter(List<File> musictracks, ListItemClickListener listener) {
         this.musictracks = musictracks;
+        this.listener = listener;
+    }*/
+
+    public MusicTrackListAdapter(List<SongInfo> tracks, ListItemClickListener listener) {
+        this.tracks = tracks;
         this.listener = listener;
     }
 
     @NonNull
     @Override
     public MusicTrackVH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(listener.getListenerContext()).inflate(R.layout.music_list_item, parent);
+        View view = LayoutInflater.from(listener.getListenerContext()).inflate(R.layout.music_list_item,
+                parent, false);
         MusicTrackVH holder = new MusicTrackVH(view);
         holder.setItemClickListener(listener);
         return holder;
@@ -34,11 +42,11 @@ public class MusicTrackListAdapter extends RecyclerView.Adapter<MusicTrackVH> {
 
     @Override
     public void onBindViewHolder(@NonNull MusicTrackVH holder, int position) {
-        holder.setData(musictracks);
+        holder.setData(tracks);
     }
 
     @Override
     public int getItemCount() {
-        return musictracks.size();
+        return tracks.size();
     }
 }

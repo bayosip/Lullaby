@@ -8,6 +8,8 @@ import android.util.Log;
 
 import androidx.core.content.ContextCompat;
 import com.clocktower.lullaby.model.service.AlarmService;
+import com.clocktower.lullaby.model.service.RingToneService;
+
 import java.util.Iterator;
 import java.util.List;
 import static android.content.Context.ACTIVITY_SERVICE;
@@ -22,7 +24,7 @@ public class ServiceUtil {
     }
 
     public static void startAlarmService(final Context activity){
-        serviceIntent = new Intent(activity, AlarmService.class);
+        serviceIntent = new Intent(activity, RingToneService.class);
 
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O){
@@ -47,8 +49,8 @@ public class ServiceUtil {
         }
     }
 
-    private static boolean checkForIfDeviceIsFullyWake(Context activity){
-        ActivityManager activityManager = (ActivityManager) activity.getSystemService(ACTIVITY_SERVICE);
+    private static boolean checkForIfDeviceIsFullyWake(Context context){
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
         List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = activityManager.getRunningAppProcesses();
         if (runningAppProcesses != null) {
             int importance = runningAppProcesses.get(0).importance;
@@ -60,11 +62,11 @@ public class ServiceUtil {
     }
 
     @SuppressWarnings("deprecation")
-    public static Boolean isServiceAlreadyRunningAPI16(Context activity) {
-        ActivityManager activityManager = (ActivityManager) activity.getSystemService(ACTIVITY_SERVICE);
+    public static Boolean isServiceAlreadyRunningAPI16(Context context) {
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo serviceInfo : activityManager
                 .getRunningServices(Integer.MAX_VALUE)) {
-            if (AlarmService.class.getName().equalsIgnoreCase(serviceInfo.service.getClassName()))
+            if (RingToneService.class.getName().equalsIgnoreCase(serviceInfo.service.getClassName()))
                 return true;
         }
         return false;

@@ -1,6 +1,4 @@
-package com.clocktower.lullaby.view.Fragments;
-
-import android.content.Context;
+package com.clocktower.lullaby.view.fragments;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -9,8 +7,6 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 
 import com.clocktower.lullaby.model.utilities.Constants;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class AlarmPageAdapter extends FragmentStatePagerAdapter {
@@ -23,7 +19,7 @@ public class AlarmPageAdapter extends FragmentStatePagerAdapter {
     }
 
     public AlarmPageAdapter(FragmentManager fm, List<BaseFragment> fragList) {
-        super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+        super(fm);
         this.fragmentList = fragList;
     }
 

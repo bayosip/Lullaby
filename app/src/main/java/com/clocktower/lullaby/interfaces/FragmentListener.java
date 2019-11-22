@@ -13,6 +13,7 @@ public interface FragmentListener extends ListItemClickListener {
     void stopAlarm();
     void playOrPauseMusic();
     void setAlarmMusic();
-    void seekMusicToPosition(long time);
+    void seekMusicToPosition(int time);
+    Thread musicPlayerThread();
 
 }

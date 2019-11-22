@@ -1,10 +1,11 @@
-package com.clocktower.lullaby.view.Fragments;
+package com.clocktower.lullaby.view.fragments;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.os.Parcelable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.clocktower.lullaby.R;
+import com.clocktower.lullaby.model.SongInfo;
 import com.clocktower.lullaby.view.activities.Alarm;
 import com.clocktower.lullaby.view.list.MusicTrackListAdapter;
 
@@ -33,9 +35,18 @@ public class MusicSelectorDialog extends DialogFragment {
     private Button select;
     private Alarm activity;
     private MusicTrackListAdapter adapter;
-    private List<File> audioFiles;
+    private static List<SongInfo> audioFiles;
     private boolean isShowing = false;
 
+    static {
+        audioFiles = new ArrayList<>();
+    }
+
+    public static void setAudioFiles(List<SongInfo> audioFiles) {
+        Log.w("dialog Songs", audioFiles.get(0).getSongName());
+        MusicSelectorDialog.audioFiles.clear();
+        MusicSelectorDialog.audioFiles.addAll(audioFiles);
+    }
 
     public static MusicSelectorDialog getInstance(){
         MusicSelectorDialog dialog = new MusicSelectorDialog();
@@ -72,19 +83,17 @@ public class MusicSelectorDialog extends DialogFragment {
                 RecyclerView.VERTICAL, false);
         DividerItemDecoration itemDecoration = new DividerItemDecoration(musicList.getContext(),
                 layoutManager.getOrientation());
-        musicList.addItemDecoration(itemDecoration);
+        adapter = new MusicTrackListAdapter(audioFiles, activity);
+        //musicList.addItemDecoration(itemDecoration);
+        musicList.setLayoutManager(layoutManager);
         musicList.setAdapter(adapter);
-
     }
 
-    public void show(FragmentManager manager, List<File> myAudioFiles){
+    public void show(FragmentManager manager){
 
         try {
             if(!isStateSaved()){
                 isShowing = true;
-                audioFiles = new ArrayList<>();
-                audioFiles.addAll(myAudioFiles);
-                adapter = new MusicTrackListAdapter(audioFiles, activity);
                 show(manager, "Track Selector");
             }
         }catch (Exception e){
@@ -92,9 +101,16 @@ public class MusicSelectorDialog extends DialogFragment {
         }
     }
 
-
-
-    public void updateListOfAudioFiles(final List<File> files){
-
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+        Dialog dialog = getDialog();
+        if (dialog != null)
+        {
+            int width = 500;
+            int height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            dialog.getWindow().setLayout(width, height);
+        }
     }
 }

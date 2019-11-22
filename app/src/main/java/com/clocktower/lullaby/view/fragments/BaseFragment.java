@@ -1,4 +1,4 @@
-package com.clocktower.lullaby.view.Fragments;
+package com.clocktower.lullaby.view.fragments;
 
 import android.content.Context;
 
@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.clocktower.lullaby.interfaces.FragmentListener;
-import com.clocktower.lullaby.view.activities.Alarm;
 
 public class BaseFragment extends Fragment {
 

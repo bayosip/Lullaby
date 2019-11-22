@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -32,6 +33,8 @@ import java.net.InetAddress;
 public class GeneralUtil {
     private Context context;
     private Toast toast;
+    private static final String APP_PREFS_NAME = "com.clocktower.lullaby.app_pref";
+    private static SharedPreferences appPref;
 
     private static Handler uiHandler;
 
@@ -41,6 +44,13 @@ public class GeneralUtil {
 
     public static void message(String message) {
         Toast.makeText(App.context, message, Toast.LENGTH_SHORT).show();
+    }
+
+    public static SharedPreferences getAppPref(Context context) {
+        if (appPref == null) appPref = context.getSharedPreferences(APP_PREFS_NAME,
+                Context.MODE_PRIVATE);
+
+        return appPref;
     }
 
     public static Handler getHandler() {

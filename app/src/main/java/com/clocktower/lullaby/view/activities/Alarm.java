@@ -21,12 +21,11 @@ import com.clocktower.lullaby.model.SongInfo;
 import com.clocktower.lullaby.model.utilities.Constants;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
 import com.clocktower.lullaby.present.AlarmPresenter;
-import com.clocktower.lullaby.view.Fragments.AlarmSetterFragment;
-import com.clocktower.lullaby.view.Fragments.BaseFragment;
-import com.clocktower.lullaby.view.Fragments.AlarmPageAdapter;
-import com.clocktower.lullaby.view.Fragments.MusicSelectorDialog;
-import com.clocktower.lullaby.view.Fragments.TrackSetterFragment;
-import com.clocktower.lullaby.view.NonSwipeableViewPager;
+import com.clocktower.lullaby.view.fragments.AlarmPageAdapter;
+import com.clocktower.lullaby.view.fragments.AlarmSetterFragment;
+import com.clocktower.lullaby.view.fragments.BaseFragment;
+import com.clocktower.lullaby.view.fragments.MusicSelectorDialog;
+import com.clocktower.lullaby.view.fragments.TrackSetterFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
@@ -41,7 +40,7 @@ import java.util.List;
 
 public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
 
-    private NonSwipeableViewPager pager;
+    private ViewPager pager;
     private FloatingActionButton fab;
     private int flag;
     private AlarmPageAdapter adapter;
@@ -53,6 +52,7 @@ public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
     private MusicSelectorDialog musicSelectorDialog;
     private AlarmPresenter presenter;
     private Toolbar toolbar;
+    private  List<SongInfo> audioFiles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,21 +64,21 @@ public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
         initialiseWidgets();
     }
 
-    private void initialisePrequisites(){
+    private void initialisePrequisites() {
         presenter = new AlarmPresenter(this);
         fragmentList = new LinkedList<>();
         alarmFrag = AlarmSetterFragment.getInstance();
         trackFrag = TrackSetterFragment.getInstance();
-        musicSelectorDialog  = MusicSelectorDialog.getInstance();
+        musicSelectorDialog = MusicSelectorDialog.getInstance();
 
-        //fragmentList.add(alarmFrag);
+        fragmentList.add(alarmFrag);
         fragmentList.add(trackFrag);
 
         adapter = new AlarmPageAdapter(getSupportFragmentManager(), fragmentList);
         //mp = MediaPlayer.
     }
 
-    private void setupActionBar(){
+    private void setupActionBar() {
         toolbar = findViewById(R.id.appbar_alarm);
         title = findViewById(R.id.alarm_toolbar_name);
     }
@@ -96,7 +96,7 @@ public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
         ab.setDisplayHomeAsUpEnabled(false);
     }
 
-    private void setupMusicActionBar(){
+    private void setupMusicActionBar() {
 
         setSupportActionBar(toolbar);
         final ActionBar ab = getSupportActionBar();
@@ -107,20 +107,25 @@ public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
         ab.setDisplayShowTitleEnabled(false); // disable the default title element here (for centered title)
     }
 
-    private void initialiseWidgets(){
+    private void initialiseWidgets() {
         setupActionBar();
-        pager = findViewById(R.id.pager);
+        pager = findViewById(R.id.page_container);
         fab = findViewById(R.id.buttonMusicContent);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                switch (flag){
+                switch (flag) {
                     case Constants.SET_ALARM_TRACK_FLAG:
                         pager.setCurrentItem(1);
                         //musicPlayerThread();
                         break;
                     case Constants.TRACK_SELECTOR_FLAG:
-                        accessFilesFromPhone();
+                        if (audioFiles != null) {
+                            musicSelectorDialog.show(getSupportFragmentManager());
+                        }
+
+                        else GeneralUtil.showAlertMessage(Alarm.this, "Error!",
+                                        "No Audio Files Found");
                         break;
                 }
             }
@@ -139,16 +144,17 @@ public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
 
         @Override
         public void onPageSelected(int position) {
-            if (adapter.getPageTitle(position).equals(Constants.ALARM_SETTER)){
+            if (adapter.getPageTitle(position).equals(Constants.ALARM_SETTER)) {
                 fab.setImageResource(R.drawable.ic_audio_24dp);
                 flag = Constants.SET_ALARM_TRACK_FLAG;
                 setUpAlarmActionBar();
                 title.setText(Constants.ALARM_SETTER);
 
-            }else if(adapter.getPageTitle(position).equals(Constants.MUSIC_SELECTOR)){
+            } else if (adapter.getPageTitle(position).equals(Constants.MUSIC_SELECTOR)) {
                 fab.setImageResource(R.drawable.ic_queue_music_24dp);
                 flag = Constants.TRACK_SELECTOR_FLAG;
                 setupMusicActionBar();
+                accessFilesFromPhone();
                 title.setText(Constants.MUSIC_SELECTOR);
             }
         }
@@ -159,33 +165,30 @@ public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
         }
     };
 
-    private void accessFilesFromPhone(){
-            Dexter.withActivity(Alarm.this)
-                    .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-                    .withListener(new PermissionListener() {
+    private void accessFilesFromPhone() {
+        Dexter.withActivity(Alarm.this)
+                .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                .withListener(new PermissionListener() {
 
-                        @Override
-                        public void onPermissionGranted(PermissionGrantedResponse response) {
-                            List<File> files = presenter.
-                                    retrieveAllAudioFilesFromPhone(getExternalFilesDir(Environment.DIRECTORY_MUSIC));
-                            if(files !=null )
-                                musicSelectorDialog.show(getSupportFragmentManager(), files);
-                            else GeneralUtil.showAlertMessage(Alarm.this, "Error!",
-                                    "No Audio Files Found");
-                        }
+                    @Override
+                    public void onPermissionGranted(PermissionGrantedResponse response) {
 
-                        @Override
-                        public void onPermissionDenied(PermissionDeniedResponse response) {
+                       audioFiles= presenter.loadSongs();
+                       MusicSelectorDialog.setAudioFiles(audioFiles);
+                    }
 
-                        }
+                    @Override
+                    public void onPermissionDenied(PermissionDeniedResponse response) {
 
-                        @Override
-                        public void onPermissionRationaleShouldBeShown(PermissionRequest permission,
-                                                                                 PermissionToken token) {
-                            token.cancelPermissionRequest();
-                        }
-                    }).check();
-        }
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(PermissionRequest permission,
+                                                                   PermissionToken token) {
+                        token.cancelPermissionRequest();
+                    }
+                }).check();
+    }
 
     @Override
     public void onMusicTrackClick(int position) {
@@ -199,31 +202,31 @@ public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
 
     @Override
     public void stopAlarm() {
-
+        presenter.cancelAlarm();
     }
 
     @Override
     public void playOrPauseMusic() {
-        if (!mp.isPlaying()){
-            mp.start();
+        if (!mp.isPlaying()) {
+            presenter.playMusic();
             trackFrag.changePlayButtonRes(R.drawable.ic_pause_24dp);
-        }else {
+        } else {
             mp.pause();
             trackFrag.changePlayButtonRes(R.drawable.ic_play_arrow_24dp);
         }
     }
 
-    private Thread musicPlayerThread(){
+    public Thread musicPlayerThread() {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (mp!=null){
+                while (mp != null) {
                     try {
                         Message msg = new Message();
                         msg.what = mp.getCurrentPosition();
                         trackFrag.getHandler().sendMessage(msg);
                         Thread.sleep(1000);
-                    }catch (InterruptedException ie){
+                    } catch (InterruptedException ie) {
 
                     }
                 }
@@ -238,8 +241,8 @@ public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
     }
 
     @Override
-    public void seekMusicToPosition(long time) {
-
+    public void seekMusicToPosition(int time) {
+        presenter.seekMusic(time);
     }
 
     @Override
@@ -261,7 +264,7 @@ public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
     public Fragment getCurrentFragmentInView() {
         return getSupportFragmentManager()
                 .findFragmentByTag("android:switcher:" +
-                        R.id.pager + ":" + pager.getCurrentItem());
+                        R.id.page_container + ":" + pager.getCurrentItem());
     }
 
     @Override

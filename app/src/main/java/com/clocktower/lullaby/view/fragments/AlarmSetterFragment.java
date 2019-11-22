@@ -1,4 +1,4 @@
-package com.clocktower.lullaby.view.Fragments;
+package com.clocktower.lullaby.view.fragments;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -8,13 +8,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TimePicker;
 
-import com.clocktower.lullaby.R;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class AlarmSetterFragment extends BaseFragment {
+import com.clocktower.lullaby.R;
 
+public class AlarmSetterFragment extends BaseFragment {
     private Button stopAlarm, setAlarm;
     private TimePicker timePicker;
 
@@ -27,7 +26,7 @@ public class AlarmSetterFragment extends BaseFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_alarm_setter, container);
+        View view = inflater.inflate(R.layout.fragment_alarm_setter, container, false);
         return view;
     }
 

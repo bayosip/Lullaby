@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.interfaces.ListItemClickListener;
+import com.clocktower.lullaby.model.SongInfo;
 
 import java.io.File;
 import java.util.List;
@@ -18,8 +19,6 @@ public class MusicTrackVH extends RecyclerView.ViewHolder implements View.OnClic
     TextView songName, artiste;
     ListItemClickListener itemClickListener;
 
-
-
     public MusicTrackVH(@NonNull View itemView) {
         super(itemView);
         initialiseWidgets(itemView);
@@ -29,9 +28,9 @@ public class MusicTrackVH extends RecyclerView.ViewHolder implements View.OnClic
         this.itemClickListener = itemClickListener;
     }
 
-    public void setData (List<File> songs){
-        songName.setText("");
-        artiste.setText("");
+    public void setData (List<SongInfo> songs){
+        songName.setText(songs.get(getAdapterPosition()).getSongName());
+        artiste.setText(songs.get(getAdapterPosition()).getArtiste());
     }
 
     private void initialiseWidgets(View v){
