@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface FragmentListener extends ListItemClickListener {
 
-    void setAlarm();
+    void setAlarm(int hour, int minute);
     void stopAlarm();
     void playOrPauseMusic();
     void setAlarmMusic();

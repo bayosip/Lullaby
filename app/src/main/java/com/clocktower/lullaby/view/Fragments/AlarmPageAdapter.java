@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class FragmentPageAdapter extends FragmentStatePagerAdapter {
+public class AlarmPageAdapter extends FragmentStatePagerAdapter {
 
     private List<BaseFragment> fragmentList;
     private static String[] pageTitles;
@@ -22,8 +22,8 @@ public class FragmentPageAdapter extends FragmentStatePagerAdapter {
         pageTitles = new String[]{Constants.ALARM_SETTER, Constants.MUSIC_SELECTOR};
     }
 
-    public FragmentPageAdapter(FragmentManager fm, List<BaseFragment> fragList) {
-        super(fm);
+    public AlarmPageAdapter(FragmentManager fm, List<BaseFragment> fragList) {
+        super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         this.fragmentList = fragList;
     }
 

@@ -16,7 +16,7 @@ public class ErrorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_error);
 
-        restartApp= findViewById(R.id.buttonRestartApp);
+        restartApp= findViewById(R.id.buttonRestart);
 
         restartApp.setOnClickListener(new View.OnClickListener() {
             @Override

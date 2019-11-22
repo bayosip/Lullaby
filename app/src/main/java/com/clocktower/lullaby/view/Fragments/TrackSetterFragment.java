@@ -73,6 +73,8 @@ public class TrackSetterFragment extends BaseFragment {
 
             }
         });
+
+        play_pause.setOnClickListener(btnListener);
     }
 
     Button.OnClickListener btnListener = new View.OnClickListener() {

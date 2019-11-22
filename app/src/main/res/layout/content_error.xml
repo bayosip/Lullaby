@@ -38,7 +38,7 @@
         app:layout_constraintVertical_bias="0.1" />
 
     <Button
-        android:id="@+id/buttonRestartApp"
+        android:id="@+id/buttonRestart"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Restart App"

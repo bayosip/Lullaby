@@ -1,7 +1,9 @@
 package com.clocktower.lullaby.model.utilities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
@@ -12,11 +14,13 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.Toast;
 
 import com.clocktower.lullaby.App;
+import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.view.activities.AppFinish;
 
 import java.net.InetAddress;
@@ -62,6 +66,35 @@ public class GeneralUtil {
             drawable = activity.getResources().getDrawable(drawableID);
         }
         return drawable;
+    }
+
+    public static void showAlertMessage(final Activity activity, String title, String message){
+        final AlertDialog.Builder alertDialog;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            alertDialog = new AlertDialog.Builder(activity,
+                    android.R.style.Theme_DeviceDefault_Dialog_Alert);
+        } else {
+            alertDialog = new AlertDialog.Builder(activity);
+        }
+        alertDialog.setCancelable(true)
+                .setIcon(R.mipmap.ic_launcher).setMessage(message)
+                .setTitle(title).setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                dialog.dismiss();
+            }
+        });
+        GeneralUtil.getHandler().post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    alertDialog.show();
+                }catch (WindowManager.BadTokenException e){
+                    e.printStackTrace();
+                    Log.w(activity.getClass().getSimpleName(), e.fillInStackTrace());
+                }
+            }
+        });
     }
 
     public static void transitionActivity(Activity oldActivity, Class newActivity) {
