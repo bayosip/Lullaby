@@ -1,10 +1,9 @@
-package com.clocktower.lullaby.view.Fragments;
+package com.clocktower.lullaby.view.fragments;
 
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

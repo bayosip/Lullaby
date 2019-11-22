@@ -7,23 +7,34 @@ import android.provider.MediaStore;
 import com.clocktower.lullaby.interfaces.AlarmViewInterFace;
 import com.clocktower.lullaby.model.SongInfo;
 import com.clocktower.lullaby.model.utilities.Constants;
+import com.clocktower.lullaby.model.utilities.GeneralUtil;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class AlarmPresenter {
 
     AlarmViewInterFace interFace;
-    List<File> fileList;
+
+    Calendar calendar;
 
     public AlarmPresenter(AlarmViewInterFace interFace) {
         this.interFace = interFace;
-        fileList = new ArrayList<>();
+    }
+
+    public void setAlarm(int hour, int minute){
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+
+        String min = String.valueOf(minute);
+        if(minute<10)min = "0"+minute;
+        GeneralUtil.message("Alarm Set to - "+ hour +":" + min);
     }
 
     public List<File> retrieveAllAudioFilesFromPhone(File file){
-
+        List<File> fileList = new ArrayList<>();;
         File[] allFiles = file.listFiles();
 
         for (File afile: allFiles){
@@ -38,7 +49,7 @@ public class AlarmPresenter {
             }
         }
 
-        return fileList;
+        return fileList.size()>0? fileList: null;
     }
 
     private void loadSongs(){

@@ -16,7 +16,7 @@
         android:padding="@dimen/appbar_padding">
 
     <TextView
-        android:id="@+id/ctrl_toolbar_name"
+        android:id="@+id/alarm_toolbar_name"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:textColor="@color/inputouput"
