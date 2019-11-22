@@ -212,7 +212,7 @@ public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
         }
     }
 
-    private Thread musicPlayerThread() {
+    public Thread musicPlayerThread() {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {

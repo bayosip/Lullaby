@@ -72,6 +72,7 @@ public class TrackSetterFragment extends BaseFragment {
 
             }
         });
+        listener.musicPlayerThread();
     }
 
     Button.OnClickListener btnListener = new View.OnClickListener() {
