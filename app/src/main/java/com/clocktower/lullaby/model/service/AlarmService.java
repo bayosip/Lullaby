@@ -16,6 +16,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.model.utilities.Constants;
+import com.clocktower.lullaby.model.utilities.ServiceUtil;
 import com.clocktower.lullaby.view.activities.Alarm;
 
 public class AlarmService extends IntentService {
@@ -28,6 +29,7 @@ public class AlarmService extends IntentService {
 
         alarm = intent.getLongExtra("Alarm", 0);
         sendNotification(intent.getStringExtra("Message"));
+        ServiceUtil.startAlarmService(getApplicationContext());
     }
 
     public AlarmService() {

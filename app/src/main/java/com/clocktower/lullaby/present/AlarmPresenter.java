@@ -10,6 +10,8 @@ import android.media.MediaPlayer;
 import android.net.ParseException;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.util.Log;
 
@@ -18,6 +20,8 @@ import com.clocktower.lullaby.model.SongInfo;
 import com.clocktower.lullaby.model.service.WakeTimeReceiver;
 import com.clocktower.lullaby.model.utilities.Constants;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
+import com.clocktower.lullaby.model.utilities.ServiceUtil;
+import com.clocktower.lullaby.view.activities.Alarm;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,13 +43,15 @@ public class AlarmPresenter {
     private Calendar calendar;
     private Date date;
     private static final String DATE_FORMAT = "HH:mm";
-    private static SharedPreferences.Editor editor;
+    private SharedPreferences.Editor editor;
     private SharedPreferences appPref;
-    private String message;
+    private final String message = "WAKE UP!!!!";
     private String dateTime;
-    private long alarm;
+    private long alarm = 0;
     private PendingIntent pendingIntent;
     private String trackurl;
+    private boolean isTrackPlaying = false;
+    private boolean isAlarmSet = false;
 
 
     private static final int REQUEST_CODE = 100;
@@ -58,7 +64,8 @@ public class AlarmPresenter {
     }
 
     private void initialisePrequisites(){
-
+        appPref = GeneralUtil.getAppPref(interFace.getListenerContext());
+        editor = appPref.edit();
         calendar = Calendar.getInstance();
         alarmManager = (AlarmManager) this.interFace.getListenerContext()
                 .getSystemService(Context.ALARM_SERVICE);
@@ -84,10 +91,34 @@ public class AlarmPresenter {
         return fileList.size()>0? fileList: null;
     }
 
-    public void playMusic(String trackurl){
+    public Thread musicPlayerThread(final Handler handler) {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (player != null) {
+                    try {
+                        Message msg = new Message();
+                        msg.what = player.getCurrentPosition();
+                        handler.sendMessage(msg);
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ie) {
+
+                    }
+                }
+            }
+        });
+        return thread;
+    }
+
+    public void startNewMusic(String trackurl){
         try {
-            if (player ==null){
-                player = new MediaPlayer();
+            if (player!=null) {
+                player.stop();
+                player.reset();
+                player.release();
+                player = null;
+            }
+            player = new MediaPlayer();
                 player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mp) {
@@ -101,23 +132,35 @@ public class AlarmPresenter {
                 player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                     @Override
                     public void onPrepared(MediaPlayer mediaPlayer) {
-                        player.start();
+                        mediaPlayer.start();
+                        isTrackPlaying = true;
+                        interFace.setTrackBarForMusic(mediaPlayer.getDuration());
                     }
                 });
-            }else {
-                if(!player.isPlaying())player.start();
-            }
+
+
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    public void playMusic(){
+        if(player!=null && !isTrackPlaying){
+            player.start();
+            isTrackPlaying = true;
+        }
+    }
+
     public boolean musicIsPlaying(){
-        return player!=null && player.isPlaying();
+        return player!=null &&isTrackPlaying;
     }
 
     public void pauseMusic(){
-        if(player !=null && player.isPlaying())player.pause();
+        if(player !=null && isTrackPlaying){
+            player.pause();
+            isTrackPlaying = false;
+        }
     }
 
     public void setAlarm(int hour, int minute){
@@ -129,7 +172,14 @@ public class AlarmPresenter {
         if(minute<10)min = "0"+minute;
         if(hour<10)hr =  "0"+hour;
        dateTime = hr+":"+min;
-       setGameAlarm(calendar.getTimeInMillis());
+       alarm = calendar.getTimeInMillis();
+
+       if(appPref.contains(Constants.TRACK_URL)){
+           setLullabyAlarm();
+       }else {
+           interFace.goToMusicSetter();
+           GeneralUtil.message("Please set Song For Alarm");
+       }
         GeneralUtil.message("Alarm Set to - "+ hour +":" + min);
     }
 
@@ -139,11 +189,11 @@ public class AlarmPresenter {
     }
 
 
-    private void setGameAlarm( long triggerTime) {
-
+    private void setLullabyAlarm() {
+        isAlarmSet = true;
         Intent alarmIntent = new Intent(interFace.getListenerContext(), WakeTimeReceiver.class);
         alarmIntent.putExtra("Message", message);
-        alarmIntent.putExtra("Alarm", triggerTime);
+        alarmIntent.putExtra("Alarm", alarm);
         alarmIntent.setFlags(FLAG_INCLUDE_STOPPED_PACKAGES);
 
         pendingIntent = PendingIntent.getBroadcast(interFace.getListenerContext(), REQUEST_CODE,
@@ -152,44 +202,22 @@ public class AlarmPresenter {
 
         if (Build.VERSION.SDK_INT >= 23) {
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
-                    triggerTime, pendingIntent);
+                    alarm, pendingIntent);
         } else if (Build.VERSION.SDK_INT >= 19) {
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent);
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarm, pendingIntent);
         } else {
-            alarmManager.set(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent);
+            alarmManager.set(AlarmManager.RTC_WAKEUP, alarm, pendingIntent);
         }
     }
 
-    private void timeParser() {
-// create date formatter, set time zone to UTC and parse
-        SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
-        TimeZone phoneTimeZone = TimeZone.getTimeZone(TimeZone.getDefault().getID());
-        formatter.setTimeZone(phoneTimeZone);
-        try {
-            date = formatter.parse(dateTime);
-            if(appPref.contains(ALARM_TIME)){
-                alarm = appPref.getLong(ALARM_TIME, 0);
-                if (alarm < date.getTime()){
-                    editor.remove(ALARM_TIME);
-                    editor.putLong(ALARM_TIME, date.getTime());
-                    editor.commit();
-                    setGameAlarm(date.getTime());
-                }
-            }
-            else {
-                editor.putLong(ALARM_TIME, date.getTime());
-                editor.commit();
-                setGameAlarm(date.getTime());
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        } catch (java.text.ParseException e) {
-            e.printStackTrace();
-        }
-    }
 
     public void cancelAlarm(){
+        alarm = 0;
+        isAlarmSet = false;
         alarmManager.cancel(pendingIntent);
+        if(ServiceUtil.isServiceAlreadyRunningAPI16(interFace.getListenerContext()))
+            ServiceUtil.stopService(interFace.getListenerContext());
+        GeneralUtil.message("Alarm Cancelled!");
     }
 
     public List<SongInfo> loadSongs(){
@@ -216,5 +244,22 @@ public class AlarmPresenter {
             }
         }
         return songInfoList.size() >0? songInfoList: null;
+    }
+
+    public void stopMusic() {
+        if(player!=null && isTrackPlaying){
+            player.stop();
+            isTrackPlaying = false;
+        }
+    }
+
+    public void setAlarmTone(String path) {
+
+        if(appPref.contains(Constants.TRACK_URL)){
+            editor.remove(Constants.TRACK_URL);
+        }
+        editor.putString(Constants.TRACK_URL, path);
+        editor.commit();
+        if(alarm>0)setLullabyAlarm();
     }
 }

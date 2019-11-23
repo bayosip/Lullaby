@@ -56,6 +56,22 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.3"
+        app:layout_constraintVertical_bias="0.1"/>
+
+    <at.markushi.ui.CircleButton
+        android:id="@+id/buttonStop"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_stop_24dp"
+        app:cb_color="@color/title_color"
+        app:cb_pressedRingWidth="8dip"
+        app:layout_constraintTop_toBottomOf="@id/seekMusic"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/buttonPlayPause"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.3"
         app:layout_constraintVertical_bias="0.1"/>
 
     <Button

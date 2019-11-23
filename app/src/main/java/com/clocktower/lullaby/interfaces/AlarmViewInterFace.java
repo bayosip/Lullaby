@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface AlarmViewInterFace  extends FragmentListener{
 
-    void retrieveAllAudioFilesFromPhone(List<File> audioFiles);
-    void retrieveAllMusicFilesFromPhone(List<SongInfo> audioFiles);
+    void setTrackBarForMusic(int duration);
+    void goToMusicSetter();
 }

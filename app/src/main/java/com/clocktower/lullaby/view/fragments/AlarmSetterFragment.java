@@ -42,6 +42,7 @@ public class AlarmSetterFragment extends BaseFragment {
         timePicker =view.findViewById(R.id.timeAlarmSetter);
 
         setAlarm.setOnClickListener(onClickListener);
+        stopAlarm.setOnClickListener(onClickListener);
     }
 
     private Button.OnClickListener onClickListener = new View.OnClickListener() {
@@ -49,6 +50,7 @@ public class AlarmSetterFragment extends BaseFragment {
         public void onClick(View view) {
             switch (view.getId()){
                 case R.id.buttonStopAlarm:
+                    listener.stopAlarm();
                     break;
                 case R.id.buttonSetAlarm:
                     if (Build.VERSION.SDK_INT >=23) {

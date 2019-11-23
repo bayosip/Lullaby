@@ -1,19 +1,17 @@
 package com.clocktower.lullaby.interfaces;
 
-import android.app.Activity;
+import android.os.Handler;
 
-import com.clocktower.lullaby.model.SongInfo;
-
-import java.io.File;
-import java.util.List;
+import androidx.fragment.app.FragmentManager;
 
 public interface FragmentListener extends ListItemClickListener {
 
     void setAlarm(int hour, int minute);
     void stopAlarm();
-    void playOrPauseMusic();
+    void playOrPauseMusic(FragmentManager manager);
+    void stopMusic();
     void setAlarmMusic();
     void seekMusicToPosition(int time);
-    Thread musicPlayerThread();
+    void musicPlayerThread(Handler handler);
 
 }

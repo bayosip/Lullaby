@@ -22,7 +22,7 @@ import at.markushi.ui.CircleButton;
 public class TrackSetterFragment extends BaseFragment {
 
     private ImageView musicArt;
-    private CircleButton play_pause;
+    private CircleButton play_pause, stop;
     private SeekBar trackBar;
     private Button setMusic;
     private TextView songName;
@@ -51,6 +51,7 @@ public class TrackSetterFragment extends BaseFragment {
         musicArt = view.findViewById(R.id.imageTrackImg);
         songName = view.findViewById(R.id.textSongName);
         play_pause = view.findViewById(R.id.buttonPlayPause);
+        stop = view.findViewById(R.id.buttonStop);
         trackBar = view.findViewById(R.id.seekMusic);
         setMusic = view.findViewById(R.id.buttonSetAlarmMusic);
 
@@ -75,13 +76,34 @@ public class TrackSetterFragment extends BaseFragment {
         });
 
         play_pause.setOnClickListener(btnListener);
-        listener.musicPlayerThread();
+        stop.setOnClickListener(btnListener);
+        setMusic.setOnClickListener(btnListener);
+        listener.musicPlayerThread(handler);
+    }
+
+    public void selectMusic(String song){
+        songName.setText(song);
+    }
+
+    public void calibrateTrackBarForMusic(int duration){
+        trackBar.setProgress(0);
+        trackBar.setMax(duration);
     }
 
     Button.OnClickListener btnListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            listener.playOrPauseMusic();
+            switch (view.getId()){
+                case R.id.buttonSetAlarmMusic:
+                    listener.setAlarmMusic();
+                    break;
+                case R.id.buttonPlayPause:
+                    listener.playOrPauseMusic(getChildFragmentManager());
+                    break;
+                case R.id.buttonStop:
+                    listener.stopMusic();
+                    break;
+            }
         }
     };
 

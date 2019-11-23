@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.clocktower.lullaby.R;
+import com.clocktower.lullaby.interfaces.FragmentListener;
 import com.clocktower.lullaby.model.SongInfo;
 import com.clocktower.lullaby.view.activities.Alarm;
 import com.clocktower.lullaby.view.list.MusicTrackListAdapter;
@@ -33,7 +34,7 @@ public class MusicSelectorDialog extends DialogFragment {
 
     private RecyclerView musicList;
     private Button select;
-    private Alarm activity;
+    private FragmentListener listener;
     private MusicTrackListAdapter adapter;
     private static List<SongInfo> audioFiles;
     private boolean isShowing = false;
@@ -55,7 +56,7 @@ public class MusicSelectorDialog extends DialogFragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        activity =  (Alarm) context;
+        listener =  (FragmentListener) context;
     }
 
     @Nullable
@@ -79,11 +80,11 @@ public class MusicSelectorDialog extends DialogFragment {
         musicList = view.findViewById(R.id.listTracks);
         select = view.findViewById(R.id.buttonSelect);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(activity,
+        LinearLayoutManager layoutManager = new LinearLayoutManager(listener.getListenerContext(),
                 RecyclerView.VERTICAL, false);
         DividerItemDecoration itemDecoration = new DividerItemDecoration(musicList.getContext(),
                 layoutManager.getOrientation());
-        adapter = new MusicTrackListAdapter(audioFiles, activity);
+        adapter = new MusicTrackListAdapter(audioFiles, listener.getListenerContext());
         //musicList.addItemDecoration(itemDecoration);
         musicList.setLayoutManager(layoutManager);
         musicList.setAdapter(adapter);

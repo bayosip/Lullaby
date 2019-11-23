@@ -4,14 +4,13 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
 import android.content.Context;
-import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Message;
+import android.os.Handler;
 import android.view.View;
 import android.widget.TextView;
 
@@ -34,7 +33,6 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 
-import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -45,14 +43,14 @@ public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
     private int flag;
     private AlarmPageAdapter adapter;
     private List<BaseFragment> fragmentList;
-    private MediaPlayer mp;
     private TextView title;
     private TrackSetterFragment trackFrag;
     private AlarmSetterFragment alarmFrag;
     private MusicSelectorDialog musicSelectorDialog;
     private AlarmPresenter presenter;
     private Toolbar toolbar;
-    private  List<SongInfo> audioFiles;
+    private List<SongInfo> audioFiles;
+    private SongInfo chosenSong;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,7 +115,7 @@ public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
                 switch (flag) {
                     case Constants.SET_ALARM_TRACK_FLAG:
                         pager.setCurrentItem(1);
-                        //musicPlayerThread();
+                        musicPlayerThread(trackFrag.getHandler());
                         break;
                     case Constants.TRACK_SELECTOR_FLAG:
                         if (audioFiles != null) {
@@ -192,7 +190,11 @@ public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
 
     @Override
     public void onMusicTrackClick(int position) {
-
+        chosenSong = audioFiles.get(position);
+        trackFrag.selectMusic(chosenSong.getSongName());
+        presenter.startNewMusic(chosenSong.getSongUrl());
+        trackFrag.changePlayButtonRes(R.drawable.ic_pause_24dp);
+        musicSelectorDialog.dismiss();
     }
 
     @Override
@@ -206,38 +208,36 @@ public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
     }
 
     @Override
-    public void playOrPauseMusic() {
-        if (!mp.isPlaying()) {
-            presenter.playMusic();
-            trackFrag.changePlayButtonRes(R.drawable.ic_pause_24dp);
+    public void playOrPauseMusic(FragmentManager manager) {
+        if (!presenter.musicIsPlaying()) {
+            if (chosenSong!= null) {
+                presenter.playMusic();
+                trackFrag.changePlayButtonRes(R.drawable.ic_pause_24dp);
+            }else {
+                if (audioFiles != null) {
+                    musicSelectorDialog.show(manager);
+                }
+            }
         } else {
-            mp.pause();
+            presenter.pauseMusic();
             trackFrag.changePlayButtonRes(R.drawable.ic_play_arrow_24dp);
         }
     }
 
-    public Thread musicPlayerThread() {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (mp != null) {
-                    try {
-                        Message msg = new Message();
-                        msg.what = mp.getCurrentPosition();
-                        trackFrag.getHandler().sendMessage(msg);
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ie) {
+    @Override
+    public void stopMusic() {
+        presenter.stopMusic();
+        trackFrag.changePlayButtonRes(R.drawable.ic_play_arrow_24dp);
+    }
 
-                    }
-                }
-            }
-        });
-        return thread;
+    @Override
+    public void musicPlayerThread(Handler handler) {
+        presenter.musicPlayerThread(handler);
     }
 
     @Override
     public void setAlarmMusic() {
-
+        presenter.setAlarmTone(chosenSong.getSongUrl());
     }
 
     @Override
@@ -246,19 +246,18 @@ public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
     }
 
     @Override
-    public Context getListenerContext() {
-        return getApplicationContext();
-    }
-
-
-    @Override
-    public void retrieveAllAudioFilesFromPhone(List<File> audioFiles) {
-
+    public Alarm getListenerContext() {
+        return Alarm.this;
     }
 
     @Override
-    public void retrieveAllMusicFilesFromPhone(List<SongInfo> audioFiles) {
+    public void setTrackBarForMusic(int duration) {
+        trackFrag.calibrateTrackBarForMusic(duration);
+    }
 
+    @Override
+    public void goToMusicSetter() {
+        pager.setCurrentItem(1);
     }
 
     public Fragment getCurrentFragmentInView() {

@@ -1,9 +1,10 @@
 package com.clocktower.lullaby.interfaces;
 
-import android.content.Context;
+
+import com.clocktower.lullaby.view.activities.Alarm;
 
 public interface ListItemClickListener {
 
     void onMusicTrackClick(int position);
-    Context getListenerContext();
+    Alarm getListenerContext();
 }
