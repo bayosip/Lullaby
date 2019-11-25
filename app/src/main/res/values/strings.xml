@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Lullaby</string>
+    <string name="channel_name">lullaby_channel</string>
+    <string name="channel_description">Lulluby wake up notification</string>
 </resources>

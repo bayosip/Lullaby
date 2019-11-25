@@ -3,9 +3,9 @@ package com.clocktower.lullaby.model.utilities;
 public class Constants {
 
 
-    public static final String ALARM_SETTER = "Alarm";
+    public static final String ALARM_SETTER = "Scheduler";
     public static final String TRACK_URL = "track_url";
-    public static final String MUSIC_SELECTOR = "MusicSelector";
+    public static final String MUSIC_SELECTOR = "Music Selector";
     public static final int SET_ALARM_TRACK_FLAG = 0;
     public static final int TRACK_SELECTOR_FLAG = 1;
 

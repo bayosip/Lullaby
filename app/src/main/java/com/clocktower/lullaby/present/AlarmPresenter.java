@@ -166,6 +166,7 @@ public class AlarmPresenter {
     public void setAlarm(int hour, int minute){
         calendar.set(Calendar.HOUR_OF_DAY, hour);
         calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, 0);
 
         String min = String.valueOf(minute);
         String hr = String.valueOf(hour);
@@ -254,6 +255,9 @@ public class AlarmPresenter {
     }
 
     public void setAlarmTone(String path) {
+
+        if(ServiceUtil.isServiceAlreadyRunningAPI16(interFace.getListenerContext()))
+            ServiceUtil.stopService(interFace.getListenerContext());
 
         if(appPref.contains(Constants.TRACK_URL)){
             editor.remove(Constants.TRACK_URL);
