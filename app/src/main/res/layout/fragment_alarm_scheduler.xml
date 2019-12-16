@@ -1,53 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <TimePicker
+        android:id="@+id/timeAlarmSetter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/timeAlarmSetter"
+        android:scaleY="0.95"
         android:background="@drawable/reverse_curved_button"
-        android:numbersSelectorColor="@color/title_color"
-        app:layout_constraintStart_toStartOf="parent"
+        android:numbersSelectorColor="@color/buttonColor"
+        android:headerBackground="@color/lightColor"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintVertical_bias="0">
-    </TimePicker>
+        app:layout_constraintVertical_bias="0"></TimePicker>
 
     <Button
         android:id="@+id/buttonSetAlarm"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Set Alarm"
         android:background="@drawable/curved_button"
-        android:textSize="@dimen/title_size_small"
-        android:textColor="@color/app_background_white"
         android:elevation="@dimen/inside_padding"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/timeAlarmSetter"
+        android:text="Set Scheduler"
+        android:textColor="@color/app_background_white"
+        android:textSize="@dimen/title_size_small"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintVertical_bias="0.1"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/timeAlarmSetter"
+        app:layout_constraintVertical_bias="0"/>
 
     <Button
         android:id="@+id/buttonStopAlarm"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Stop Alarm"
-        android:elevation="@dimen/inside_padding"
         android:background="@drawable/reverse_curved_button"
-        android:textSize="@dimen/title_size_small"
+        android:elevation="@dimen/inside_padding"
+        android:text="Stop Scheduler"
         android:textColor="@color/buttonColor"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/buttonSetAlarm"
+        android:textSize="@dimen/title_size_small"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintVertical_bias="0.1"/>
-
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buttonSetAlarm"
+        app:layout_constraintVertical_bias="0.1" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

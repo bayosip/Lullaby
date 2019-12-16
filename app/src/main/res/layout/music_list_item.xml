@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:background="@color/app_background_white"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:padding="@dimen/activity_vertical_margin">
+    android:paddingTop="@dimen/activity_vertical_margin">
 
     <TextView
         android:id="@+id/textSongName"
@@ -14,6 +14,10 @@
         android:text="Song Name"
         android:textColor="@color/title_color"
         android:textSize="@dimen/text_size"
+        android:layout_marginLeft="@dimen/activity_vertical_margin"
+        android:layout_marginRight="@dimen/activity_vertical_margin"
+        android:layout_marginStart="@dimen/activity_vertical_margin"
+        android:layout_marginEnd="@dimen/activity_vertical_margin"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -22,16 +26,32 @@
 
     <TextView
         android:id="@+id/textArtist"
-        android:layout_marginTop="@dimen/inside_padding"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textSize="@dimen/small_text_size"
         android:text="Artist"
         android:textColor="@color/textColor"
+        android:layout_marginLeft="@dimen/activity_vertical_margin"
+        android:layout_marginRight="@dimen/activity_vertical_margin"
+        android:layout_marginStart="@dimen/activity_vertical_margin"
+        android:layout_marginEnd="@dimen/activity_vertical_margin"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textSongName"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/viewDivider"
+        app:layout_constraintVertical_bias="0"
         />
+    <View
+        android:id="@+id/viewDivider"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@color/lightColor"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textArtist"
+        app:layout_constraintBottom_toBottomOf="parent">
+    </View>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

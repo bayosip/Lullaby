@@ -22,13 +22,13 @@ public class App extends Application {
         super.onCreate();
         context = getApplicationContext();
 
-        /*CaocConfig.Builder.create()
+        CaocConfig.Builder.create()
                 .backgroundMode(CaocConfig.BACKGROUND_MODE_SILENT) //default: CaocConfig.BACKGROUND_MODE_SHOW_CUSTOM
                 .trackActivities(true) //default: false
                 .minTimeBetweenCrashesMs(2000) //default: 3000
                 .logErrorOnRestart(true)
                 .errorActivity(ErrorActivity.class) //default: null (default error activity)
-                .apply();*/
+                .apply();
     }
 
     private static Activity mCurrentActivity = null;

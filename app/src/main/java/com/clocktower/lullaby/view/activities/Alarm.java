@@ -11,6 +11,7 @@ import android.Manifest;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -54,6 +55,7 @@ public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initialisePrequisites();
@@ -261,16 +263,17 @@ public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
     }
 
     public Fragment getCurrentFragmentInView() {
-        return getSupportFragmentManager()
-                .findFragmentByTag("android:switcher:" +
-                        R.id.page_container + ":" + pager.getCurrentItem());
+        return getSupportFragmentManager().findFragmentById(R.id.page_container );
     }
 
     @Override
     public void onBackPressed() {
-        if ((getCurrentFragmentInView() instanceof AlarmSetterFragment))
+        if ( pager.getCurrentItem() == 0) {
             GeneralUtil.exitApp(Alarm.this);
-        else pager.setCurrentItem(0);
+        }
+        else {
+            pager.setCurrentItem(0);
+        }
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.clocktower.lullaby.model.utilities;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -113,7 +114,10 @@ public class GeneralUtil {
         else activity.finish();
 
         //oldActivity.overridePendingTransition(R.anim.from_middle, R.anim.to_middle);
-        oldActivity.startActivity(new Intent(oldActivity, newActivity));
+        if (Build.VERSION.SDK_INT >= 21)
+            oldActivity.startActivity(new Intent(oldActivity, newActivity),
+                    ActivityOptions.makeSceneTransitionAnimation(activity).toBundle());
+        else oldActivity.startActivity(new Intent(oldActivity, newActivity));
     }
 
     public static void transitionActivity(Activity oldActivity, Intent intent) {

@@ -29,7 +29,7 @@
         android:layout_gravity="bottom|right|end"
         app:fabSize="normal"
         android:src="@drawable/ic_audio_24dp"
-        app:backgroundTint="@color/title_color"
+        app:backgroundTint="@color/buttonColor"
         app:borderWidth="0dp"
         app:elevation="6dp"
         android:layout_marginBottom="@dimen/inside_padding"

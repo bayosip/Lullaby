@@ -26,7 +26,7 @@ public class AlarmSetterFragment extends BaseFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_alarm_setter, container, false);
+        View view = inflater.inflate(R.layout.fragment_alarm_scheduler, container, false);
         return view;
     }
 

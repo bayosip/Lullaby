@@ -1,19 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <layer-list xmlns:android="http://schemas.android.com/apk/res/android" android:opacity="opaque">
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" android:opacity="opaque">
 
         <!-- The background color, preferably the same as your normal theme -->
         <item android:drawable="@drawable/background"/>
 
         <!-- Your product logo - 144dp color version of your app icon -->
         <item>
-
             <bitmap
                 android:src="@drawable/coza"
-                android:gravity="center"/>
+                android:gravity="center"
+                android:height="35dp"
+                android:viewportHeight="35.0" android:viewportWidth="35.0"
+                android:width="35dp"/>
         </item>
-
-    </layer-list>
-
-</selector>
+</layer-list>

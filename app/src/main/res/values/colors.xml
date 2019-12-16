@@ -8,7 +8,8 @@
     <color name="colorFragments">#FFFFFF</color>
     <color name="inputouput">#FFFFFF</color>
     <color name="textColor">#898289</color>
-    <color name="buttonColor">#258ECB</color>
+    <color name="buttonColor">#7A1A84</color>
+    <color name="lightColor">#AF1CB9</color>
     <color name="popup">#ebefea</color>
     <color name="shade">#ffcc00</color>
     <color name="light_theme_line">#E4E4E4</color>

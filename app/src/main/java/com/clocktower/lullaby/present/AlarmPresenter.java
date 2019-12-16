@@ -179,9 +179,9 @@ public class AlarmPresenter {
            setLullabyAlarm();
        }else {
            interFace.goToMusicSetter();
-           GeneralUtil.message("Please set Song For Alarm");
+           GeneralUtil.message("Please set Song For Schedule");
        }
-        GeneralUtil.message("Alarm Set to - "+ hour +":" + min);
+        GeneralUtil.message("Schedule Set to - "+ hr +":" + min);
     }
 
 
