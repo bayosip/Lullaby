@@ -32,6 +32,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import javax.inject.Inject;
+
 import static android.content.Intent.FLAG_INCLUDE_STOPPED_PACKAGES;
 
 public class AlarmPresenter {
@@ -232,6 +234,7 @@ public class AlarmPresenter {
                 if(cursor.moveToFirst()){
 
                    while (cursor.moveToNext()){
+
                        String songName = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
                        Log.w("Songs", songName);
                        String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));

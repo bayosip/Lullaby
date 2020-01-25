@@ -39,6 +39,7 @@ import java.util.List;
 
 public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
 
+    private static final String TAG = "Alarm";
     private ViewPager pager;
     private FloatingActionButton fab;
     private int flag;
