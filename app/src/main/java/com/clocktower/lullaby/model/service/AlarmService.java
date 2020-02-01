@@ -4,11 +4,9 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -17,7 +15,7 @@ import androidx.core.app.NotificationCompat;
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.model.utilities.Constants;
 import com.clocktower.lullaby.model.utilities.ServiceUtil;
-import com.clocktower.lullaby.view.activities.Alarm;
+import com.clocktower.lullaby.view.activities.Home;
 
 public class AlarmService extends IntentService {
 
@@ -27,7 +25,7 @@ public class AlarmService extends IntentService {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
 
-        alarm = intent.getLongExtra("Alarm", 0);
+        alarm = intent.getLongExtra("Home", 0);
         sendNotification(intent.getStringExtra("Message"));
         ServiceUtil.startAlarmService(getApplicationContext());
     }
@@ -39,8 +37,8 @@ public class AlarmService extends IntentService {
 
     private void sendNotification(String message){
 
-        Intent wakeIntent = new Intent(getApplicationContext(), Alarm.class);
-        wakeIntent.putExtra("Alarm",alarm);
+        Intent wakeIntent = new Intent(getApplicationContext(), Home.class);
+        wakeIntent.putExtra("Home",alarm);
         wakeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), REQUEST_CODE,
                 wakeIntent, PendingIntent.FLAG_ONE_SHOT);

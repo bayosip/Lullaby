@@ -1,5 +1,6 @@
 package com.clocktower.lullaby.view.activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -8,10 +9,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -24,8 +24,10 @@ import com.clocktower.lullaby.present.AlarmPresenter;
 import com.clocktower.lullaby.view.fragments.AlarmPageAdapter;
 import com.clocktower.lullaby.view.fragments.AlarmSetterFragment;
 import com.clocktower.lullaby.view.fragments.BaseFragment;
+import com.clocktower.lullaby.view.fragments.BlogFragment;
 import com.clocktower.lullaby.view.fragments.MusicSelectorDialog;
 import com.clocktower.lullaby.view.fragments.TrackSetterFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
@@ -37,15 +39,17 @@ import com.karumi.dexter.listener.single.PermissionListener;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
+public class Home extends AppCompatActivity implements AlarmViewInterFace {
 
-    private static final String TAG = "Alarm";
+    private static final String TAG = "Home";
     private ViewPager pager;
     private FloatingActionButton fab;
+    private BottomNavigationView bottomNavigationView;
     private int flag;
     private AlarmPageAdapter adapter;
     private List<BaseFragment> fragmentList;
     private TextView title;
+    private BlogFragment blogFrag;
     private TrackSetterFragment trackFrag;
     private AlarmSetterFragment alarmFrag;
     private MusicSelectorDialog musicSelectorDialog;
@@ -68,10 +72,12 @@ public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
     private void initialisePrequisites() {
         presenter = new AlarmPresenter(this);
         fragmentList = new LinkedList<>();
+        blogFrag = BlogFragment.getInstance();
         alarmFrag = AlarmSetterFragment.getInstance();
         trackFrag = TrackSetterFragment.getInstance();
         musicSelectorDialog = MusicSelectorDialog.getInstance();
 
+        fragmentList.add(blogFrag);
         fragmentList.add(alarmFrag);
         fragmentList.add(trackFrag);
 
@@ -82,6 +88,18 @@ public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
     private void setupActionBar() {
         toolbar = findViewById(R.id.appbar_alarm);
         title = findViewById(R.id.alarm_toolbar_name);
+        bottomNavigationView = findViewById(R.id.navigationView);
+    }
+
+    private void setupHomeActionBar() {
+
+        setSupportActionBar(toolbar);
+        final ActionBar ab = getSupportActionBar();
+
+        ab.setDisplayShowCustomEnabled(true); // enable overriding the default toolbar layout
+        ab.setDisplayShowTitleEnabled(false); // disable the default title element here (for centered title)
+        ab.setDisplayShowHomeEnabled(false); // show or hide the default home button
+        ab.setDisplayHomeAsUpEnabled(false);
     }
 
 
@@ -91,10 +109,12 @@ public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
 
         // Get the ActionBar here to configure the way it behaves.
         final ActionBar ab = getSupportActionBar();
+
+        ab.setDisplayShowHomeEnabled(true); // show or hide the default home button
+        ab.setDisplayHomeAsUpEnabled(true);
         ab.setDisplayShowCustomEnabled(true); // enable overriding the default toolbar layout
         ab.setDisplayShowTitleEnabled(false); // disable the default title element here (for centered title)
-        ab.setDisplayShowHomeEnabled(false); // show or hide the default home button
-        ab.setDisplayHomeAsUpEnabled(false);
+
     }
 
     private void setupMusicActionBar() {
@@ -115,67 +135,62 @@ public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                switch (flag) {
-                    case Constants.SET_ALARM_TRACK_FLAG:
-                        pager.setCurrentItem(1);
-                        musicPlayerThread(trackFrag.getHandler());
-                        break;
-                    case Constants.TRACK_SELECTOR_FLAG:
-                        if (audioFiles != null) {
-                            musicSelectorDialog.show(getSupportFragmentManager());
-                        }
-
-                        else GeneralUtil.showAlertMessage(Alarm.this, "Error!",
-                                        "No Audio Files Found");
-                        break;
+                if (audioFiles != null) {
+                    musicSelectorDialog.show(getSupportFragmentManager());
                 }
+
+                else GeneralUtil.showAlertMessage(Home.this, "Error!",
+                        "No Audio Files Found");
             }
         });
 
         pager.setAdapter(adapter);
-        pager.addOnPageChangeListener(pageChangeListener);
+        bottomNavigationView.setOnNavigationItemSelectedListener(navListener);
 
     }
 
-    private ViewPager.OnPageChangeListener pageChangeListener = new ViewPager.OnPageChangeListener() {
-        @Override
-        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+    private BottomNavigationView.OnNavigationItemSelectedListener  navListener =
+            new BottomNavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                    switch (menuItem.getItemId()){
+                        case R.id.navigation_home:
+                            pager.setCurrentItem(0);
+                            title.setText(Constants.HOME);
+                            setupHomeActionBar();
+                            return true;
+                        case R.id.navigation_alarm:
+                            pager.setCurrentItem(1);
+                            setUpAlarmActionBar();
+                            flag = Constants.SET_ALARM_TRACK_FLAG;
+                            title.setText(Constants.ALARM_SETTER);
+                            return true;
+                        case R.id.navigation_music:
+                            pager.setCurrentItem(2);
+                            //fab.setVisibility(View.VISIBLE);
+                            musicPlayerThread(trackFrag.getHandler());
+                            flag = Constants.TRACK_SELECTOR_FLAG;
+                            setupMusicActionBar();
+                            accessFilesFromPhone();
+                            title.setText(Constants.MUSIC_SELECTOR);
+                            return true;
 
-        }
+                    }
+                    return false;
+                }
+            };
 
-        @Override
-        public void onPageSelected(int position) {
-            if (adapter.getPageTitle(position).equals(Constants.ALARM_SETTER)) {
-                fab.setImageResource(R.drawable.ic_audio_24dp);
-                flag = Constants.SET_ALARM_TRACK_FLAG;
-                setUpAlarmActionBar();
-                title.setText(Constants.ALARM_SETTER);
-
-            } else if (adapter.getPageTitle(position).equals(Constants.MUSIC_SELECTOR)) {
-                fab.setImageResource(R.drawable.ic_queue_music_24dp);
-                flag = Constants.TRACK_SELECTOR_FLAG;
-                setupMusicActionBar();
-                accessFilesFromPhone();
-                title.setText(Constants.MUSIC_SELECTOR);
-            }
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int state) {
-
-        }
-    };
 
     private void accessFilesFromPhone() {
-        Dexter.withActivity(Alarm.this)
+        Dexter.withActivity(Home.this)
                 .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
                 .withListener(new PermissionListener() {
 
                     @Override
                     public void onPermissionGranted(PermissionGrantedResponse response) {
 
-                       audioFiles= presenter.loadSongs();
-                       MusicSelectorDialog.setAudioFiles(audioFiles);
+                        audioFiles= presenter.loadSongs();
+                        MusicSelectorDialog.setAudioFiles(audioFiles);
                     }
 
                     @Override
@@ -249,8 +264,8 @@ public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
     }
 
     @Override
-    public Alarm getListenerContext() {
-        return Alarm.this;
+    public Home getListenerContext() {
+        return Home.this;
     }
 
     @Override
@@ -270,7 +285,7 @@ public class Alarm extends AppCompatActivity implements AlarmViewInterFace {
     @Override
     public void onBackPressed() {
         if ( pager.getCurrentItem() == 0) {
-            GeneralUtil.exitApp(Alarm.this);
+            GeneralUtil.exitApp(Home.this);
         }
         else {
             pager.setCurrentItem(0);

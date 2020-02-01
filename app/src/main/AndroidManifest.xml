@@ -56,7 +56,7 @@
             android:name=".view.activities.AppFinish"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".view.activities.Alarm"
+            android:name=".view.activities.Home"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
         </activity>

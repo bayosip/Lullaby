@@ -5,7 +5,7 @@ android {
     buildToolsVersion "29.0.1"
     defaultConfig {
         applicationId "com.clocktower.lullaby"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -31,7 +31,10 @@ dependencies {
     implementation 'androidx.palette:palette:1.0.0'
     implementation 'com.github.markushi:circlebutton:1.1'
     implementation 'cat.ereza:customactivityoncrash:2.2.0'
+
     implementation 'com.github.skydoves:colorpickerview:2.1.5'
+    api 'com.google.dagger:dagger:2.25.3'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.25.3'
     implementation 'com.karumi:dexter:5.0.0'
     api 'com.google.dagger:dagger:2.25.3'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.25.3'
@@ -39,4 +42,10 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+    //Firebase imports
+    implementation 'com.google.firebase:firebase-database:19.2.0'
+    implementation 'com.google.firebase:firebase-storage:19.1.0'
+    implementation 'com.google.firebase:firebase-messaging:20.1.0'
+    implementation 'com.google.firebase:firebase-firestore:21.3.1'
 }

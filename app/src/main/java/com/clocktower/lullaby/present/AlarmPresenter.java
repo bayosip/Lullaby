@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.media.MediaPlayer;
-import android.net.ParseException;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -21,18 +20,13 @@ import com.clocktower.lullaby.model.service.WakeTimeReceiver;
 import com.clocktower.lullaby.model.utilities.Constants;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
 import com.clocktower.lullaby.model.utilities.ServiceUtil;
-import com.clocktower.lullaby.view.activities.Alarm;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
-
-import javax.inject.Inject;
 
 import static android.content.Intent.FLAG_INCLUDE_STOPPED_PACKAGES;
 
@@ -196,7 +190,7 @@ public class AlarmPresenter {
         isAlarmSet = true;
         Intent alarmIntent = new Intent(interFace.getListenerContext(), WakeTimeReceiver.class);
         alarmIntent.putExtra("Message", message);
-        alarmIntent.putExtra("Alarm", alarm);
+        alarmIntent.putExtra("Home", alarm);
         alarmIntent.setFlags(FLAG_INCLUDE_STOPPED_PACKAGES);
 
         pendingIntent = PendingIntent.getBroadcast(interFace.getListenerContext(), REQUEST_CODE,
@@ -220,7 +214,7 @@ public class AlarmPresenter {
         alarmManager.cancel(pendingIntent);
         if(ServiceUtil.isServiceAlreadyRunningAPI16(interFace.getListenerContext()))
             ServiceUtil.stopService(interFace.getListenerContext());
-        GeneralUtil.message("Alarm Cancelled!");
+        GeneralUtil.message("Home Cancelled!");
     }
 
     public List<SongInfo> loadSongs(){
