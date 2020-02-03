@@ -14,6 +14,7 @@ import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.model.Post;
 import com.clocktower.lullaby.view.list.blog_list.BlogListAdapter;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class BlogFragment extends BaseFragment {
@@ -21,9 +22,19 @@ public class BlogFragment extends BaseFragment {
     private RecyclerView blog;
     private BlogListAdapter adapter;
     private List<Post> posts;
+    private static Post postsarr[];
+
+
+    static{
+        postsarr= new Post[5];
+        Post post = new Post("Thor Herald of Galactus Part 2: The Justice League | Comics Explained",
+                "https://www.youtube.com/watch?v=6c3Q2djrQC8");
+        Arrays.fill(postsarr, post);
+    }
 
     public static BlogFragment getInstance(){
         BlogFragment fragment = new BlogFragment();
+
         return  fragment;
     }
 
@@ -42,7 +53,7 @@ public class BlogFragment extends BaseFragment {
     }
 
     private void initialiseWidgets(View view){
-
+        posts = Arrays.asList(postsarr);
         blog = view.findViewById(R.id.post_list);
         LinearLayoutManager layoutManager = new LinearLayoutManager(listener.getListenerContext(),
                 RecyclerView.VERTICAL, false);

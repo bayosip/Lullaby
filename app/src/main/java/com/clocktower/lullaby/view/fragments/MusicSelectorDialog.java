@@ -42,9 +42,11 @@ public class MusicSelectorDialog extends DialogFragment {
     }
 
     public static void setAudioFiles(List<SongInfo> audioFiles) {
-        Log.w("dialog Songs", audioFiles.get(0).getSongName());
-        MusicSelectorDialog.audioFiles.clear();
-        MusicSelectorDialog.audioFiles.addAll(audioFiles);
+        if (audioFiles!= null && !audioFiles.isEmpty()) {
+            Log.w("dialog Songs", audioFiles.get(0).getSongName());
+            MusicSelectorDialog.audioFiles.clear();
+            MusicSelectorDialog.audioFiles.addAll(audioFiles);
+        }
     }
 
     public static MusicSelectorDialog getInstance(){

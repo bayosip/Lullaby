@@ -103,7 +103,7 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
     }
 
 
-    private void setUpAlarmActionBar() {
+    private void setupOtherActionBar() {
         // Get the ActionBar here to configure the way it behaves.
         setSupportActionBar(toolbar);
 
@@ -115,23 +115,13 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
         ab.setDisplayShowCustomEnabled(true); // enable overriding the default toolbar layout
         ab.setDisplayShowTitleEnabled(false); // disable the default title element here (for centered title)
 
-    }
-
-    private void setupMusicActionBar() {
-
-        setSupportActionBar(toolbar);
-        final ActionBar ab = getSupportActionBar();
-
-        ab.setDisplayShowHomeEnabled(true); // show or hide the default home button
-        ab.setDisplayHomeAsUpEnabled(true);
-        ab.setDisplayShowCustomEnabled(true); // enable overriding the default toolbar layout
-        ab.setDisplayShowTitleEnabled(false); // disable the default title element here (for centered title)
     }
 
     private void initialiseWidgets() {
         setupActionBar();
         pager = findViewById(R.id.page_container);
         fab = findViewById(R.id.buttonMusicContent);
+        fab.hide();
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -145,6 +135,7 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
         });
 
         pager.setAdapter(adapter);
+        pager.addOnPageChangeListener(pageChangeListener);
         bottomNavigationView.setOnNavigationItemSelectedListener(navListener);
 
     }
@@ -156,29 +147,52 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
                     switch (menuItem.getItemId()){
                         case R.id.navigation_home:
                             pager.setCurrentItem(0);
-                            title.setText(Constants.HOME);
-                            setupHomeActionBar();
                             return true;
                         case R.id.navigation_alarm:
                             pager.setCurrentItem(1);
-                            setUpAlarmActionBar();
-                            flag = Constants.SET_ALARM_TRACK_FLAG;
-                            title.setText(Constants.ALARM_SETTER);
                             return true;
                         case R.id.navigation_music:
                             pager.setCurrentItem(2);
-                            //fab.setVisibility(View.VISIBLE);
-                            musicPlayerThread(trackFrag.getHandler());
-                            flag = Constants.TRACK_SELECTOR_FLAG;
-                            setupMusicActionBar();
-                            accessFilesFromPhone();
-                            title.setText(Constants.MUSIC_SELECTOR);
                             return true;
 
                     }
                     return false;
                 }
             };
+
+    private ViewPager.OnPageChangeListener pageChangeListener = new ViewPager.OnPageChangeListener() {
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+        }
+
+        @Override
+        public void onPageSelected(int position) {
+            if (adapter.getPageTitle(position).equals(Constants.HOME)) {
+                title.setText(Constants.HOME);
+                setupHomeActionBar();
+                fab.hide();
+            }else if (adapter.getPageTitle(position).equals(Constants.ALARM_SETTER)){
+                fab.hide();
+                flag = Constants.SET_ALARM_TRACK_FLAG;
+                title.setText(Constants.ALARM_SETTER);
+                setupOtherActionBar();
+            } else if (adapter.getPageTitle(position).equals(Constants.MUSIC_SELECTOR)) {
+                fab.setImageResource(R.drawable.ic_queue_music_24dp);
+                flag = Constants.TRACK_SELECTOR_FLAG;
+                setupOtherActionBar();
+                accessFilesFromPhone();
+                title.setText(Constants.MUSIC_SELECTOR);
+                musicPlayerThread(trackFrag.getHandler());
+                fab.show();
+            }
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+
+        }
+    };
 
 
     private void accessFilesFromPhone() {
@@ -288,7 +302,7 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
             GeneralUtil.exitApp(Home.this);
         }
         else {
-            pager.setCurrentItem(0);
+            pager.setCurrentItem(pager.getCurrentItem()-1);
         }
     }
 

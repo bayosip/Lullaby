@@ -1,24 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    app:cardElevation="3dp"
+    app:cardCornerRadius="8dp"
     android:layout_marginBottom="@dimen/activity_vertical_margin">
-
-    <androidx.cardview.widget.CardView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-
-            android:background="@drawable/edge_layout"
-            android:padding="@dimen/activity_vertical_margin">
+            android:padding="12dp">
             <LinearLayout
                 android:id="@+id/layout_video"
                 android:layout_width="match_parent"
@@ -110,7 +102,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/layout_video"
-                android:src="@drawable/ic_like_24dp" />
+                android:src="@drawable/ic_like_off_24dp" />
 
             <TextView
                 android:id="@+id/text_blog_like_count"
@@ -152,5 +144,4 @@
                 android:src="@drawable/ic_comments_24dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

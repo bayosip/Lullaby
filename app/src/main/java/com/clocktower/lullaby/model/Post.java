@@ -4,19 +4,16 @@ public class Post {
 
     String postTitle, videoURL;
 
-    public String getPostTitle() {
-        return postTitle;
-    }
-
-    public void setPostTitle(String postTitle) {
+    public Post(String postTitle, String videoURL) {
         this.postTitle = postTitle;
+        this.videoURL = videoURL;
     }
 
     public String getVideoURL() {
         return videoURL;
     }
 
-    public void setVideoURL(String videoURL) {
-        this.videoURL = videoURL;
+    public String getPostTitle() {
+        return postTitle;
     }
 }

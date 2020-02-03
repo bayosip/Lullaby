@@ -42,6 +42,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         likeCount = v.findViewById(R.id.text_blog_like_count);
         commentCount =v.findViewById(R.id.text_post_comment_count);
         like = v.findViewById(R.id.post_like_btn);
+        like.setOnClickListener(this);
         comment = v.findViewById(R.id.post_comment_icon);
         playVideoBtn = v.findViewById(R.id.buttonPlayVideo);
         playVideoBtn.setOnClickListener(this);
@@ -71,6 +72,9 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
                break;
             case R.id.videoViewPost:
                 playVideoBtn.setVisibility(View.VISIBLE);
+                break;
+            case R.id.post_like_btn:
+                like.setImageResource(R.drawable.ic_like_on_24dp);
                 break;
         }
     }
