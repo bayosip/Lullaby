@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.MediaController;
 import android.widget.TextView;
 
 import com.clocktower.lullaby.interfaces.AlarmViewInterFace;
@@ -53,6 +54,7 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
     private TrackSetterFragment trackFrag;
     private AlarmSetterFragment alarmFrag;
     private MusicSelectorDialog musicSelectorDialog;
+    private MediaController mediaController;
     private AlarmPresenter presenter;
     private Toolbar toolbar;
     private List<SongInfo> audioFiles;
@@ -76,6 +78,7 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
         alarmFrag = AlarmSetterFragment.getInstance();
         trackFrag = TrackSetterFragment.getInstance();
         musicSelectorDialog = MusicSelectorDialog.getInstance();
+        mediaController = new MediaController(this);
 
         fragmentList.add(blogFrag);
         fragmentList.add(alarmFrag);
@@ -268,6 +271,11 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
     }
 
     @Override
+    public MediaController getVideoMediaController() {
+        return mediaController;
+    }
+
+    @Override
     public void setAlarmMusic() {
         presenter.setAlarmTone(chosenSong.getSongUrl());
     }
@@ -289,12 +297,19 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
 
     @Override
     public void goToMusicSetter() {
-        pager.setCurrentItem(1);
+        pager.setCurrentItem(2);
+    }
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+
     }
 
     public Fragment getCurrentFragmentInView() {
         return getSupportFragmentManager().findFragmentById(R.id.page_container );
     }
+
+
 
     @Override
     public void onBackPressed() {
@@ -302,7 +317,7 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
             GeneralUtil.exitApp(Home.this);
         }
         else {
-            pager.setCurrentItem(pager.getCurrentItem()-1);
+            pager.setCurrentItem(0);
         }
     }
 
@@ -311,4 +326,6 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
         onBackPressed();
         return true;
     }
+
+
 }

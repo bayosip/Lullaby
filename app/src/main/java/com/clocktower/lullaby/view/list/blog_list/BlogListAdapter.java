@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.MediaController;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,10 +19,12 @@ public class BlogListAdapter extends RecyclerView.Adapter<BlogVH> {
 
     List<Post> blogPosts;
     Context context;
+    MediaController mediaController;
 
-    public BlogListAdapter(List<Post> blogPosts, Context context) {
+    public BlogListAdapter(List<Post> blogPosts, Context context, MediaController mediaController) {
         this.blogPosts = blogPosts;
         this.context = context;
+        this.mediaController = mediaController;
     }
 
     @NonNull
@@ -36,6 +39,7 @@ public class BlogListAdapter extends RecyclerView.Adapter<BlogVH> {
     @Override
     public void onBindViewHolder(@NonNull BlogVH holder, int position) {
         holder.setBlogItems(blogPosts);
+        holder.setMediaController(mediaController);
     }
 
     @Override

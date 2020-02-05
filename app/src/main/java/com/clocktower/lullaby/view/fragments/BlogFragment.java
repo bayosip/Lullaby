@@ -27,8 +27,9 @@ public class BlogFragment extends BaseFragment {
 
     static{
         postsarr= new Post[5];
-        Post post = new Post("Thor Herald of Galactus Part 2: The Justice League | Comics Explained",
-                "https://www.youtube.com/watch?v=6c3Q2djrQC8");
+        Post post = new Post("Magic Mugs",
+                "https://firebasestorage.googleapis.com/v0/b/lullaby-7a5b3.appspot.com/o/" +
+                        "magic%20mugs.mp4?alt=media&token=6ac36223-805d-42fb-8441-036698110a0e");
         Arrays.fill(postsarr, post);
     }
 
@@ -58,7 +59,7 @@ public class BlogFragment extends BaseFragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(listener.getListenerContext(),
                 RecyclerView.VERTICAL, false);
 
-        adapter = new BlogListAdapter(posts, listener.getListenerContext());
+        adapter = new BlogListAdapter(posts, listener.getListenerContext(), listener.getVideoMediaController());
         //musicList.addItemDecoration(itemDecoration);
         blog.setLayoutManager(layoutManager);
         blog.setAdapter(adapter);

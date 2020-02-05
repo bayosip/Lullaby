@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.VideoView;
 
@@ -49,6 +50,10 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         buffering = v.findViewById(R.id.progress_video_loading);
     }
 
+    public void setMediaController(MediaController mediaController){
+        video.setMediaController(mediaController);
+        mediaController.setAnchorView(video);
+    }
 
     public void setBlogItems(List<Post> posts){
         this.posts = posts;
