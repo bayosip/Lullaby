@@ -30,7 +30,7 @@ public class BlogListAdapter extends RecyclerView.Adapter<BlogVH> {
     @NonNull
     @Override
     public BlogVH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.video_blog_item,parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.media_blog_item,parent, false);
         BlogVH holder =  new BlogVH(view);
         //holder.setListener(itemListener);
         return holder;

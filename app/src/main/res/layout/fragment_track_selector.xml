@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/app_background_white"
     android:padding="@dimen/activity_vertical_margin"
-    tools:context=".view.fragments.TrackSetterFragment">
+    tools:context=".view.fragments.home.TrackSetterFragment">
 
     <ImageView
         android:id="@+id/imageTrackImg"

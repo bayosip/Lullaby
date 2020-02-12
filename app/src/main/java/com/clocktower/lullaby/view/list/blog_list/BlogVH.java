@@ -29,6 +29,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
     ContentLoadingProgressBar buffering;
     List<Post> posts;
 
+
     public BlogVH(@NonNull View itemView) {
         super(itemView);
         initialiseWidgets(itemView);
@@ -68,7 +69,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
                    playVideoBtn.setImageResource(R.drawable.ic_pause_video_24dp);
                    playVideoBtn.setVisibility(View.GONE);
                    buffering.show();
-                   playSelectedVideoFrom(posts.get(getAdapterPosition()).getVideoURL());
+                   playSelectedVideoFrom(posts.get(getAdapterPosition()).getMediaURL());
                }else {
                    playVideoBtn.setImageResource(R.drawable.ic_play_video_24dp);
                    playVideoBtn.setVisibility(View.VISIBLE);
@@ -106,7 +107,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
             });
 
         }catch (Exception ex){
-
+            ex.printStackTrace();
         }
         video.requestFocus();
 

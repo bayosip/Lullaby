@@ -1,4 +1,4 @@
-package com.clocktower.lullaby.view.fragments;
+package com.clocktower.lullaby.view.fragments.home;
 
 import android.os.Build;
 import android.os.Bundle;

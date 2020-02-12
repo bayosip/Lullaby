@@ -1,4 +1,4 @@
-package com.clocktower.lullaby.view.fragments;
+package com.clocktower.lullaby.view.fragments.home;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -9,7 +9,7 @@ import com.clocktower.lullaby.model.utilities.Constants;
 
 import java.util.List;
 
-public class AlarmPageAdapter extends FragmentStatePagerAdapter {
+public class HomePageFragmentAdapter extends FragmentStatePagerAdapter {
 
     private List<BaseFragment> fragmentList;
     private static String[] pageTitles;
@@ -18,7 +18,7 @@ public class AlarmPageAdapter extends FragmentStatePagerAdapter {
         pageTitles = new String[]{Constants.HOME, Constants.ALARM_SETTER, Constants.MUSIC_SELECTOR};
     }
 
-    public AlarmPageAdapter(FragmentManager fm, List<BaseFragment> fragList) {
+    public HomePageFragmentAdapter(FragmentManager fm, List<BaseFragment> fragList) {
         super(fm);
         this.fragmentList = fragList;
     }

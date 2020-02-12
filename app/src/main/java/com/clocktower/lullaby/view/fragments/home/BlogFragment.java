@@ -1,4 +1,4 @@
-package com.clocktower.lullaby.view.fragments;
+package com.clocktower.lullaby.view.fragments.home;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -24,14 +24,6 @@ public class BlogFragment extends BaseFragment {
     private List<Post> posts;
     private static Post postsarr[];
 
-
-    static{
-        postsarr= new Post[5];
-        Post post = new Post("Magic Mugs",
-                "https://firebasestorage.googleapis.com/v0/b/lullaby-7a5b3.appspot.com/o/" +
-                        "magic%20mugs.mp4?alt=media&token=6ac36223-805d-42fb-8441-036698110a0e");
-        Arrays.fill(postsarr, post);
-    }
 
     public static BlogFragment getInstance(){
         BlogFragment fragment = new BlogFragment();

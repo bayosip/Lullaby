@@ -1,6 +1,5 @@
-package com.clocktower.lullaby.view.fragments;
+package com.clocktower.lullaby.view.fragments.home;
 
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;

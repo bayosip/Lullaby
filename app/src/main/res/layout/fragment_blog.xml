@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/post_list"
-        tools:listitem="@layout/video_blog_item"
+        tools:listitem="@layout/media_blog_item"
         >
     </androidx.recyclerview.widget.RecyclerView>
 </LinearLayout>

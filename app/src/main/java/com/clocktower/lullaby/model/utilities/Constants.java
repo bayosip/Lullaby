@@ -16,5 +16,6 @@ public class Constants {
     public static final String WAV = ".wav";
     public static final String WMA = ".wma";
     public static final String CHANNEL_ID ="Home Lullaby";
+    public static final String USER_DATA = "user_data";
 
 }

@@ -22,12 +22,12 @@ import com.clocktower.lullaby.model.SongInfo;
 import com.clocktower.lullaby.model.utilities.Constants;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
 import com.clocktower.lullaby.present.AlarmPresenter;
-import com.clocktower.lullaby.view.fragments.AlarmPageAdapter;
-import com.clocktower.lullaby.view.fragments.AlarmSetterFragment;
-import com.clocktower.lullaby.view.fragments.BaseFragment;
-import com.clocktower.lullaby.view.fragments.BlogFragment;
-import com.clocktower.lullaby.view.fragments.MusicSelectorDialog;
-import com.clocktower.lullaby.view.fragments.TrackSetterFragment;
+import com.clocktower.lullaby.view.fragments.home.HomePageFragmentAdapter;
+import com.clocktower.lullaby.view.fragments.home.AlarmSetterFragment;
+import com.clocktower.lullaby.view.fragments.home.BaseFragment;
+import com.clocktower.lullaby.view.fragments.home.BlogFragment;
+import com.clocktower.lullaby.view.fragments.home.MusicSelectorDialog;
+import com.clocktower.lullaby.view.fragments.home.TrackSetterFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.karumi.dexter.Dexter;
@@ -47,7 +47,7 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
     private FloatingActionButton fab;
     private BottomNavigationView bottomNavigationView;
     private int flag;
-    private AlarmPageAdapter adapter;
+    private HomePageFragmentAdapter adapter;
     private List<BaseFragment> fragmentList;
     private TextView title;
     private BlogFragment blogFrag;
@@ -84,7 +84,7 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
         fragmentList.add(alarmFrag);
         fragmentList.add(trackFrag);
 
-        adapter = new AlarmPageAdapter(getSupportFragmentManager(), fragmentList);
+        adapter = new HomePageFragmentAdapter(getSupportFragmentManager(), fragmentList);
         //mp = MediaPlayer.
     }
 
