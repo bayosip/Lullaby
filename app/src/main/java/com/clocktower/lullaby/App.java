@@ -8,6 +8,7 @@ import androidx.multidex.MultiDex;
 
 import com.clocktower.lullaby.model.utilities.ServiceUtil;
 import com.clocktower.lullaby.view.activities.ErrorActivity;
+import com.google.firebase.FirebaseApp;
 
 import cat.ereza.customactivityoncrash.config.CaocConfig;
 

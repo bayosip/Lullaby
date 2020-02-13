@@ -22,6 +22,7 @@ import com.clocktower.lullaby.model.SongInfo;
 import com.clocktower.lullaby.model.utilities.Constants;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
 import com.clocktower.lullaby.present.AlarmPresenter;
+import com.clocktower.lullaby.view.fragments.home.ChatFragment;
 import com.clocktower.lullaby.view.fragments.home.HomePageFragmentAdapter;
 import com.clocktower.lullaby.view.fragments.home.AlarmSetterFragment;
 import com.clocktower.lullaby.view.fragments.home.BaseFragment;
@@ -53,6 +54,7 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
     private BlogFragment blogFrag;
     private TrackSetterFragment trackFrag;
     private AlarmSetterFragment alarmFrag;
+    private ChatFragment chatFrag;
     private MusicSelectorDialog musicSelectorDialog;
     private MediaController mediaController;
     private AlarmPresenter presenter;
@@ -75,6 +77,7 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
         presenter = new AlarmPresenter(this);
         fragmentList = new LinkedList<>();
         blogFrag = BlogFragment.getInstance();
+        chatFrag = ChatFragment.getInstance("");
         alarmFrag = AlarmSetterFragment.getInstance();
         trackFrag = TrackSetterFragment.getInstance();
         musicSelectorDialog = MusicSelectorDialog.getInstance();
@@ -83,14 +86,15 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
         fragmentList.add(blogFrag);
         fragmentList.add(alarmFrag);
         fragmentList.add(trackFrag);
+        fragmentList.add(chatFrag);
 
         adapter = new HomePageFragmentAdapter(getSupportFragmentManager(), fragmentList);
         //mp = MediaPlayer.
     }
 
     private void setupActionBar() {
-        toolbar = findViewById(R.id.appbar_alarm);
-        title = findViewById(R.id.alarm_toolbar_name);
+        toolbar = findViewById(R.id.appbar_home);
+        title = findViewById(R.id.frag_toolbar_name);
         bottomNavigationView = findViewById(R.id.navigationView);
     }
 
@@ -157,6 +161,9 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
                         case R.id.navigation_music:
                             pager.setCurrentItem(2);
                             return true;
+                        case R.id.navigation_forum:
+                            pager.setCurrentItem(3);
+                            break;
 
                     }
                     return false;
@@ -188,6 +195,10 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
                 title.setText(Constants.MUSIC_SELECTOR);
                 musicPlayerThread(trackFrag.getHandler());
                 fab.show();
+            }else if (adapter.getPageTitle(position).equals(Constants.FORUM)){
+                fab.hide();
+                title.setText(Constants.FORUM);
+                setupOtherActionBar();
             }
         }
 

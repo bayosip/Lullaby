@@ -6,6 +6,7 @@ public class Constants {
     public static final String HOME = "Coza";
     public static final String ALARM_SETTER = "Scheduler";
     public static final String TRACK_URL = "track_url";
+    public static final String FORUM = "forum";
     public static final String MUSIC_SELECTOR = "Music Selector";
     public static final int SET_ALARM_TRACK_FLAG = 0;
     public static final int TRACK_SELECTOR_FLAG = 1;

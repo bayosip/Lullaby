@@ -12,7 +12,7 @@
         android:layout_height="wrap_content">
 
         <include
-            android:id="@+id/appbar_alarm"
+            android:id="@+id/appbar_home"
             layout="@layout/app_toolbar" />
     </com.google.android.material.appbar.AppBarLayout>
 

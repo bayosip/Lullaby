@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "865615879030",
+    "firebase_url": "https://lullaby-7a5b3.firebaseio.com",
+    "project_id": "lullaby-7a5b3",
+    "storage_bucket": "lullaby-7a5b3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:865615879030:android:8583688db824ba9d163857",
+        "android_client_info": {
+          "package_name": "com.clocktower.lullaby"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "865615879030-14vuodqlb382vp5qnpu2ps56t795anra.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.clocktower.lullaby",
+            "certificate_hash": "d1f3fc7f9d2e8170cba80dd7574680c60dc43d73"
+          }
+        },
+        {
+          "client_id": "865615879030-bti5na8fc6bbb47r3rdt37g4kmgvtm30.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSF_sLEwSsY85eyDgZxIHwjRMG5dGy4GY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "865615879030-bti5na8fc6bbb47r3rdt37g4kmgvtm30.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

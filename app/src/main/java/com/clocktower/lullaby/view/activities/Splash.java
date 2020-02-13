@@ -8,11 +8,13 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.clocktower.lullaby.App;
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.model.utilities.Constants;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
@@ -32,6 +34,7 @@ public class Splash extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+        FirebaseApp.initializeApp(App.context);
         initiatePrequisites();
         GeneralUtil.getHandler().postDelayed(new Runnable() {
 
@@ -91,7 +94,6 @@ public class Splash extends AppCompatActivity {
                 } else {
                     // User is signed out of Firebase
                 }
-
             } else {
                 // Sign in failed. If response is null the user canceled the
                 // sign-in flow using the back button. Otherwise check

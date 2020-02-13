@@ -17,4 +17,9 @@
         android:icon="@drawable/ic_music_note_24dp"
         android:enabled="true"
         android:title="Music"/>
+    <item
+        android:id="@+id/navigation_forum"
+        android:icon="@drawable/ic_forum_24dp"
+        android:enabled="true"
+        android:title="Chat"/>
 </menu>

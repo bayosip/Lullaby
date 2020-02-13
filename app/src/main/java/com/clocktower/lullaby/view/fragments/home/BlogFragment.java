@@ -27,7 +27,6 @@ public class BlogFragment extends BaseFragment {
 
     public static BlogFragment getInstance(){
         BlogFragment fragment = new BlogFragment();
-
         return  fragment;
     }
 
