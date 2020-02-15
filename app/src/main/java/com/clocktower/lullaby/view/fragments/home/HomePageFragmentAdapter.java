@@ -15,7 +15,8 @@ public class HomePageFragmentAdapter extends FragmentStatePagerAdapter {
     private static String[] pageTitles;
 
     static {
-        pageTitles = new String[]{Constants.HOME, Constants.ALARM_SETTER, Constants.MUSIC_SELECTOR};
+        pageTitles = new String[]{Constants.HOME, Constants.ALARM_SETTER,
+                Constants.MUSIC_SELECTOR, Constants.FORUM};
     }
 
     public HomePageFragmentAdapter(FragmentManager fm, List<BaseFragment> fragList) {

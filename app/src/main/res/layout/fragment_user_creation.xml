@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/app_background_white"
-    android:padding="@dimen/activity_vertical_margin">
+    android:paddingTop="32dp">
 
     <LinearLayout
         android:layout_width="0dp"
@@ -15,7 +15,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.25">
+        app:layout_constraintVertical_bias="0">
 
         <TextView
             android:id="@+id/text_user_name_crtn"
@@ -32,14 +32,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center">
+
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/imageViewID"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
-                android:background="@drawable/circle_white"
+                android:layout_width="175dp"
+                android:layout_height="175dp"
                 android:contentDescription="User Profile Picture"
                 android:src="@drawable/ic_person_24dp"
-                app:civ_border_color="@color/hint_color"
+                app:civ_border_color="@color/lightColor"
                 app:civ_border_width="2dp"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -62,30 +62,31 @@
                 app:layout_constraintVertical_bias="1" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <Button
-            android:id="@+id/buttonContinueHome"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/activity_vertical_margin"
-            android:layout_marginTop="64dp"
-            android:background="@drawable/curved_button"
-            android:elevation="10dp"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="Continue"
-            android:textColor="@color/app_background_white"
-            android:textStyle="bold"/>
-
         <androidx.core.widget.ContentLoadingProgressBar
-            android:id="@+id/progressBarUpload"
+            android:id="@+id/progressBarProfileUpload"
             style="?android:attr/progressBarStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginStart="32dp"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginTop="64dp"
             android:layout_marginEnd="32dp"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:visibility="gone" />
+            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
     </LinearLayout>
+
+    <Button
+        android:id="@+id/buttonContinueHome"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/activity_vertical_margin"
+        android:background="@color/buttonColor"
+        android:elevation="10dp"
+        android:gravity="center"
+        android:text="Continue"
+        android:textSize="@dimen/title_size_small"
+        android:textColor="@color/app_background_white"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -44,7 +44,7 @@
         android:text="Restart App"
         android:elevation="8dp"
         android:textColor="@color/app_background_white"
-        android:background="@drawable/curved_button"
+        android:background="@drawable/reg_button"
         app:layout_constraintStart_toStartOf="@id/imageErrorFace"
         app:layout_constraintEnd_toEndOf="@id/imageErrorFace"
         app:layout_constraintTop_toBottomOf="@id/textErrorMsg"

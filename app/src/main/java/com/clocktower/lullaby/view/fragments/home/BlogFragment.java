@@ -15,6 +15,7 @@ import com.clocktower.lullaby.model.Post;
 import com.clocktower.lullaby.view.list.blog_list.BlogListAdapter;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 public class BlogFragment extends BaseFragment {
@@ -45,12 +46,12 @@ public class BlogFragment extends BaseFragment {
     }
 
     private void initialiseWidgets(View view){
-        posts = Arrays.asList(postsarr);
+        //posts = Arrays.asList(postsarr);
         blog = view.findViewById(R.id.post_list);
         LinearLayoutManager layoutManager = new LinearLayoutManager(listener.getListenerContext(),
                 RecyclerView.VERTICAL, false);
 
-        adapter = new BlogListAdapter(posts, listener.getListenerContext(), listener.getVideoMediaController());
+        adapter = new BlogListAdapter(new LinkedList<Post>(), listener.getListenerContext(), listener.getVideoMediaController());
         //musicList.addItemDecoration(itemDecoration);
         blog.setLayoutManager(layoutManager);
         blog.setAdapter(adapter);

@@ -7,12 +7,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +28,15 @@ import com.clocktower.lullaby.App;
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.view.activities.AppFinish;
 
+import org.apache.commons.lang3.RandomStringUtils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Random;
+
+import id.zelory.compressor.Compressor;
 
 /**
  * Created by BABY v2.0 on 10/11/2016.
@@ -66,6 +77,47 @@ public class GeneralUtil {
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("EXIT", true);
         activity.startActivity(intent);
+    }
+
+    public static String randomName() {
+        String randomString = RandomStringUtils.randomAlphanumeric(16);
+        if (!TextUtils.isEmpty(randomString))
+            return randomString;
+        else {
+            Random generator = new Random();
+            StringBuilder randomStringBuilder = new StringBuilder();
+            int randomLength = generator.nextInt(16);
+            char tempChar;
+            for (int i = 0; i < randomLength; i++){
+                tempChar = (char) (generator.nextInt(96) + 32);
+                randomStringBuilder.append(tempChar);
+            }
+            return randomStringBuilder.toString();
+        }
+    }
+
+    public static byte[] compressImg(Activity activity, Uri uri){
+
+        Bitmap compressedImageFile = null;
+        File newImageFile = new File(uri.getPath());
+        try {
+
+            compressedImageFile =  new Compressor(activity)
+                    .setMaxHeight(125)
+                    .setMaxWidth(125)
+                    .setQuality(50)
+                    .compressToBitmap(newImageFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        if (compressedImageFile != null) {
+            compressedImageFile.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] thumbData = baos.toByteArray();
+            return thumbData;
+        }
+        else return null;
     }
 
     public static Drawable setADrawable(Activity activity, int drawableID) {

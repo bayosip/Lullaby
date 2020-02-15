@@ -11,6 +11,12 @@ public class Constants {
     public static final int SET_ALARM_TRACK_FLAG = 0;
     public static final int TRACK_SELECTOR_FLAG = 1;
 
+    //Image selection request code
+
+    public static final int MY_CAMERA_PERMISSION_CODE = 100;
+    public final static int PICK_IMAGE_REQUEST = 567;
+    public final static int REQUEST_IMAGE_CAPTURE = 234;
+
     public static final String MP4 = ".mp4";
     public static final String MP3 = ".mp3";
     public static final String AAC = ".aac";
@@ -19,4 +25,9 @@ public class Constants {
     public static final String CHANNEL_ID ="Home Lullaby";
     public static final String USER_DATA = "user_data";
 
+    //Firebasde storage Ref
+    public static final String POSTS = "Posts";
+    public static final String AUDIO = "Audio";
+    public static final String USERS = "Users";
+    public static final String PROFILE = "PROFILE";
 }

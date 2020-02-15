@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.MenuItem;
@@ -20,8 +21,9 @@ import com.clocktower.lullaby.interfaces.AlarmViewInterFace;
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.model.SongInfo;
 import com.clocktower.lullaby.model.utilities.Constants;
+import com.clocktower.lullaby.model.utilities.FirebaseUtil;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
-import com.clocktower.lullaby.present.AlarmPresenter;
+import com.clocktower.lullaby.present.HomePresenter;
 import com.clocktower.lullaby.view.fragments.home.ChatFragment;
 import com.clocktower.lullaby.view.fragments.home.HomePageFragmentAdapter;
 import com.clocktower.lullaby.view.fragments.home.AlarmSetterFragment;
@@ -31,6 +33,8 @@ import com.clocktower.lullaby.view.fragments.home.MusicSelectorDialog;
 import com.clocktower.lullaby.view.fragments.home.TrackSetterFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
@@ -40,6 +44,8 @@ import com.karumi.dexter.listener.single.PermissionListener;
 
 import java.util.LinkedList;
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class Home extends AppCompatActivity implements AlarmViewInterFace {
 
@@ -57,10 +63,15 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
     private ChatFragment chatFrag;
     private MusicSelectorDialog musicSelectorDialog;
     private MediaController mediaController;
-    private AlarmPresenter presenter;
+    private HomePresenter presenter;
     private Toolbar toolbar;
     private List<SongInfo> audioFiles;
     private SongInfo chosenSong;
+    private CircleImageView homeProfile;
+    private TextView user_name;
+    private String mUsername;
+    FirebaseUser user;
+    private View simple, profile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +85,9 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
     }
 
     private void initialisePrequisites() {
-        presenter = new AlarmPresenter(this);
+        user = FirebaseUtil.getmAuth().getCurrentUser();
+        if (user!=null)mUsername = user.getDisplayName();
+        presenter = new HomePresenter(this);
         fragmentList = new LinkedList<>();
         blogFrag = BlogFragment.getInstance();
         chatFrag = ChatFragment.getInstance("");
@@ -95,7 +108,14 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
     private void setupActionBar() {
         toolbar = findViewById(R.id.appbar_home);
         title = findViewById(R.id.frag_toolbar_name);
+        user_name = findViewById(R.id.textHomeUserName);
+        user_name.setText(mUsername);
+        homeProfile = findViewById(R.id.imageHomeProfile);
+        homeProfile.setImageURI(user.getPhotoUrl()!=null? user.getPhotoUrl():
+                Uri.parse(GeneralUtil.getAppPref(this).getString(Constants.PROFILE, null)));
         bottomNavigationView = findViewById(R.id.navigationView);
+        simple = findViewById(R.id.simpleToolbarView);
+        profile = findViewById(R.id.profileToolbarView);
     }
 
     private void setupHomeActionBar() {
@@ -144,7 +164,6 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
         pager.setAdapter(adapter);
         pager.addOnPageChangeListener(pageChangeListener);
         bottomNavigationView.setOnNavigationItemSelectedListener(navListener);
-
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener  navListener =
@@ -175,7 +194,6 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
         }
-
         @Override
         public void onPageSelected(int position) {
             if (adapter.getPageTitle(position).equals(Constants.HOME)) {

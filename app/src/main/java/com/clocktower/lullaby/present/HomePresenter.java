@@ -30,7 +30,7 @@ import java.util.List;
 
 import static android.content.Intent.FLAG_INCLUDE_STOPPED_PACKAGES;
 
-public class AlarmPresenter {
+public class HomePresenter {
 
     private AlarmViewInterFace interFace;
 
@@ -54,7 +54,7 @@ public class AlarmPresenter {
     private static final String NOTIFICATION_TIME = "NOTIFICATION_TIME";
     private static final String ALARM_TIME = "ALARM_TIME";
 
-    public AlarmPresenter(AlarmViewInterFace interFace) {
+    public HomePresenter(AlarmViewInterFace interFace) {
         this.interFace = interFace;
         initialisePrequisites();
     }

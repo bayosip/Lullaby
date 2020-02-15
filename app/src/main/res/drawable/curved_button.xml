@@ -11,7 +11,7 @@
 
     <item android:state_pressed="true">
     <shape xmlns:android="http://schemas.android.com/apk/res/android">
-        <solid android:color="@color/ripple"/>
+        <solid android:color="@color/colorAccent"/>
         <stroke android:width="2dp" android:color="@color/colorPrimary" />
         <corners android:radius="35dp" />
         <padding android:bottom="0dp" android:left="0dp" android:right="0dp" android:top="0dp" />

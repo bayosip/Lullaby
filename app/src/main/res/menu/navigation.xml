@@ -10,7 +10,7 @@
         android:id="@+id/navigation_alarm"
         android:icon="@drawable/ic_alarm_24dp"
         android:enabled="true"
-        android:title="Alarm"/>
+        android:title="Scheduler"/>
 
     <item
         android:id="@+id/navigation_music"
