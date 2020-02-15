@@ -11,62 +11,71 @@
     tools:ignore="PrivateResource">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/simpleToolbarView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/appbar_padding"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/frag_toolbar_name"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textColor="@color/inputouput"
-            android:text="Scheduler"
-            android:textStyle="bold"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:layout_gravity="center"
+        android:layout_height="wrap_content">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/simpleToolbarView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/appbar_padding"
+            android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.45"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            app:layout_constraintBottom_toBottomOf="parent">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/profileToolbarView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/appbar_padding">
+            <TextView
+                android:id="@+id/frag_toolbar_name"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textColor="@color/inputouput"
+                android:text="Scheduler"
+                android:textStyle="bold"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:layout_gravity="center"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.45"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/imageHomeProfile"
-            android:layout_width="25dp"
-            android:layout_height="match_parent"
-            android:layout_weight="3"
-            android:background="@drawable/circle_white"
-            android:src="@drawable/ic_person_24dp"
-            app:civ_border_color="@color/hint_color"
-            app:civ_border_width="0.6dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/profileToolbarView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/appbar_padding"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toBottomOf="parent">
 
-        <TextView
-            android:id="@+id/textHomeUserName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left|center"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_weight="7"
-            android:text="@string/username"
-            android:textColor="@color/app_background_white"
-            android:textSize="12sp"
-            app:layout_constraintStart_toEndOf="@id/imageHomeProfile"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/imageHomeProfile"
+                android:layout_width="25dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:background="@drawable/circle_white"
+                android:src="@drawable/ic_person_24dp"
+                app:civ_border_color="@color/hint_color"
+                app:civ_border_width="0.6dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <TextView
+                android:id="@+id/textHomeUserName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left|center"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_weight="7"
+                android:text="@string/username"
+                android:textColor="@color/app_background_white"
+                android:textSize="12sp"
+                app:layout_constraintStart_toEndOf="@id/imageHomeProfile"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-
 </androidx.appcompat.widget.Toolbar>
