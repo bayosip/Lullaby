@@ -7,6 +7,9 @@ public class Comments {
     private String username, comment, url;
     private Date timestamp;
 
+    public Comments() {
+    }
+
     public Comments(String username, String url, String comment, Date timestamp) {
         this.username = username;
         this.url = url;

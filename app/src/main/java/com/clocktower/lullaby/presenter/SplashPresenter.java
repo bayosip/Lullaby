@@ -1,5 +1,6 @@
 package com.clocktower.lullaby.presenter;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -10,6 +11,7 @@ import androidx.annotation.NonNull;
 
 import com.clocktower.lullaby.App;
 import com.clocktower.lullaby.R;
+import com.clocktower.lullaby.interfaces.LoginListener;
 import com.clocktower.lullaby.model.ProfilePicture;
 import com.clocktower.lullaby.model.utilities.Constants;
 import com.clocktower.lullaby.model.utilities.FirebaseUtil;
@@ -36,11 +38,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
 
 public class SplashPresenter {
 
     private FirebaseApp app;
-    private volatile Splash activity;
+    private LoginListener loginListener;
+    private volatile Activity activity;
     private List<AuthUI.IdpConfig> loginProviders;
     private FirebaseUser user;
     private String uuid;
@@ -50,13 +55,15 @@ public class SplashPresenter {
     private ProfilePicture profile;
     private Bitmap imageBitmap;
     private static final String filename = "profile.png", filename_T = "profile_Thumb.png";
+    private boolean hasName = false;
 
     private boolean firebaseSave = false;
 
     private String profileDisplayName;
 
-    public SplashPresenter(Splash activity) {
-        this.activity = activity;
+    public SplashPresenter(LoginListener listener) {
+        this.loginListener = listener;
+        this.activity = listener.getLoginActivity();
         initiatePrequisites();
     }
 
@@ -71,16 +78,13 @@ public class SplashPresenter {
 
     private void subscribeUserToNotification() {
         FirebaseMessaging.getInstance().subscribeToTopic("Coza_Family")
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        String msg = activity.getString(R.string.msg_subscribed);
-                        if (!task.isSuccessful()) {
-                            msg = activity.getString(R.string.msg_subscribe_failed);
-                        }
-                        Log.d(Splash.TAG, msg);
-                        GeneralUtil.message(msg);
+                .addOnCompleteListener(task -> {
+                    String msg = activity.getString(R.string.msg_subscribed);
+                    if (!task.isSuccessful()) {
+                        msg = activity.getString(R.string.msg_subscribe_failed);
                     }
+                    Log.d(Splash.TAG, msg);
+                    GeneralUtil.message(msg);
                 });
     }
 
@@ -117,11 +121,17 @@ public class SplashPresenter {
                 }
             }
 
-            if (TextUtils.isEmpty(user.getDisplayName())){
+            if (TextUtils.isEmpty(user.getDisplayName()) && !TextUtils.isEmpty(profileDisplayName)){
                 UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest
                         .Builder().setDisplayName(profileDisplayName)
                         .build();
-                user.updateProfile(profileUpdates);
+                user.updateProfile(profileUpdates).addOnCompleteListener(task -> {
+                    if(task.isSuccessful()){
+                        hasName = true;
+                    }
+                });
+            }else {
+                loginListener.startProfilePictureFragment(profileDisplayName);
             }
             profilePhotoUrl = user.getPhotoUrl();
             checkIfUserIsRegisteredOnFireStore();
@@ -130,26 +140,23 @@ public class SplashPresenter {
 
     private void checkIfUserIsRegisteredOnFireStore(){
         DocumentReference docRef = firestore.collection(Constants.USERS).document(user.getUid());
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Log.d(Splash.TAG, "DocumentSnapshot data: " + document.getData());
-                        GeneralUtil.getAppPref(App.context).edit().putString("PROFILE",
-                                profilePhotoUrl.toString()).apply();
-                    } else {
-                        Log.d(Splash.TAG, "No such document");
-                        if (profilePhotoUrl== null){
-                            activity.startProfilePictureFragment(profileDisplayName);
-                        }else {
-                            savePictureOnFireBase(profilePhotoUrl);
-                        }
-                    }
+        docRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    Log.d(Splash.TAG, "DocumentSnapshot data: " + document.getData());
+                    GeneralUtil.getAppPref(App.context).edit().putString("PROFILE",
+                            profilePhotoUrl.toString()).apply();
                 } else {
-                    Log.d(Splash.TAG, "get failed with ", task.getException());
+                    Log.d(Splash.TAG, "No such document");
+                    if (profilePhotoUrl== null){
+                        loginListener.startProfilePictureFragment(profileDisplayName);
+                    }else {
+                        savePictureOnFireBase(profilePhotoUrl);
+                    }
                 }
+            } else {
+                Log.d(Splash.TAG, "get failed with ", task.getException());
             }
         });
     }
@@ -162,7 +169,7 @@ public class SplashPresenter {
         user.updateProfile(profileUpdates);
     }
 
-    private void storeFirestore(@NonNull Task<Uri> task, String user_name) {
+    private void storeFirestore(@NonNull Task<Uri> task, final String user_name) {
         Uri download_uri;
         if(task != null) {
             download_uri = task.getResult();
@@ -174,19 +181,16 @@ public class SplashPresenter {
         userMap.put("name", user_name);
         userMap.put("image", download_uri.toString());
 
-        firestore.collection(Constants.USERS).document(uuid).set(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-                    activity.hidePB();
-                    startHomeActivity();
-                } else {
-                    activity.hidePB();
-                    String error = task.getException().getMessage();
-                    GeneralUtil.showAlertMessage(activity, activity.getString(R.string.error), error);
-                }
-                //setupProgress.setVisibility(View.INVISIBLE);
+        firestore.collection(Constants.USERS).document(uuid).set(userMap).addOnCompleteListener(task1 -> {
+            if(task1.isSuccessful()){
+                loginListener.hidePB();
+                startHomeActivity(user_name);
+            } else {
+                loginListener.hidePB();
+                String error = task1.getException().getMessage();
+                GeneralUtil.showAlertMessage(activity, activity.getString(R.string.error), error);
             }
+            //setupProgress.setVisibility(View.INVISIBLE);
         });
     }
 
@@ -194,7 +198,7 @@ public class SplashPresenter {
         // Create a reference to "profile_pic.jpg"
         GeneralUtil.getAppPref(activity).edit().putString(Constants.PROFILE,
                 uri.toString()).apply();
-        activity.showPB();
+        loginListener.showPB();
         final StorageReference profileRef = storageRef.child(Constants.USERS).child(
                 user.getDisplayName().trim() + "_" + filename);
         byte[] img = GeneralUtil.compressImgFromUri(activity, uri);
@@ -202,69 +206,63 @@ public class SplashPresenter {
         //final StorageReference profileImagesRef = storageRef.child("images/"+filename);
         final UploadTask uploadTask;
             uploadTask = profileRef.putBytes(img);
-
-            uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                @Override
-                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                    if (!task.isSuccessful()) {
-                        throw task.getException();
-                    }
-                    // Continue with the task to get the download URL
-                    return profileRef.getDownloadUrl();
+            uploadTask.continueWithTask(task -> {
+                if (!task.isSuccessful()) {
+                    throw task.getException();
                 }
-            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                @Override
-                public void onComplete(@NonNull Task<Uri> task) {
-                    if (task.isSuccessful()) {
-                        GeneralUtil.message("Profile Changed");
-                        firebaseSave = true;
-                        setUserImage(task.getResult());
-                        storeFirestore(task, profileDisplayName);
-                    } else {
-                        activity.hidePB();
-                        GeneralUtil.getHandler().post(new Runnable() {
-                            @Override
-                            public void run() {
-                                //viewImplementation.hidePictureLoaderBar();
-                                GeneralUtil.showAlertMessage(activity, activity.getString(R.string.error),
-                                        activity.getString(R.string.error_image_msg));
-                            }
-                        });
-                    }
+                // Continue with the task to get the download URL
+                return profileRef.getDownloadUrl();
+            }).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    GeneralUtil.message("Profile Changed");
+                    firebaseSave = true;
+                    setUserImage(task.getResult());
+                    storeFirestore(task, profileDisplayName);
+                } else {
+                    loginListener.hidePB();
+                    GeneralUtil.getHandler().post(() -> {
+                        //viewImplementation.hidePictureLoaderBar();
+                        GeneralUtil.showAlertMessage(activity, activity.getString(R.string.error),
+                                activity.getString(R.string.error_image_msg));
+                    });
                 }
             });
         Log.e(Splash.TAG, "Saved: " + firebaseSave);
         return firebaseSave;
     }
 
-    public void startHomeActivity(){
-        Intent intent = new Intent(activity, Home.class).putExtra(Constants.USER_DATA, profileDisplayName);
+    public void startHomeActivity(String name){
+        Intent intent = new Intent(activity, Home.class).putExtra(Constants.USER_DATA, name);
         GeneralUtil.transitionActivity(activity, intent);
     }
 
     public void getImageFromIntent(Intent data) {
         Uri imageUri = data.getData();
-
-        Log.d(Splash.TAG, "getImageFromIntent: "+ imageUri.toString());
+        if(imageUri!=null)
+            Log.d(Splash.TAG, "getImageFromIntent: "+ imageUri.toString());
         //savePictureOnFireBase(imageUri);
     }
 
     public void registerUserOnDbWith(String email, String pwd) {
        final FirebaseAuth auth = FirebaseUtil.getmAuth();
-       auth.createUserWithEmailAndPassword(email, pwd).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                auth.getCurrentUser().sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()){
-                            GeneralUtil.showAlertMessage(activity, "Success!!!",
-                                    "Please on the link in your email to complete verification");
-                        }else {
-                            GeneralUtil.message("Registration Unsuccessful... Check and try again.");
-                        }
-                    }
-                });
+       auth.createUserWithEmailAndPassword(email, pwd).addOnCompleteListener(task ->
+               auth.getCurrentUser().sendEmailVerification().addOnCompleteListener(task1 -> {
+                   if (task1.isSuccessful()){
+                       GeneralUtil.showAlertMessage(activity, "Success!!!",
+                               "Please on the link in your email to complete verification");
+                   }else {
+                       GeneralUtil.message("Registration Unsuccessful... Check and try again.");
+                   }
+               }));
+    }
+
+    public void saveNameinFBAuth(final String name) {
+        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest
+                .Builder().setDisplayName(name)
+                .build();
+        user.updateProfile(profileUpdates).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                startHomeActivity(name);
             }
         });
     }

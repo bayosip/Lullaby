@@ -10,8 +10,11 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.MediaController;
@@ -19,6 +22,7 @@ import android.widget.TextView;
 
 import com.clocktower.lullaby.interfaces.HomeViewInterFace;
 import com.clocktower.lullaby.R;
+import com.clocktower.lullaby.interfaces.ProfileListener;
 import com.clocktower.lullaby.model.Comments;
 import com.clocktower.lullaby.model.Post;
 import com.clocktower.lullaby.model.SongInfo;
@@ -34,6 +38,7 @@ import com.clocktower.lullaby.view.fragments.home.BaseFragment;
 import com.clocktower.lullaby.view.fragments.home.BlogFragment;
 import com.clocktower.lullaby.view.fragments.home.MusicSelectorDialog;
 import com.clocktower.lullaby.view.fragments.home.TrackSetterFragment;
+import com.clocktower.lullaby.view.fragments.login.Profile_creation_frag;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseUser;
@@ -43,14 +48,17 @@ import com.karumi.dexter.listener.PermissionDeniedResponse;
 import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
-import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
+import com.koushikdutta.ion.Ion;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class Home extends AppCompatActivity implements HomeViewInterFace {
+import static com.clocktower.lullaby.model.utilities.Constants.COMMENTS;
+import static com.clocktower.lullaby.model.utilities.Constants.PROFILE;
+
+public class Home extends AppCompatActivity implements HomeViewInterFace, ProfileListener {
 
     private static final String TAG = "Home";
     private ViewPager pager;
@@ -64,6 +72,7 @@ public class Home extends AppCompatActivity implements HomeViewInterFace {
     private TrackSetterFragment trackFrag;
     private AlarmSetterFragment alarmFrag;
     private CommentsFragment commentFrag;
+    private Profile_creation_frag profileFrag;
     private ChatFragment chatFrag;
     private MusicSelectorDialog musicSelectorDialog;
     private MediaController mediaController;
@@ -107,7 +116,6 @@ public class Home extends AppCompatActivity implements HomeViewInterFace {
         fragmentList.add(chatFrag);
 
         adapter = new HomePageFragmentAdapter(getSupportFragmentManager(), fragmentList);
-        //mp = MediaPlayer.
     }
 
     private void setupActionBar() {
@@ -116,7 +124,9 @@ public class Home extends AppCompatActivity implements HomeViewInterFace {
         user_name = findViewById(R.id.textHomeUserName);
         user_name.setText(mUsername);
         homeProfile = findViewById(R.id.imageHomeProfile);
-        UrlImageViewHelper.setUrlDrawable(homeProfile, user.getPhotoUrl()!=null? user.getPhotoUrl().toString():
+        Ion.with(homeProfile)
+                .placeholder(R.drawable.ic_person_24dp)
+                .load(user.getPhotoUrl()!=null? user.getPhotoUrl().toString():
                         GeneralUtil.getAppPref(this).getString(Constants.PROFILE, null));
         bottomNavigationView = findViewById(R.id.navigationView);
         simple = findViewById(R.id.simpleToolbarView);
@@ -134,6 +144,7 @@ public class Home extends AppCompatActivity implements HomeViewInterFace {
         ab.setDisplayShowTitleEnabled(false); // disable the default title element here (for centered title)
         ab.setDisplayShowHomeEnabled(false); // show or hide the default home button
         ab.setDisplayHomeAsUpEnabled(false);
+        ab.setDisplayShowTitleEnabled(false);
     }
 
 
@@ -149,12 +160,11 @@ public class Home extends AppCompatActivity implements HomeViewInterFace {
         ab.setDisplayHomeAsUpEnabled(true);
         ab.setDisplayShowCustomEnabled(true); // enable overriding the default toolbar layout
         ab.setDisplayShowTitleEnabled(false); // disable the default title element here (for centered title)
-
     }
 
     private void initialiseWidgets() {
         setupActionBar();
-        commentView = findViewById(R.id.comment_fragment_container);
+        commentView = findViewById(R.id.home_fragment_container);
         pager = findViewById(R.id.page_container);
         fab = findViewById(R.id.buttonMusicContent);
         fab.hide();
@@ -163,13 +173,11 @@ public class Home extends AppCompatActivity implements HomeViewInterFace {
             public void onClick(View view) {
                 if (audioFiles != null) {
                     musicSelectorDialog.show(getSupportFragmentManager());
-                }
 
-                else GeneralUtil.showAlertMessage(Home.this, "Error!",
+                } else GeneralUtil.showAlertMessage(Home.this, "Error!",
                         "No Audio Files Found");
             }
         });
-
         pager.setAdapter(adapter);
         pager.addOnPageChangeListener(pageChangeListener);
         bottomNavigationView.setOnNavigationItemSelectedListener(navListener);
@@ -381,15 +389,19 @@ public class Home extends AppCompatActivity implements HomeViewInterFace {
     }
 
     @Override
-    public void openCommentSectionOnPostWithId(String postID) {
+    public void openCommentSectionOnPostWithId(String postID, String title) {
         pager.setVisibility(View.GONE);
         bottomNavigationView.setVisibility(View.GONE);
+
         commentFrag = CommentsFragment.newInstance(postID);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-        fragmentTransaction.add(R.id.comment_fragment_container, commentFrag);
+        fragmentTransaction.add(R.id.home_fragment_container, commentFrag, COMMENTS);
         fragmentTransaction.commitAllowingStateLoss();
+        commentView.setVisibility(View.VISIBLE);
+        this.title.setText(title);
+        setupOtherActionBar();
     }
 
     @Override
@@ -435,7 +447,15 @@ public class Home extends AppCompatActivity implements HomeViewInterFace {
 
     @Override
     public void onBackPressed() {
-        if ( pager.getCurrentItem() == 0) {
+        if(getSupportFragmentManager().findFragmentById(R.id.home_fragment_container)
+                .getTag().equals(COMMENTS)){
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+            fragmentTransaction.remove(commentFrag).commitAllowingStateLoss();
+            commentView.setVisibility(View.GONE);
+            setupHomeActionBar();
+        }else if ( pager.getCurrentItem() == 0) {
             GeneralUtil.exitApp(Home.this);
         }
         else {
@@ -449,5 +469,70 @@ public class Home extends AppCompatActivity implements HomeViewInterFace {
         return true;
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.home_menu, menu);
+        return true;
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.home_account:
+                startProfilePictureFragment(mUsername);
+                return true;
+            case R.id.home_log_out:
+                logOut();
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public void startProfilePictureFragment(String name){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        profileFrag = Profile_creation_frag.getInstance(name);
+        fragmentTransaction.add(R.id.fragment_container, profileFrag, PROFILE);
+        fragmentTransaction.commitAllowingStateLoss();
+    }
+
+    private void logOut() {
+        FirebaseUtil.getmAuth().signOut();
+        sendToLogin();
+    }
+
+    private void sendToLogin() {
+        GeneralUtil.transitionActivity(Home.this, Splash.class);
+    }
+
+    @Override
+    public void goStraightToHomePage(String getName) {
+        if(getSupportFragmentManager().findFragmentById(R.id.home_fragment_container)
+                .getTag().equals(PROFILE)) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+            fragmentTransaction.remove(profileFrag).commitAllowingStateLoss();
+            setupOtherActionBar();
+            title.setText("Edit Profile");
+            commentView.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void saveUserNameintoDb(String name) {
+
+    }
+
+    @Override
+    public boolean savePictureInDb(Uri uri) {
+        return false;
+    }
+
+    @Override
+    public void getImageFromIntent(Intent data) {
+
+    }
 }

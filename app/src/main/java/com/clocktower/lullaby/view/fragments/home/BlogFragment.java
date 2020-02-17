@@ -27,6 +27,7 @@ public class BlogFragment extends BaseFragment {
     private List<CozaBlog> posts;
     private static Post postsarr[];
     private String getName;
+    private Boolean reachedBottom = false;
 
 
     public static BlogFragment getInstance(String name){
@@ -68,7 +69,7 @@ public class BlogFragment extends BaseFragment {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                Boolean reachedBottom = !recyclerView.canScrollVertically(1);
+                reachedBottom = !recyclerView.canScrollVertically(1);
                 if (reachedBottom) {
                     listener.loadMorePost();
                 }
@@ -78,7 +79,11 @@ public class BlogFragment extends BaseFragment {
 
     public void updateAdapter(final Post post) {
         CozaBlog blog = new CozaBlog(post);
-        posts.add(0,blog);
+        if(reachedBottom)
+            posts.add(blog);
+        else {
+            posts.add(0, blog);
+        }
         adapter.notifyDataSetChanged();
     }
 

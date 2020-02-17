@@ -161,17 +161,13 @@ public class FirebaseToHomePresenter {
         Map<String, Object> commentsMap = new HashMap<>();
         commentsMap.put("comment", comment_message);
         commentsMap.put("username", user.getDisplayName());
-        commentsMap.put("url", user.getPhotoUrl());
+        commentsMap.put("url", user.getPhotoUrl().toString());
         commentsMap.put("timestamp", FieldValue.serverTimestamp());
 
         firestore.collection("Posts/" + postID+ "/Comments").add(commentsMap)
-                .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentReference> task) {
-
-                        if(task==null || !task.isSuccessful()){
-                            GeneralUtil.message( "Error Posting Comment : " + task.getException().getMessage());
-                        }
+                .addOnCompleteListener(task -> {
+                    if(task==null || !task.isSuccessful()){
+                        GeneralUtil.message( "Error Posting Comment : " + task.getException().getMessage());
                     }
                 });
     }

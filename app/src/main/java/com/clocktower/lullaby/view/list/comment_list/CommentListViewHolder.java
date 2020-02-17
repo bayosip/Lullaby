@@ -4,13 +4,11 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.view.View;
 import android.widget.TextView;
-
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.model.Comments;
-import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
-
+import com.koushikdutta.ion.Ion;
 
 import java.util.List;
 import java.util.Random;
@@ -52,6 +50,8 @@ public class CommentListViewHolder extends RecyclerView.ViewHolder {
         userName.setText(comments.get(getAdapterPosition()).getUsername());
         getUsernameColor();
         comment.setText(comments.get(getAdapterPosition()).getComment());
-        UrlImageViewHelper.setUrlDrawable(profilePic, comments.get(getAdapterPosition()).getUrl());
+        Ion.with(profilePic)
+                .placeholder(R.drawable.ic_person_24dp)
+                .load( comments.get(getAdapterPosition()).getUrl());
     }
 }

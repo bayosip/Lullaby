@@ -1,9 +1,11 @@
 package com.clocktower.lullaby.view.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
@@ -33,8 +35,12 @@ public class Splash extends AppCompatActivity implements LoginListener, View.OnC
     public static final String TAG = Splash.class.getSimpleName();
     private SplashPresenter presenter;
     private Profile_creation_frag fragment;
+    private RegisterationFragment regFragment;
     private Button signIn, register;
     private View loginView;
+    public static final String PROFILE = "Profile Creation";
+    public static final String REGISTRATION = "Register";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,12 +55,13 @@ public class Splash extends AppCompatActivity implements LoginListener, View.OnC
         }, 1000);
     }
 
+    @Override
     public void startProfilePictureFragment(String name){
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
         fragment = Profile_creation_frag.getInstance(name);
-        fragmentTransaction.add(R.id.fragment_container, fragment);
+        fragmentTransaction.add(R.id.fragment_container, fragment, PROFILE);
         fragmentTransaction.commitAllowingStateLoss();
     }
 
@@ -62,8 +69,8 @@ public class Splash extends AppCompatActivity implements LoginListener, View.OnC
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-        RegisterationFragment fragment = RegisterationFragment.getInstance();
-        fragmentTransaction.add(R.id.fragment_container, fragment);
+        regFragment = RegisterationFragment.getInstance();
+        fragmentTransaction.add(R.id.fragment_container, regFragment, REGISTRATION);
         fragmentTransaction.commitAllowingStateLoss();
     }
 
@@ -73,7 +80,6 @@ public class Splash extends AppCompatActivity implements LoginListener, View.OnC
         register = findViewById(R.id.buttonRegister);
         register.setOnClickListener(this);
         loginView = findViewById(R.id.loginOptionsView);
-
     }
 
     @Override
@@ -113,8 +119,8 @@ public class Splash extends AppCompatActivity implements LoginListener, View.OnC
     }
 
     @Override
-    public void goStraightToHomePage() {
-        presenter.startHomeActivity();
+    public void goStraightToHomePage(String name) {
+        presenter.startHomeActivity(name);
     }
 
     public boolean savePictureInDb(Uri uri) {
@@ -130,6 +136,11 @@ public class Splash extends AppCompatActivity implements LoginListener, View.OnC
     }
 
     @Override
+    public Activity getLoginActivity() {
+        return Splash.this;
+    }
+
+    @Override
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.buttonSignIn:
@@ -139,5 +150,25 @@ public class Splash extends AppCompatActivity implements LoginListener, View.OnC
                 startEmailRegFragment();
                 break;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        String fragTag = getSupportFragmentManager().findFragmentById(R.id.fragment_container)
+                .getTag();
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(fragTag);
+        if(fragTag.equals(REGISTRATION)){
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+            fragmentTransaction.remove(fragment).commitAllowingStateLoss();
+        }else {
+            super.onBackPressed();
+        }
+    }
+
+    public void saveUserNameintoDb(String name) {
+        presenter.saveNameinFBAuth(name);
     }
 }

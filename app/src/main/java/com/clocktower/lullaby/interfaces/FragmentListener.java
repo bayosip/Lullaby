@@ -25,7 +25,7 @@ public interface FragmentListener extends ListItemClickListener {
 
     void updateLikesCount(String postID);
     void updateCommentCount(String postId);
-    void openCommentSectionOnPostWithId(String postID);
+    void openCommentSectionOnPostWithId(String postID, String title);
     void retrieveAllComments(String postId);
     void postACommentOnPostWithId(String postId, String msg);
     void restoreViewsAfterLeavingCommentSection();

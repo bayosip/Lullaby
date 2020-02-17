@@ -1,8 +1,13 @@
 package com.clocktower.lullaby.interfaces;
 
-public interface LoginListener {
+import android.app.Activity;
+
+public interface LoginListener extends ProfileListener {
 
     void initialiseLogin();
-    void goStraightToHomePage();
-    void startProfilePictureFragment(String name);
+    Activity getLoginActivity();
+    void goStraightToHomePage(String name);
+    void startProfilePictureFragment(String profileDisplayName);
+    void hidePB();
+    void showPB();
 }

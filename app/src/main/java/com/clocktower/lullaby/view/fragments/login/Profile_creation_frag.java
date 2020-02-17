@@ -4,11 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -18,6 +20,7 @@ import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.fragment.app.Fragment;
 
 import com.clocktower.lullaby.R;
+import com.clocktower.lullaby.interfaces.ProfileListener;
 import com.clocktower.lullaby.model.ProfilePicture;
 import com.clocktower.lullaby.model.utilities.Constants;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
@@ -30,20 +33,22 @@ public class Profile_creation_frag extends Fragment implements View.OnClickListe
 
     private static final String TAG = "Profile_creation_frag";
     private static final String NAME = "Name";
-    private Splash activity;
     private ImageButton addPicture;
     private CircleImageView profilePic;
     private Button mContinue;
     private TextView username;
+    private EditText enterName;
     private ContentLoadingProgressBar progressBar;
     private String getName;
+    private boolean hasName;
     private ProfilePicture profile;
+    private ProfileListener listener;
     
 
     public static Profile_creation_frag getInstance(String name){
         Profile_creation_frag fragment = new Profile_creation_frag();
         Bundle extra =  new Bundle();
-        extra.putString(NAME, name );
+        extra.putString(NAME, name);
         fragment.setArguments(extra);
         return  fragment;
     }
@@ -59,7 +64,7 @@ public class Profile_creation_frag extends Fragment implements View.OnClickListe
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        getName = getArguments().getString(NAME);
+        getName = getArguments().getString(NAME, null);
         profile = new ProfilePicture();
         initialiseWidgets(view);
     }
@@ -69,13 +74,18 @@ public class Profile_creation_frag extends Fragment implements View.OnClickListe
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        activity = (Splash)context;
+        listener = (ProfileListener) context;
     }
 
     private void initialiseWidgets(View view){
         addPicture = view.findViewById(R.id.buttonAddImage);
         addPicture.setOnClickListener(this);
         username = view.findViewById(R.id.text_user_name_crtn);
+        enterName = view.findViewById(R.id.editTextEnterName);
+        if (!TextUtils.isEmpty(getName)){
+            enterName.setText(getName);
+            enterName.setEnabled(false);
+        }
         username.setText(getName);
         profilePic= view.findViewById(R.id.imageViewID);
         mContinue = view.findViewById(R.id.buttonContinueHome);
@@ -100,7 +110,12 @@ public class Profile_creation_frag extends Fragment implements View.OnClickListe
                 profile.changeProfilePic(Profile_creation_frag.this);
                 break;
             case R.id.buttonContinueHome:
-                activity.goStraightToHomePage();
+                if (!TextUtils.isEmpty(getName))
+                    listener.goStraightToHomePage(getName);
+                else{
+                    String name = enterName.getText().toString();
+                    listener.saveUserNameintoDb(name);
+                }
                 break;
         }
     }
@@ -113,7 +128,7 @@ public class Profile_creation_frag extends Fragment implements View.OnClickListe
                 case CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE:
                     CropImage.ActivityResult result = CropImage.getActivityResult(data);
                     Uri uri = result.getUri();
-                    if (activity.savePictureInDb(uri))
+                    if (listener.savePictureInDb(uri))
                         setImageURI(uri);
                     break;
                 case CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE:
@@ -124,11 +139,11 @@ public class Profile_creation_frag extends Fragment implements View.OnClickListe
                 case Constants.REQUEST_IMAGE_CAPTURE:
                     Log.d(TAG, "onActivityResult: "+ data.toString());
                     setImageURI(data.getData());
-                    activity.getImageFromIntent(data);
+                    listener.getImageFromIntent(data);
                     break;
                 case Constants.PICK_IMAGE_REQUEST:
                     Uri imgUri = data.getData();
-                    if(imgUri!= null && activity.savePictureInDb(imgUri))
+                    if(imgUri!= null && listener.savePictureInDb(imgUri))
                         setImageURI(imgUri);
                     break;
             }

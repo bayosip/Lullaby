@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.interfaces.FragmentListener;
 import com.clocktower.lullaby.model.CozaBlog;
-import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
+import com.koushikdutta.ion.Ion;
 
 import java.util.Date;
 import java.util.List;
@@ -35,6 +35,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
     String url;
     String postId;
     private FragmentListener listener;
+    private String title;
 
 
     public BlogVH(@NonNull View itemView) {
@@ -75,13 +76,14 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         likeCount.setText(listener.getListenerContext().getString(R.string.like_count,
                 posts.get(getAdapterPosition()).getLikeCount()));
         commentCount.setText(listener.getListenerContext().getString(R.string.comment_count,
-                posts.get(getAdapterPosition()).getLikeCount()));
+                posts.get(getAdapterPosition()).getCommentCount()));
         if (posts.get(getAdapterPosition()).isLiked()){
             like.setImageResource(R.drawable.ic_like_on_24dp);
         }else {
             like.setImageResource(R.drawable.ic_like_off_24dp);
         }
-        postTitle.setText(posts.get(getAdapterPosition()).getPost().getTitle());
+        title = posts.get(getAdapterPosition()).getPost().getTitle();
+        postTitle.setText(title);
 
         mediaView.setVisibility(posts.get(getAdapterPosition()).getPost().getMediaType()==0?
                 View.GONE: View.VISIBLE);
@@ -94,8 +96,9 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         url = posts.get(getAdapterPosition()).getPost().getUrl();
 
         if(posts.get(getAdapterPosition()).getPost().getMediaType()==1)
-            UrlImageViewHelper.setUrlDrawable(imgPost, url);
-
+            Ion.with(imgPost)
+                    .placeholder(R.drawable.ic_person_24dp)
+                    .load( url);
         try {
             long millisecond = posts.get(getAdapterPosition()).getPost().getTimeStamp().getTime();
             String dateString = DateFormat.format("MMM dd yyyy, HH:mm:ss", new Date(millisecond)).toString();
@@ -127,7 +130,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
                 listener.likeThisPost(postId);
                 break;
             case R.id.post_comment_icon:
-                listener.openCommentSectionOnPostWithId(postId);
+                listener.openCommentSectionOnPostWithId(postId, title);
                 break;
         }
     }

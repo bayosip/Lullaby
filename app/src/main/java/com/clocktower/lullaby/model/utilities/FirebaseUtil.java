@@ -28,6 +28,7 @@ public class FirebaseUtil {
     static FirebaseFirestore firestore;
     static StorageReference storage;
     private static FirebaseAuth mAuth;
+    private static String profileDisplayName;
 
     private static final String TAG = "FirebaseUtil";
 
@@ -55,43 +56,42 @@ public class FirebaseUtil {
 
     public static void checkIfUserIsSignedIn(final LoginListener loginListener) {
 
-        mAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    Log.d(TAG, "User Signed In");
-                    String username = user.getDisplayName();
-                    Log.e(TAG, "User is: " + username);
-                    if(TextUtils.isEmpty(username)){
-                        for (UserInfo profile : user.getProviderData()) {
-                            // Name, email address, and profile photo Url
-                            String profileDisplayName = profile.getDisplayName();
-                            String profileEmail = profile.getEmail();
+        mAuth.addAuthStateListener(firebaseAuth -> {
+            FirebaseUser user = firebaseAuth.getCurrentUser();
+            if (user != null) {
+                Log.d(TAG, "User Signed In");
+                String username = user.getDisplayName();
+                Log.e(TAG, "User is: " + username);
+                if(TextUtils.isEmpty(username)){
+                    for (UserInfo profile : user.getProviderData()) {
+                        // Name, email address, and profile photo Url
+                        profileDisplayName = profile.getDisplayName();
+                        String profileEmail = profile.getEmail();
 
-                            if(!TextUtils.isEmpty(user.getEmail()) && !TextUtils.isEmpty(profileEmail) &&
-                                    user.getEmail().equalsIgnoreCase(profileEmail)){
-                                if (!TextUtils.isEmpty(profileDisplayName) && TextUtils.isEmpty(username)){
-                                    UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest
-                                            .Builder().setDisplayName(profileDisplayName)
-                                            .build();
-                                    user.updateProfile(profileUpdates);
-                                }
-                                break;
+                        if(!TextUtils.isEmpty(user.getEmail()) && !TextUtils.isEmpty(profileEmail) &&
+                                user.getEmail().equalsIgnoreCase(profileEmail)){
+                            if (!TextUtils.isEmpty(profileDisplayName)){
+                                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest
+                                        .Builder().setDisplayName(profileDisplayName)
+                                        .build();
+                                user.updateProfile(profileUpdates);
+                            }else {
+                                loginListener.startProfilePictureFragment(username);
                             }
+                            break;
                         }
                     }
-                    if (user.getPhotoUrl() != null){
-                        GeneralUtil.getAppPref(App.context).edit().putString("PROFILE",
-                                user.getPhotoUrl().toString()).apply();
-                    loginListener.goStraightToHomePage();
-                    }
-                    else {
-                        loginListener.startProfilePictureFragment(username);
-                    }
-                } else {
-                    loginListener.initialiseLogin();
                 }
+                if (user.getPhotoUrl() != null){
+                    GeneralUtil.getAppPref(App.context).edit().putString("PROFILE",
+                            user.getPhotoUrl().toString()).apply();
+                loginListener.goStraightToHomePage(username);
+                }
+                else {
+                    loginListener.startProfilePictureFragment(username);
+                }
+            } else {
+                loginListener.initialiseLogin();
             }
         });
     }

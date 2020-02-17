@@ -53,6 +53,7 @@ public class CommentsFragment extends BaseFragment{
         initialisePrequistes();
         PID = getArguments().getString(ID);
         initialiseWidget(view);
+        listener.retrieveAllComments(PID);
     }
 
     private void initialisePrequistes(){
@@ -71,16 +72,13 @@ public class CommentsFragment extends BaseFragment{
 
         commentText =v.findViewById(R.id.editTextComment);
         sendComment = v.findViewById(R.id.btnSendComment);
-        sendComment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String msg = commentText.getText().toString();
-                if(!TextUtils.isEmpty(msg)){
-                    listener.postACommentOnPostWithId(PID, msg);
-                    commentText.setText("");
-                }else {
-                    GeneralUtil.message("Enter Comment Please...");
-                }
+        sendComment.setOnClickListener(view -> {
+            String msg = commentText.getText().toString();
+            if(!TextUtils.isEmpty(msg)){
+                listener.postACommentOnPostWithId(PID, msg);
+                commentText.setText("");
+            }else {
+                GeneralUtil.message("Enter Comment Please...");
             }
         });
     }

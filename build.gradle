@@ -12,6 +12,7 @@ buildscript {
         maven { url "https://maven.fabric.io/public" }
         maven {  url  'http://dl.bintray.com/gigamole/maven/'}
         google()
+        mavenCentral()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.4.2'

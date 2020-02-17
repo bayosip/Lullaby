@@ -19,4 +19,7 @@
     <string name="error">Error!</string>
     <string name="like_count">%d Likes</string>
     <string name="comment_count">%d Comments</string>
+    <!-- Facebook application ID and custom URL scheme (app ID prefixed by 'fb'). -->
+    <string name="facebook_application_id" translatable="false">801531950349242</string>
+    <string name="facebook_login_protocol_scheme" translatable="false">fb801531950349242</string>
 </resources>
