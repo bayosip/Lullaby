@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
+import com.clocktower.lullaby.App;
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.model.utilities.Constants;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
@@ -36,6 +37,8 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class ProfilePicture {
     private static Uri profileUri;
@@ -116,10 +119,18 @@ public class ProfilePicture {
 
     private void BringImagePicker(final Fragment fragment) {
 
-        CropImage.activity()
-                .setGuidelines(CropImageView.Guidelines.ON)
-                .setAspectRatio(1, 1)
-                .start(fragment.getActivity());
+        Intent intent = new Intent();
+        intent.setType("image/*");
+
+        Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore
+                .Images.Media.EXTERNAL_CONTENT_URI);
+        pickIntent.setType("image/*");
+
+        Intent chooserIntent = Intent.createChooser(intent, "Select Image");
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
+
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        fragment.startActivityForResult(chooserIntent, Constants.PICK_IMAGE_REQUEST);
 
     }
 
@@ -137,7 +148,8 @@ public class ProfilePicture {
 
                         @Override
                         public void onPermissionDenied(PermissionDeniedResponse response) {
-
+                            GeneralUtil.showAlertMessage(fragment.getActivity(),
+                                    fragment.getString(R.string.error),"Internal Storage Permission Denied");
                         }
 
                         @Override
@@ -150,42 +162,50 @@ public class ProfilePicture {
     }
 
     private void dispatchTakePictureIntent(final Fragment fragment) {
-        File mainDirectory = null;
+        Dexter.withActivity(fragment.getActivity())
+                .withPermission(Manifest.permission.CAMERA)
+                .withListener(new PermissionListener() {
+
+                    @Override
+                    public void onPermissionGranted(PermissionGrantedResponse response) {
+                        Uri imageUri = getImageUri(fragment);
+                        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        if (intent.resolveActivity(fragment.getActivity().getPackageManager()) != null) {
+                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            //intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                            intent.putExtra("android.intent.extra.quickCapture", true);
+                            fragment.startActivityForResult(intent, Constants.REQUEST_IMAGE_CAPTURE);
+                        }
+                    }
+
+                    @Override
+                    public void onPermissionDenied(PermissionDeniedResponse response) {
+                        GeneralUtil.showAlertMessage(fragment.getActivity(),
+                                fragment.getString(R.string.error),"Camera Permission Denied");
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(PermissionRequest permission,
+                                                                   PermissionToken token) {
+                        token.cancelPermissionRequest();
+                    }
+                }).check();
+    }
+
+    private Uri getImageUri(Fragment fragment){
+        Uri m_imgUri = null;
+        File m_file;
         try {
-            mainDirectory = getOutputMediaFile(fragment);
-        } catch (IOException e) {
-            e.printStackTrace();
+            m_file = getOutputMediaFile(fragment);
+            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
+                m_imgUri = Uri.fromFile(m_file);
+            else {
+                m_imgUri = FileProvider.getUriForFile(App.context,
+                        App.context.getPackageName() + ".provider", m_file);
+            }
+        } catch (IOException p_e) {
         }
-
-        if(mainDirectory!= null) {
-            Uri uriFilePath = FileProvider.getUriForFile(fragment.getContext(),
-                    fragment.getContext().getPackageName() + ".provider", mainDirectory);
-            Dexter.withActivity(fragment.getActivity())
-                    .withPermission(Manifest.permission.CAMERA)
-                    .withListener(new PermissionListener() {
-
-                        @Override
-                        public void onPermissionGranted(PermissionGrantedResponse response) {
-                            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                            if (intent.resolveActivity(fragment.getActivity().getPackageManager()) != null) {
-                                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                                //intent.putExtra(MediaStore.EXTRA_OUTPUT, uriFilePath);
-                                intent.putExtra("android.intent.extra.quickCapture", true);
-                                fragment.startActivityForResult(intent, Constants.REQUEST_IMAGE_CAPTURE);
-                            }
-                        }
-
-                        @Override
-                        public void onPermissionDenied(PermissionDeniedResponse response) {
-                        }
-
-                        @Override
-                        public void onPermissionRationaleShouldBeShown(PermissionRequest permission,
-                                                                       PermissionToken token) {
-                            token.cancelPermissionRequest();
-                        }
-                    }).check();
-        }
+        return m_imgUri;
     }
 
     private void dispatchTakePictureIntentAPILow(Fragment fragment) {
@@ -204,8 +224,8 @@ public class ProfilePicture {
                 return null;
             }
         }
-            File image = File.createTempFile("COZA_IMG", ".png", mediaStorageDir);
-            return image;
+        File image = File.createTempFile("COZA_IMG", ".png", mediaStorageDir);
+        return image;
     }
 
 }

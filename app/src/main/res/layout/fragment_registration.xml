@@ -13,6 +13,16 @@
     tools:showIn="@layout/activity_login"
     tools:context=".view.activities.ui.login.LoginActivity">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:textColor="@color/lightColor"
+        android:textSize="@dimen/title_size_small"
+        android:text="Please fill the form below to register"/>
+
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -34,6 +44,8 @@
             android:hint="@string/prompt_email"
             android:inputType="textEmailAddress"
             android:selectAllOnFocus="true"
+            android:padding="12dp"
+            android:background="@drawable/edittext_custom"
             />
 
         <EditText
@@ -47,7 +59,24 @@
             android:imeActionLabel="@string/action_sign_in_short"
             android:imeOptions="actionDone"
             android:inputType="textPassword"
-            android:selectAllOnFocus="true" />
+            android:selectAllOnFocus="true"
+            android:padding="12dp"
+            android:background="@drawable/edittext_custom" />
+
+        <EditText
+            android:id="@+id/passwordConfirm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="24dp"
+            android:hint="@string/prompt_password_confirm"
+            android:imeActionLabel="@string/action_sign_in_short"
+            android:imeOptions="actionDone"
+            android:inputType="textPassword"
+            android:selectAllOnFocus="true"
+            android:padding="12dp"
+            android:background="@drawable/edittext_custom" />
 
         <Button
             android:id="@+id/login"
@@ -56,14 +85,14 @@
             android:background="@drawable/curved_button"
             android:layout_gravity="center"
             android:layout_marginStart="48dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="20dp"
             android:layout_marginEnd="48dp"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:enabled="false"
             android:textColor="@color/app_background_white"
             android:text="@string/action_sign_in" />
 
-        <ProgressBar
+        <androidx.core.widget.ContentLoadingProgressBar
             android:id="@+id/loading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

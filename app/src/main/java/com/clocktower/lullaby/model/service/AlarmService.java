@@ -60,7 +60,7 @@ public class AlarmService extends IntentService {
         lullabyNotifyBuilder.setContentText(message);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            lullabyNotifyBuilder.setSmallIcon(R.drawable.ic_access_alarm_24dp);
+            lullabyNotifyBuilder.setSmallIcon(R.drawable.launch_screen);
         } else {
             lullabyNotifyBuilder.setSmallIcon(R.mipmap.ic_launcher);
         }

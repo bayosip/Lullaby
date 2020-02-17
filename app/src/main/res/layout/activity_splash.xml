@@ -7,4 +7,6 @@
     android:background="@drawable/launch_screen"
     tools:context=".view.activities.Splash">
 
+    <include layout="@layout/content_splash"/>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

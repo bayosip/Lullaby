@@ -33,6 +33,14 @@
             @transition/change_image_transform</item>
     </style>
 
+    <style name="AppTheme.Login" parent="@style/Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/app_background_white</item>
+        <item name="colorPrimaryDark">@color/app_background_white</item>
+        <item name="colorAccent">@color/lightColor</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
     <style name="AppTheme.AppBarOverlay" parent="android:ThemeOverlay.Material.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="android:ThemeOverlay.Material.Light" />

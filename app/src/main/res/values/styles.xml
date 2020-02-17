@@ -28,6 +28,15 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowBackground">@drawable/launch_screen</item>
+
+    </style>
+
+    <style name="AppTheme.Login" parent="@style/Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/app_background_white</item>
+        <item name="colorPrimaryDark">@color/app_background_white</item>
+        <item name="colorAccent">@color/lightColor</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
 </resources>

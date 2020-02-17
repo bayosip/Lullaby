@@ -59,6 +59,7 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-auth:4.3.1'
     implementation 'com.google.firebase:firebase-auth:19.2.0'
     implementation 'com.google.android.gms:play-services-auth:17.0.0'
+    implementation project(path: ':urlimageviewhelper-1.0.4')
 }
 
 

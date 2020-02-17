@@ -6,10 +6,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.MenuItem;
@@ -17,14 +17,17 @@ import android.view.View;
 import android.widget.MediaController;
 import android.widget.TextView;
 
-import com.clocktower.lullaby.interfaces.AlarmViewInterFace;
+import com.clocktower.lullaby.interfaces.HomeViewInterFace;
 import com.clocktower.lullaby.R;
+import com.clocktower.lullaby.model.Comments;
+import com.clocktower.lullaby.model.Post;
 import com.clocktower.lullaby.model.SongInfo;
 import com.clocktower.lullaby.model.utilities.Constants;
 import com.clocktower.lullaby.model.utilities.FirebaseUtil;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
-import com.clocktower.lullaby.present.HomePresenter;
+import com.clocktower.lullaby.presenter.HomePresenter;
 import com.clocktower.lullaby.view.fragments.home.ChatFragment;
+import com.clocktower.lullaby.view.fragments.home.CommentsFragment;
 import com.clocktower.lullaby.view.fragments.home.HomePageFragmentAdapter;
 import com.clocktower.lullaby.view.fragments.home.AlarmSetterFragment;
 import com.clocktower.lullaby.view.fragments.home.BaseFragment;
@@ -33,7 +36,6 @@ import com.clocktower.lullaby.view.fragments.home.MusicSelectorDialog;
 import com.clocktower.lullaby.view.fragments.home.TrackSetterFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
@@ -41,13 +43,14 @@ import com.karumi.dexter.listener.PermissionDeniedResponse;
 import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
+import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class Home extends AppCompatActivity implements AlarmViewInterFace {
+public class Home extends AppCompatActivity implements HomeViewInterFace {
 
     private static final String TAG = "Home";
     private ViewPager pager;
@@ -60,6 +63,7 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
     private BlogFragment blogFrag;
     private TrackSetterFragment trackFrag;
     private AlarmSetterFragment alarmFrag;
+    private CommentsFragment commentFrag;
     private ChatFragment chatFrag;
     private MusicSelectorDialog musicSelectorDialog;
     private MediaController mediaController;
@@ -69,6 +73,7 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
     private SongInfo chosenSong;
     private CircleImageView homeProfile;
     private TextView user_name;
+    private View commentView;
     private String mUsername;
     FirebaseUser user;
     private View simple, profile;
@@ -89,8 +94,8 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
         if (user!=null)mUsername = user.getDisplayName();
         presenter = new HomePresenter(this);
         fragmentList = new LinkedList<>();
-        blogFrag = BlogFragment.getInstance();
-        chatFrag = ChatFragment.getInstance("");
+        blogFrag = BlogFragment.getInstance(mUsername);
+        chatFrag = ChatFragment.getInstance(mUsername);
         alarmFrag = AlarmSetterFragment.getInstance();
         trackFrag = TrackSetterFragment.getInstance();
         musicSelectorDialog = MusicSelectorDialog.getInstance();
@@ -111,8 +116,8 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
         user_name = findViewById(R.id.textHomeUserName);
         user_name.setText(mUsername);
         homeProfile = findViewById(R.id.imageHomeProfile);
-        homeProfile.setImageURI(user.getPhotoUrl()!=null? user.getPhotoUrl():
-                Uri.parse(GeneralUtil.getAppPref(this).getString(Constants.PROFILE, null)));
+        UrlImageViewHelper.setUrlDrawable(homeProfile, user.getPhotoUrl()!=null? user.getPhotoUrl().toString():
+                        GeneralUtil.getAppPref(this).getString(Constants.PROFILE, null));
         bottomNavigationView = findViewById(R.id.navigationView);
         simple = findViewById(R.id.simpleToolbarView);
         profile = findViewById(R.id.profileToolbarView);
@@ -122,6 +127,8 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
 
         setSupportActionBar(toolbar);
         final ActionBar ab = getSupportActionBar();
+        simple.setVisibility(View.GONE);
+        profile.setVisibility(View.VISIBLE);
 
         ab.setDisplayShowCustomEnabled(true); // enable overriding the default toolbar layout
         ab.setDisplayShowTitleEnabled(false); // disable the default title element here (for centered title)
@@ -133,7 +140,8 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
     private void setupOtherActionBar() {
         // Get the ActionBar here to configure the way it behaves.
         setSupportActionBar(toolbar);
-
+        simple.setVisibility(View.VISIBLE);
+        profile.setVisibility(View.GONE);
         // Get the ActionBar here to configure the way it behaves.
         final ActionBar ab = getSupportActionBar();
 
@@ -146,6 +154,7 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
 
     private void initialiseWidgets() {
         setupActionBar();
+        commentView = findViewById(R.id.comment_fragment_container);
         pager = findViewById(R.id.page_container);
         fab = findViewById(R.id.buttonMusicContent);
         fab.hide();
@@ -182,8 +191,7 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
                             return true;
                         case R.id.navigation_forum:
                             pager.setCurrentItem(3);
-                            break;
-
+                            return true;
                     }
                     return false;
                 }
@@ -197,7 +205,6 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
         @Override
         public void onPageSelected(int position) {
             if (adapter.getPageTitle(position).equals(Constants.HOME)) {
-                title.setText(Constants.HOME);
                 setupHomeActionBar();
                 fab.hide();
             }else if (adapter.getPageTitle(position).equals(Constants.ALARM_SETTER)){
@@ -215,8 +222,7 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
                 fab.show();
             }else if (adapter.getPageTitle(position).equals(Constants.FORUM)){
                 fab.hide();
-                title.setText(Constants.FORUM);
-                setupOtherActionBar();
+                setupHomeActionBar();
             }
         }
 
@@ -241,7 +247,6 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
 
                     @Override
                     public void onPermissionDenied(PermissionDeniedResponse response) {
-
                     }
 
                     @Override
@@ -320,6 +325,16 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
     }
 
     @Override
+    public void updateLikesCount(String id) {
+        presenter.getLikePostForPost(id);
+    }
+
+    @Override
+    public void likeThisPost(String id) {
+        presenter.likePost(id);
+    }
+
+    @Override
     public void setTrackBarForMusic(int duration) {
         trackFrag.calibrateTrackBarForMusic(duration);
     }
@@ -327,6 +342,79 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
     @Override
     public void goToMusicSetter() {
         pager.setCurrentItem(2);
+    }
+
+    @Override
+    public Home getActivity() {
+        return Home.this;
+    }
+
+    @Override
+    public void startLoadingPostsFromFirebase() {
+        presenter.firstPageFirstLoad();
+    }
+
+    @Override
+    public void loadMorePost() {
+        presenter.loadMorePost();
+    }
+
+    @Override
+    public void updateBlogWith(Post post) {
+        blogFrag.updateAdapter(post);
+    }
+
+    @Override
+    public void updatePostLikesCount(String id, int count) {
+        blogFrag.updateLikeCount(id, count);
+    }
+
+    @Override
+    public void updateLikeBtnImg(String id, boolean exists) {
+        blogFrag.updateLikeBtnImg(id, exists);
+    }
+
+    @Override
+    public void updatePostComments(Comments comments) {
+        if (commentFrag!=null)
+            commentFrag.updateAdapter(comments);
+    }
+
+    @Override
+    public void openCommentSectionOnPostWithId(String postID) {
+        pager.setVisibility(View.GONE);
+        bottomNavigationView.setVisibility(View.GONE);
+        commentFrag = CommentsFragment.newInstance(postID);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        fragmentTransaction.add(R.id.comment_fragment_container, commentFrag);
+        fragmentTransaction.commitAllowingStateLoss();
+    }
+
+    @Override
+    public void updateCommentCount(String postId) {
+        presenter.getNumberOfComments(postId);
+    }
+
+    @Override
+    public void retrieveAllComments(String postId) {
+        presenter.loadCommentsForPostWithID(postId);
+    }
+
+    @Override
+    public void postACommentOnPostWithId(String postId, String msg) {
+        presenter.makeCommentOnPostWithID(postId, msg);
+    }
+
+    @Override
+    public void updatePostCommentsCount(String postID, int count) {
+        blogFrag.updateCommentCount(postID, count);
+    }
+
+    @Override
+    public void clearList() {
+        blogFrag.clearList();
     }
 
     @Override
@@ -338,7 +426,12 @@ public class Home extends AppCompatActivity implements AlarmViewInterFace {
         return getSupportFragmentManager().findFragmentById(R.id.page_container );
     }
 
+    @Override
+    public void restoreViewsAfterLeavingCommentSection() {
+        bottomNavigationView.setVisibility(View.VISIBLE);
+        pager.setVisibility(View.VISIBLE);
 
+    }
 
     @Override
     public void onBackPressed() {

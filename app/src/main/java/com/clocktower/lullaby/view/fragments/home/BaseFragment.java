@@ -11,7 +11,6 @@ public class BaseFragment extends Fragment {
 
     protected FragmentListener listener;
 
-
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);

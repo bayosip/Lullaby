@@ -12,23 +12,24 @@
         android:layout_height="match_parent"
         android:padding="12dp">
         <LinearLayout
-            android:id="@+id/layout_video"
+            android:id="@+id/layout_post"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:weightSum="100"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/mediaView"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="85">
+                android:layout_weight="85"
+                android:visibility="gone">
                 <ImageView
                     android:id="@+id/imageViewPost"
                     android:layout_width="0dp"
-                    android:layout_height="0dp"
+                    android:layout_height="255dp"
                     android:src="@drawable/ic_image_24dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -37,12 +38,12 @@
                 <VideoView
                     android:id="@+id/videoViewPost"
                     android:layout_width="0dp"
-                    android:layout_height="0dp"
+                    android:layout_height="255dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    android:visibility="gone"
+
                     />
                 <ImageButton
                     android:id="@+id/buttonPlayVideo"
@@ -68,8 +69,7 @@
             <LinearLayout
                 android:layout_marginTop="@dimen/padding"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="12">
+                android:layout_height="35dp">
 
                 <ImageView
                     android:layout_marginTop="@dimen/padding"
@@ -115,7 +115,7 @@
             android:layout_marginBottom="@dimen/padding"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layout_video"
+            app:layout_constraintTop_toBottomOf="@+id/layout_post"
             android:src="@drawable/ic_like_off_24dp" />
 
         <TextView
@@ -129,7 +129,7 @@
             android:text="0 Likes"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/post_like_btn"
-            app:layout_constraintTop_toBottomOf="@+id/layout_video" />
+            app:layout_constraintTop_toBottomOf="@+id/layout_post" />
 
         <TextView
             android:id="@+id/text_post_comment_count"
@@ -142,7 +142,7 @@
             android:text="0 Comments"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layout_video" />
+            app:layout_constraintTop_toBottomOf="@+id/layout_post" />
 
         <ImageView
             android:id="@+id/post_comment_icon"
@@ -154,7 +154,7 @@
             android:layout_marginBottom="@dimen/padding"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/text_post_comment_count"
-            app:layout_constraintTop_toBottomOf="@+id/layout_video"
+            app:layout_constraintTop_toBottomOf="@+id/layout_post"
             android:src="@drawable/ic_comments_24dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

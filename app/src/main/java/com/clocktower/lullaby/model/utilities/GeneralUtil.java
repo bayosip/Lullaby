@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -15,6 +16,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.NetworkOnMainThreadException;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -34,6 +36,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Random;
 
 import id.zelory.compressor.Compressor;
@@ -69,6 +73,21 @@ public class GeneralUtil {
         return uiHandler;
     }
 
+    public static Bitmap getImageFromURL(String urlString){
+        URL url = null;
+        Bitmap bmp = null;
+        try {
+            url = new URL(urlString);
+           bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }catch (IOException e) {
+            e.printStackTrace();
+        }catch (NetworkOnMainThreadException e){
+            e.printStackTrace();
+        }
+        return  bmp;
+    }
 
     public static void exitApp(Activity activity) {
         if (Build.VERSION.SDK_INT >= 21) activity.finishAndRemoveTask();
@@ -96,7 +115,7 @@ public class GeneralUtil {
         }
     }
 
-    public static byte[] compressImg(Activity activity, Uri uri){
+    public static byte[] compressImgFromUri(Activity activity, Uri uri){
 
         Bitmap compressedImageFile = null;
         File newImageFile = new File(uri.getPath());

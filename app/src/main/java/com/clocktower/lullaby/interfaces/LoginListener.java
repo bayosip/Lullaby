@@ -4,4 +4,5 @@ public interface LoginListener {
 
     void initialiseLogin();
     void goStraightToHomePage();
+    void startProfilePictureFragment(String name);
 }

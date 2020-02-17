@@ -25,9 +25,13 @@ public class Constants {
     public static final String CHANNEL_ID ="Home Lullaby";
     public static final String USER_DATA = "user_data";
 
-    //Firebasde storage Ref
+    //Firebase Ref
+    public static final int RC_SIGN_IN = 101;
     public static final String POSTS = "Posts";
     public static final String AUDIO = "Audio";
     public static final String USERS = "Users";
     public static final String PROFILE = "PROFILE";
+    public static final String TIMESTAMP = "TimeStamp";
+    public static final String LIKES = "Likes";
+    public static final String COMMENTS = "Comments";
 }

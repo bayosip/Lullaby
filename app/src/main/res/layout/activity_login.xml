@@ -7,5 +7,5 @@
     android:layout_height="match_parent"
     tools:context=".view.activities.ui.login.LoginActivity">
 
-   <include layout="@layout/content_login"/>
+   <include layout="@layout/fragment_registration"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

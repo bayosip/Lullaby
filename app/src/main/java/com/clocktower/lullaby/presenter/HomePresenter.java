@@ -1,4 +1,4 @@
-package com.clocktower.lullaby.present;
+package com.clocktower.lullaby.presenter;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -14,7 +14,7 @@ import android.os.Message;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import com.clocktower.lullaby.interfaces.AlarmViewInterFace;
+import com.clocktower.lullaby.interfaces.HomeViewInterFace;
 import com.clocktower.lullaby.model.SongInfo;
 import com.clocktower.lullaby.model.service.WakeTimeReceiver;
 import com.clocktower.lullaby.model.utilities.Constants;
@@ -30,9 +30,9 @@ import java.util.List;
 
 import static android.content.Intent.FLAG_INCLUDE_STOPPED_PACKAGES;
 
-public class HomePresenter {
+public class HomePresenter extends FirebaseToHomePresenter {
 
-    private AlarmViewInterFace interFace;
+    private HomeViewInterFace interFace;
 
     private AlarmManager alarmManager;
     private MediaPlayer player;
@@ -54,7 +54,8 @@ public class HomePresenter {
     private static final String NOTIFICATION_TIME = "NOTIFICATION_TIME";
     private static final String ALARM_TIME = "ALARM_TIME";
 
-    public HomePresenter(AlarmViewInterFace interFace) {
+    public HomePresenter(HomeViewInterFace interFace) {
+        super(interFace);
         this.interFace = interFace;
         initialisePrequisites();
     }
