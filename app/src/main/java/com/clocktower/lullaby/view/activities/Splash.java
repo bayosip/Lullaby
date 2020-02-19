@@ -50,7 +50,8 @@ public class Splash extends AppCompatActivity implements LoginListener, View.OnC
         GeneralUtil.getHandler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                FirebaseUtil.checkIfUserIsSignedIn(Splash.this);
+                startProfilePictureFragment("");
+                //FirebaseUtil.checkIfUserIsSignedIn(Splash.this);
             }
         }, 1000);
     }
@@ -106,11 +107,27 @@ public class Splash extends AppCompatActivity implements LoginListener, View.OnC
     }
 
     public void showPB(){
-        fragment.showProgressBar();
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+
+        if(fragment!= null) {
+            String tag = getSupportFragmentManager().findFragmentById(R.id.fragment_container)
+                    .getTag();
+            Profile_creation_frag knownfrag = (Profile_creation_frag)getSupportFragmentManager()
+                    .findFragmentByTag(tag);
+            knownfrag.showProgressBar();
+        }
     }
 
     public void hidePB(){
-        fragment.hideProgressBar();
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+
+        if(fragment!= null) {
+            String tag = getSupportFragmentManager().findFragmentById(R.id.fragment_container)
+                    .getTag();
+            Profile_creation_frag knownfrag = (Profile_creation_frag) getSupportFragmentManager()
+                    .findFragmentByTag(tag);
+            knownfrag.hideProgressBar();
+        }
     }
 
     @Override
@@ -124,7 +141,8 @@ public class Splash extends AppCompatActivity implements LoginListener, View.OnC
     }
 
     public boolean savePictureInDb(Uri uri) {
-        return presenter.savePictureOnFireBase(uri);
+
+        return presenter.saveImgInUserProfile(uri, Splash.this);//
     }
 
     public void getImageFromIntent(Intent data) {

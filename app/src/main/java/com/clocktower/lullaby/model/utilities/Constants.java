@@ -24,6 +24,8 @@ public class Constants {
     public static final String WMA = ".wma";
     public static final String CHANNEL_ID ="Home Lullaby";
     public static final String USER_DATA = "user_data";
+    public static final String URI_DATA = "uri_data";
+    public static final String IMAGE_CAPTURE_URI = "image_capture_uri";
 
     //Firebase Ref
     public static final int RC_SIGN_IN = 101;
@@ -34,4 +36,5 @@ public class Constants {
     public static final String TIMESTAMP = "TimeStamp";
     public static final String LIKES = "Likes";
     public static final String COMMENTS = "Comments";
+    public static final String APP_TOPIC = "Coza_Family";
 }

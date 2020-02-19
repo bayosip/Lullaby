@@ -60,18 +60,18 @@ public class RegisterationFragment extends Fragment {
         final ContentLoadingProgressBar loadingProgressBar = view.findViewById(R.id.loading);
         loadingProgressBar.hide();
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                loadingProgressBar.show();
-                String pwd = passwordEditText.getText().toString();
-                String cPwd = confirmPwd.getText().toString();
-                String email = usernameEditText.getText().toString();
-                if (pwd.equals(cPwd) && email.contains("@")){
-                    activity.registerUserWith(email, pwd);
-                }else {
-                    GeneralUtil.message("Registration Error, check email or password");
-                }
+        loginButton.setOnClickListener(view1 -> {
+            loadingProgressBar.show();
+            String pwd = passwordEditText.getText().toString();
+            String cPwd = confirmPwd.getText().toString();
+            String email = usernameEditText.getText().toString();
+            if (pwd.equals(cPwd) && email.contains("@")){
+                activity.registerUserWith(email, pwd);
+                passwordEditText.setText("");
+                confirmPwd.setText("");
+                usernameEditText.setText("");
+            }else {
+                GeneralUtil.message("Registration Error, check email or password");
             }
         });
     }

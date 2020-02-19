@@ -107,12 +107,9 @@ public class ProfilePicture {
             }
         });
 
-        gallery.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openImageFileChooser(fragment);
-                change.dismiss();
-            }
+        gallery.setOnClickListener(view -> {
+            openImageFileChooser(fragment);
+            change.dismiss();
         });
         change.show();
     }
@@ -162,19 +159,23 @@ public class ProfilePicture {
     }
 
     private void dispatchTakePictureIntent(final Fragment fragment) {
+        Uri imageUri = getImageUri(fragment);
+
         Dexter.withActivity(fragment.getActivity())
                 .withPermission(Manifest.permission.CAMERA)
                 .withListener(new PermissionListener() {
 
                     @Override
                     public void onPermissionGranted(PermissionGrantedResponse response) {
-                        Uri imageUri = getImageUri(fragment);
+
                         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                         if (intent.resolveActivity(fragment.getActivity().getPackageManager()) != null) {
                             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                             //intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
                             intent.putExtra("android.intent.extra.quickCapture", true);
                             fragment.startActivityForResult(intent, Constants.REQUEST_IMAGE_CAPTURE);
+                            fragment.getActivity().sendBroadcast(new Intent(Constants.IMAGE_CAPTURE_URI)
+                                    .putExtra(Constants.URI_DATA, imageUri.toString()));
                         }
                     }
 

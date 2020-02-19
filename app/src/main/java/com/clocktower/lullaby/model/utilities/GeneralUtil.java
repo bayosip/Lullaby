@@ -115,29 +115,18 @@ public class GeneralUtil {
         }
     }
 
-    public static byte[] compressImgFromUri(Activity activity, Uri uri){
+    public static byte[] compressImgFromUri(Bitmap bitmap){
 
-        Bitmap compressedImageFile = null;
-        File newImageFile = new File(uri.getPath());
-        try {
-
-            compressedImageFile =  new Compressor(activity)
-                    .setMaxHeight(125)
-                    .setMaxWidth(125)
-                    .setQuality(50)
-                    .compressToBitmap(newImageFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        if (compressedImageFile != null) {
-            compressedImageFile.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        if (bitmap != null) {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             byte[] thumbData = baos.toByteArray();
             return thumbData;
         }
         else return null;
     }
+
 
     public static Drawable setADrawable(Activity activity, int drawableID) {
         Drawable drawable;

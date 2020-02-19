@@ -151,8 +151,8 @@ public class Profile_creation_frag extends Fragment implements View.OnClickListe
             // Sign in failed. If response is null the user canceled the
             // sign-in flow using the back button. Otherwise check
             // response.getError().getErrorCode() and handle the error.
-            //Log.e(TAG, "onActivityResult: ", response.getError());
-            GeneralUtil.message("Error Occured" + resultCode);
+            Log.e(TAG, "onActivityResult: " + resultCode);
+            GeneralUtil.message("Error Occured " + resultCode);
         }
     }
 

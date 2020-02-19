@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.clocktower.lullaby">
+
+    <uses-feature android:name="android.hardware.camera"
+        android:required="false" />
     <!-- Include required permissions for Google Mobile Ads to run. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- Include recommended permissions for internet to run best. -->
@@ -37,6 +40,29 @@
 
         <meta-data android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_application_id"/>
+
+        <service
+            android:name=".model.service.CozaFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
+     See README(https://goo.gl/l4GJaQ) for more. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/coza" />
+        <!-- Set color used with incoming notification messages. This is used when no color is set for the incoming
+             notification message. See README(https://goo.gl/6BKBk7) for more. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorPrimaryDark" />
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/default_notification_channel_id" />
 
         <activity android:name="com.facebook.FacebookActivity"
             android:configChanges=
@@ -82,9 +108,6 @@
             android:name=".model.service.RingToneService"
             android:enabled="true"
             android:exported="true" />
-        <service android:name=".model.service.PostListnerService"
-            android:enabled="true"
-            android:exported="true"/>
 
         <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:screenOrientation="portrait"
