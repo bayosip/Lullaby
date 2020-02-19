@@ -50,8 +50,8 @@ public class Splash extends AppCompatActivity implements LoginListener, View.OnC
         GeneralUtil.getHandler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                startProfilePictureFragment("");
-                //FirebaseUtil.checkIfUserIsSignedIn(Splash.this);
+                //startProfilePictureFragment("");
+                FirebaseUtil.checkIfUserIsSignedIn(Splash.this);
             }
         }, 1000);
     }

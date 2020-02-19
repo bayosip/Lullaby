@@ -141,10 +141,6 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
         profile.setVisibility(View.VISIBLE);
 
         ab.setDisplayShowCustomEnabled(true); // enable overriding the default toolbar layout
-        ab.setDisplayShowTitleEnabled(false); // disable the default title element here (for centered title)
-        ab.setDisplayShowHomeEnabled(false); // show or hide the default home button
-        ab.setDisplayHomeAsUpEnabled(false);
-        ab.setDisplayShowTitleEnabled(false);
     }
 
 
@@ -168,15 +164,12 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
         pager = findViewById(R.id.page_container);
         fab = findViewById(R.id.buttonMusicContent);
         fab.hide();
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (audioFiles != null) {
-                    musicSelectorDialog.show(getSupportFragmentManager());
+        fab.setOnClickListener(view -> {
+            if (audioFiles != null) {
+                musicSelectorDialog.show(getSupportFragmentManager());
 
-                } else GeneralUtil.showAlertMessage(Home.this, "Error!",
-                        "No Audio Files Found");
-            }
+            } else GeneralUtil.showAlertMessage(Home.this, "Error!",
+                    "No Audio Files Found");
         });
         pager.setAdapter(adapter);
         pager.addOnPageChangeListener(pageChangeListener);

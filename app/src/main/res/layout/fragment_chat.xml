@@ -11,6 +11,29 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".view.fragments.home.ChatFragment">
 
+    <TextView
+        android:id="@+id/textUnderConstruction"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/title_size"
+        android:text="Page Under Construction..."
+        android:gravity="center"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0.4"/>
+
+    <ImageView
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        app:layout_constraintTop_toBottomOf="@id/textUnderConstruction"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:src="@drawable/ic_build_24dp"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -31,6 +54,8 @@
         android:paddingLeft="12dp"
         android:paddingEnd="12dp"
         android:paddingRight="12dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginStart="5dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btnSendChat"
         app:layout_constraintTop_toTopOf="parent"
