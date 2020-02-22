@@ -152,7 +152,16 @@ public class FirebaseUtil {
                     if (user.getPhotoUrl()== null || TextUtils.isEmpty(user.getPhotoUrl().toString())){
                         listener.startProfilePictureFragment(user.getDisplayName());
                     }else {
-                        savePictureOnFireBase(user.getPhotoUrl(), user, listener);
+                        Bitmap bitmap = null;
+                        try {
+                        bitmap = Ion.with(listener.getLoginActivity())
+                                .load(user.getPhotoUrl().toString()).withBitmap().asBitmap().get();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                        savePictureOnFireBase(bitmap, user, listener);
                     }
                 }
             } else {
@@ -187,20 +196,9 @@ public class FirebaseUtil {
         });
     }
 
-    public static boolean savePictureOnFireBase(Uri uri, FirebaseUser user, LoginListener listener) {
+    public static boolean savePictureOnFireBase(Bitmap bitmap, FirebaseUser user, LoginListener listener) {
         // Create a reference to "profile_pic.jpg"
-
-        Bitmap bitmap = null;
-        try {
-            bitmap = Ion.with(listener.getLoginActivity())
-                    .load(uri.toString()).withBitmap().asBitmap().get();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        GeneralUtil.getAppPref(listener.getLoginActivity()).edit().putString(Constants.PROFILE,
-                uri.toString()).apply();
+        if (bitmap == null)return false;
         listener.showPB();
         final StorageReference profileRef = storage.child(Constants.USERS).child(
                 user.getDisplayName().trim() + "_" + filename);
@@ -218,6 +216,8 @@ public class FirebaseUtil {
             return profileRef.getDownloadUrl();
         }).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                GeneralUtil.getAppPref(listener.getLoginActivity()).edit().putString(Constants.PROFILE,
+                        task.getResult().toString()).apply();
                 GeneralUtil.message("Profile Changed");
                 firebaseSave = true;
                 setUserImage(task.getResult(), user);

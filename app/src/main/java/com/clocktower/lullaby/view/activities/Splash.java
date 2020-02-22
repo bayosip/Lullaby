@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +18,7 @@ import android.widget.Button;
 
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.interfaces.LoginListener;
+import com.clocktower.lullaby.interfaces.ProfileListener;
 import com.clocktower.lullaby.model.utilities.Constants;
 import com.clocktower.lullaby.model.utilities.FirebaseUtil;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
@@ -29,7 +31,7 @@ import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.util.List;
 
-public class Splash extends AppCompatActivity implements LoginListener, View.OnClickListener {
+public class Splash extends AppCompatActivity implements ProfileListener, View.OnClickListener {
 
 
     public static final String TAG = Splash.class.getSimpleName();
@@ -50,7 +52,6 @@ public class Splash extends AppCompatActivity implements LoginListener, View.OnC
         GeneralUtil.getHandler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                //startProfilePictureFragment("");
                 FirebaseUtil.checkIfUserIsSignedIn(Splash.this);
             }
         }, 1000);
@@ -140,13 +141,13 @@ public class Splash extends AppCompatActivity implements LoginListener, View.OnC
         presenter.startHomeActivity(name);
     }
 
-    public boolean savePictureInDb(Uri uri) {
-
-        return presenter.saveImgInUserProfile(uri, Splash.this);//
+    public boolean savePictureInDb(Bitmap bitmap) {
+        return presenter.saveImgInUserProfile(bitmap, Splash.this);//
     }
 
-    public void getImageFromIntent(Intent data) {
-        presenter.getImageFromIntent(data);
+    @Override
+    public boolean savePictureInDb(Uri uri) {
+        return presenter.saveImgInUserProfile(uri, Splash.this);
     }
 
     public void registerUserWith(String email, String pwd) {

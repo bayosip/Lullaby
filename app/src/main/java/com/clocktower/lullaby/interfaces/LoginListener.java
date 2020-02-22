@@ -2,7 +2,7 @@ package com.clocktower.lullaby.interfaces;
 
 import android.app.Activity;
 
-public interface LoginListener extends ProfileListener {
+public interface LoginListener {
 
     void initialiseLogin();
     Activity getLoginActivity();

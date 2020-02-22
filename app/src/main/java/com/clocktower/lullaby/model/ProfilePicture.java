@@ -172,7 +172,7 @@ public class ProfilePicture {
                         if (intent.resolveActivity(fragment.getActivity().getPackageManager()) != null) {
                             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                             //intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                            intent.putExtra("android.intent.extra.quickCapture", true);
+                            //intent.putExtra("android.intent.extra.quickCapture", true);
                             fragment.startActivityForResult(intent, Constants.REQUEST_IMAGE_CAPTURE);
                             fragment.getActivity().sendBroadcast(new Intent(Constants.IMAGE_CAPTURE_URI)
                                     .putExtra(Constants.URI_DATA, imageUri.toString()));

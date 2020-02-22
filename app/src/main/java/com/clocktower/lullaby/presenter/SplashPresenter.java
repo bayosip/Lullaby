@@ -38,8 +38,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
+import com.koushikdutta.ion.Ion;
 
 public class SplashPresenter {
 
@@ -127,13 +130,6 @@ public class SplashPresenter {
         GeneralUtil.transitionActivity(activity, intent);
     }
 
-    public void getImageFromIntent(Intent data) {
-        Uri imageUri = data.getData();
-        if(imageUri!=null)
-            Log.d(Splash.TAG, "getImageFromIntent: "+ imageUri.toString());
-        FirebaseUtil.savePictureOnFireBase(imageUri, user, loginListener);
-    }
-
     public void registerUserOnDbWith(String email, String pwd) {
        final FirebaseAuth auth = FirebaseUtil.getmAuth();
        auth.createUserWithEmailAndPassword(email, pwd).addOnCompleteListener(task ->
@@ -159,7 +155,20 @@ public class SplashPresenter {
         });
     }
 
-    public boolean saveImgInUserProfile(Uri uri, LoginListener listener) {
-        return FirebaseUtil.savePictureOnFireBase(uri, user, listener);
+    public boolean saveImgInUserProfile(Bitmap bitmap, LoginListener listener) {
+        return FirebaseUtil.savePictureOnFireBase(bitmap, user, listener);
+    }
+
+    public boolean saveImgInUserProfile(Uri uri, LoginListener listener){
+        Bitmap bitmap = null;
+        try {
+            bitmap = Ion.with(listener.getLoginActivity())
+                    .load(uri.toString()).withBitmap().asBitmap().get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return FirebaseUtil.savePictureOnFireBase(bitmap, user, listener);
     }
 }

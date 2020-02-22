@@ -10,13 +10,17 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.MediaController;
 import android.widget.TextView;
 
@@ -52,6 +56,7 @@ import com.koushikdutta.ion.Ion;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -94,7 +99,6 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
         setContentView(R.layout.activity_main);
         initialisePrequisites();
         setupActionBar();
-
         initialiseWidgets();
     }
 
@@ -124,13 +128,16 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
         user_name = findViewById(R.id.textHomeUserName);
         user_name.setText(mUsername);
         homeProfile = findViewById(R.id.imageHomeProfile);
+
         Ion.with(homeProfile)
                 .placeholder(R.drawable.ic_person_24dp)
                 .load(user.getPhotoUrl()!=null? user.getPhotoUrl().toString():
                         GeneralUtil.getAppPref(this).getString(Constants.PROFILE, null));
         bottomNavigationView = findViewById(R.id.navigationView);
+
         simple = findViewById(R.id.simpleToolbarView);
         profile = findViewById(R.id.profileToolbarView);
+        setupHomeActionBar();
     }
 
     private void setupHomeActionBar() {
@@ -141,6 +148,9 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
         profile.setVisibility(View.VISIBLE);
 
         ab.setDisplayShowCustomEnabled(true); // enable overriding the default toolbar layout
+        ab.setDisplayHomeAsUpEnabled(false);
+        ab.setDisplayShowCustomEnabled(false); // enable overriding the default toolbar layout
+        ab.setDisplayShowTitleEnabled(false);
     }
 
 
@@ -152,11 +162,14 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
         // Get the ActionBar here to configure the way it behaves.
         final ActionBar ab = getSupportActionBar();
 
+//        ab.setDisplayOptions();
         ab.setDisplayShowHomeEnabled(true); // show or hide the default home button
         ab.setDisplayHomeAsUpEnabled(true);
         ab.setDisplayShowCustomEnabled(true); // enable overriding the default toolbar layout
         ab.setDisplayShowTitleEnabled(false); // disable the default title element here (for centered title)
     }
+
+
 
     private void initialiseWidgets() {
         setupActionBar();
@@ -440,14 +453,17 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
 
     @Override
     public void onBackPressed() {
-        if(getSupportFragmentManager().findFragmentById(R.id.home_fragment_container)
-                .getTag().equals(COMMENTS)){
+        Fragment fragment= getSupportFragmentManager().findFragmentById(R.id.home_fragment_container);
+        if(fragment!=null){
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-            fragmentTransaction.remove(commentFrag).commitAllowingStateLoss();
+            fragmentTransaction.remove(fragment).commitAllowingStateLoss();
+            restoreViewsAfterLeavingCommentSection();
             commentView.setVisibility(View.GONE);
+            toolbar.setVisibility(View.VISIBLE);
             setupHomeActionBar();
+
         }else if ( pager.getCurrentItem() == 0) {
             GeneralUtil.exitApp(Home.this);
         }
@@ -463,8 +479,9 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.home_menu, menu);
+    public boolean onCreateOptionsMenu ( Menu menu ) {
+        MenuInflater inflater = getMenuInflater () ;
+        inflater.inflate (R.menu.home_menu, menu );
         return true;
     }
 
@@ -478,17 +495,21 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
                 logOut();
                 return true;
             default:
-                return false;
+                return super.onOptionsItemSelected(item);
         }
     }
 
+    @Override
     public void startProfilePictureFragment(String name){
+        pager.setVisibility(View.GONE);
+        bottomNavigationView.setVisibility(View.GONE);
+        commentView.setVisibility(View.VISIBLE);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
         profileFrag = Profile_creation_frag.getInstance(name);
-        fragmentTransaction.add(R.id.fragment_container, profileFrag, PROFILE);
-        fragmentTransaction.commitAllowingStateLoss();
+        fragmentTransaction.add(R.id.home_fragment_container, profileFrag, PROFILE);
+        fragmentTransaction.commit();
     }
 
     private void logOut() {
@@ -502,30 +523,48 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
 
     @Override
     public void goStraightToHomePage(String getName) {
-        if(getSupportFragmentManager().findFragmentById(R.id.home_fragment_container)
-                .getTag().equals(PROFILE)) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-            fragmentTransaction.remove(profileFrag).commitAllowingStateLoss();
-            setupOtherActionBar();
-            title.setText("Edit Profile");
-            commentView.setVisibility(View.GONE);
-        }
+       onBackPressed();
     }
 
     @Override
     public void saveUserNameintoDb(String name) {
+    }
 
+    @Override
+    public boolean savePictureInDb(Bitmap bitmap) {
+        return FirebaseUtil.savePictureOnFireBase(bitmap, user, Home.this);
     }
 
     @Override
     public boolean savePictureInDb(Uri uri) {
-        return false;
+        Bitmap bitmap = null;
+        try {
+            bitmap = Ion.with(Home.this)
+                    .load(uri.toString()).withBitmap().asBitmap().get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return FirebaseUtil.savePictureOnFireBase(bitmap, user, Home.this);
     }
 
     @Override
-    public void getImageFromIntent(Intent data) {
+    public void initialiseLogin() {
+    }
 
+    @Override
+    public Activity getLoginActivity() {
+        return Home.this;
+    }
+
+    @Override
+    public void hidePB() {
+        profileFrag.hideProgressBar();
+    }
+
+    @Override
+    public void showPB() {
+        profileFrag.showProgressBar();
     }
 }

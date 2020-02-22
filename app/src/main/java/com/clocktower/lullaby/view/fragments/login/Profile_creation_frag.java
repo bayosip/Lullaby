@@ -1,7 +1,9 @@
 package com.clocktower.lullaby.view.fragments.login;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -36,13 +38,13 @@ public class Profile_creation_frag extends Fragment implements View.OnClickListe
     private ImageButton addPicture;
     private CircleImageView profilePic;
     private Button mContinue;
-    private TextView username;
     private EditText enterName;
     private ContentLoadingProgressBar progressBar;
     private String getName;
     private boolean hasName;
     private ProfilePicture profile;
     private ProfileListener listener;
+    private Intent mImgUri;
     
 
     public static Profile_creation_frag getInstance(String name){
@@ -80,13 +82,11 @@ public class Profile_creation_frag extends Fragment implements View.OnClickListe
     private void initialiseWidgets(View view){
         addPicture = view.findViewById(R.id.buttonAddImage);
         addPicture.setOnClickListener(this);
-        username = view.findViewById(R.id.text_user_name_crtn);
         enterName = view.findViewById(R.id.editTextEnterName);
         if (!TextUtils.isEmpty(getName)){
             enterName.setText(getName);
             enterName.setEnabled(false);
         }
-        username.setText(getName);
         profilePic= view.findViewById(R.id.imageViewID);
         mContinue = view.findViewById(R.id.buttonContinueHome);
         progressBar = view.findViewById(R.id.progressBarProfileUpload);
@@ -128,7 +128,7 @@ public class Profile_creation_frag extends Fragment implements View.OnClickListe
                 case CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE:
                     CropImage.ActivityResult result = CropImage.getActivityResult(data);
                     Uri uri = result.getUri();
-                    if (listener.savePictureInDb(uri))
+                    if (listener.savePictureInDb(result.getBitmap()))
                         setImageURI(uri);
                     break;
                 case CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE:
@@ -138,8 +138,9 @@ public class Profile_creation_frag extends Fragment implements View.OnClickListe
                     break;
                 case Constants.REQUEST_IMAGE_CAPTURE:
                     Log.d(TAG, "onActivityResult: "+ data.toString());
-                    setImageURI(data.getData());
-                    listener.getImageFromIntent(data);
+                    Bitmap bMap = (Bitmap)data.getExtras().get("data");
+                    profilePic.setImageBitmap(bMap);
+                    listener.savePictureInDb(bMap);
                     break;
                 case Constants.PICK_IMAGE_REQUEST:
                     Uri imgUri = data.getData();
@@ -159,4 +160,11 @@ public class Profile_creation_frag extends Fragment implements View.OnClickListe
     public void setImageURI(Uri uri) {
         profilePic.setImageURI(uri);
     }
+
+    private final BroadcastReceiver commsReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mImgUri = intent;
+        }
+    };
 }

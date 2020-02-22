@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.interfaces.FragmentListener;
 import com.clocktower.lullaby.model.CozaBlog;
+import com.crashlytics.android.Crashlytics;
 import com.koushikdutta.ion.Ion;
 
 import java.util.Date;
@@ -97,7 +98,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
 
         if(posts.get(getAdapterPosition()).getPost().getMediaType()==1)
             Ion.with(imgPost)
-                    .placeholder(R.drawable.ic_person_24dp)
+                    .placeholder(R.drawable.ic_image_24dp)
                     .load( url);
         try {
             long millisecond = posts.get(getAdapterPosition()).getPost().getTimeStamp().getTime();
@@ -118,13 +119,15 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
                    buffering.show();
                    playSelectedVideoFrom(url);
                }else {
-                   playVideoBtn.setImageResource(R.drawable.ic_play_video_24dp);
-                   playVideoBtn.setVisibility(View.VISIBLE);
                    video.pause();
                }
                break;
             case R.id.videoViewPost:
-                playVideoBtn.setVisibility(View.VISIBLE);
+               // Crashlytics.getInstance().crash();
+                if (video.isPlaying()){
+                    playVideoBtn.setVisibility(View.VISIBLE);
+                    playVideoBtn.setImageResource(R.drawable.ic_play_video_24dp);
+                }
                 break;
             case R.id.post_like_btn:
                 listener.likeThisPost(postId);
@@ -140,20 +143,19 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         try {
             Uri uri = Uri.parse(url);
             video.setVideoURI(uri);
-            video.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mediaPlayer) {
-                    buffering.hide();
-                    mediaPlayer.setLooping(true);
-                    video.start();
-                }
+            video.setOnPreparedListener(mediaPlayer -> {
+                buffering.show();
+                mediaPlayer.setLooping(true);
+                video.start();
             });
-            video.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mediaPlayer) {
-                    playVideoBtn.setImageResource(R.drawable.ic_play_video_24dp);
-                    playVideoBtn.setVisibility(View.VISIBLE);
-                }
+
+            if (video.isPlaying()){
+                buffering.hide();
+            }
+
+            video.setOnCompletionListener(mediaPlayer -> {
+                playVideoBtn.setImageResource(R.drawable.ic_play_video_24dp);
+                playVideoBtn.setVisibility(View.VISIBLE);
             });
 
         }catch (Exception ex){
