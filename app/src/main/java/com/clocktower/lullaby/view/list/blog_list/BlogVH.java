@@ -3,6 +3,7 @@ package com.clocktower.lullaby.view.list.blog_list;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.text.format.DateFormat;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,13 +32,14 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
     TextView elaspedTime, postTitle;
     TextView likeCount, commentCount;
     ImageView like, comment, imgPost;
-    ImageButton playVideoBtn;
+    ImageButton playVideoBtn, fullscreen;
     View mediaView;
     ContentLoadingProgressBar buffering;
     String url;
     String postId;
     private FragmentListener listener;
     private String title;
+    private boolean isFullScreen;
 
 
     public BlogVH(@NonNull View itemView) {
@@ -60,7 +63,10 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         playVideoBtn = v.findViewById(R.id.buttonPlayVideo);
         playVideoBtn.setOnClickListener(this);
         buffering = v.findViewById(R.id.progress_video_loading);
+        buffering.hide();
         mediaView = v.findViewById(R.id.mediaView);
+        fullscreen = v.findViewById(R.id.buttonFullScreen);
+        fullscreen.setOnClickListener(this);
 
     }
 
@@ -92,8 +98,10 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
                 View.VISIBLE: View.GONE);
         imgPost.setVisibility(posts.get(getAdapterPosition()).getPost().getMediaType()==1?
                 View.VISIBLE: View.GONE);
-        playVideoBtn.setVisibility(posts.get(getAdapterPosition()).getPost().getMediaType()==2?
-                View.VISIBLE: View.GONE);
+        if(posts.get(getAdapterPosition()).getPost().getMediaType()==2) {
+            playVideoBtn.setVisibility(View.VISIBLE);
+            fullscreen.setVisibility(View.VISIBLE);
+        }
         url = posts.get(getAdapterPosition()).getPost().getUrl();
 
         if(posts.get(getAdapterPosition()).getPost().getMediaType()==1)
@@ -113,17 +121,18 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.buttonPlayVideo:
-               if (!video.isPlaying()) {
-                   playVideoBtn.setImageResource(R.drawable.ic_pause_video_24dp);
-                   playVideoBtn.setVisibility(View.GONE);
-                   buffering.show();
-                   playSelectedVideoFrom(url);
-               }else {
-                   video.pause();
-               }
-               break;
+                if (!video.isPlaying()) {
+                    playVideoBtn.setImageResource(R.drawable.ic_pause_video_24dp);
+                    playVideoBtn.setVisibility(View.GONE);
+                    buffering.show();
+                    playSelectedVideoFrom(url);
+                    snapOutOfFullscreen();
+                }else {
+                    video.pause();
+                }
+                break;
             case R.id.videoViewPost:
-               // Crashlytics.getInstance().crash();
+                // Crashlytics.getInstance().crash();
                 if (video.isPlaying()){
                     playVideoBtn.setVisibility(View.VISIBLE);
                     playVideoBtn.setImageResource(R.drawable.ic_play_video_24dp);
@@ -135,6 +144,11 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
             case R.id.post_comment_icon:
                 listener.openCommentSectionOnPostWithId(postId, title);
                 break;
+            case R.id.buttonFullScreen:
+                if(video.isPlaying()) {
+                    listener.makeVideoFullScreen(url, video.getCurrentPosition());
+                }
+                break;
         }
     }
 
@@ -145,8 +159,9 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
             video.setVideoURI(uri);
             video.setOnPreparedListener(mediaPlayer -> {
                 buffering.show();
-                mediaPlayer.setLooping(true);
+                mediaPlayer.setLooping(false);
                 video.start();
+                if(mediaPlayer.isPlaying())buffering.hide();
             });
 
             if (video.isPlaying()){
@@ -154,6 +169,8 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
             }
 
             video.setOnCompletionListener(mediaPlayer -> {
+                mediaPlayer.reset();
+                mediaPlayer.release();
                 playVideoBtn.setImageResource(R.drawable.ic_play_video_24dp);
                 playVideoBtn.setVisibility(View.VISIBLE);
             });
@@ -161,11 +178,20 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         }catch (Exception ex){
             ex.printStackTrace();
         }
-        video.requestFocus();
-
+        //video.requestFocus();
     }
 
     public void setListener(FragmentListener listener) {
         this.listener = listener;
+    }
+
+    private void snapOutOfFullscreen(){
+        DisplayMetrics metrics = new DisplayMetrics();
+        listener.getListenerContext().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) video.getLayoutParams();
+        params.width = ConstraintLayout.LayoutParams.MATCH_PARENT;
+        params.height = (int)(255*metrics.density);
+        params.leftMargin = 0;
+        video.setLayoutParams(params);
     }
 }

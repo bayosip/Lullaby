@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="12dp">
+
         <LinearLayout
             android:id="@+id/layout_post"
             android:layout_width="match_parent"
@@ -25,7 +26,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="85"
+                android:background="@color/appBackground_dark"
                 android:visibility="gone">
+
                 <ImageView
                     android:id="@+id/imageViewPost"
                     android:layout_width="0dp"
@@ -43,12 +46,24 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-
                     />
+
+                <ImageButton
+                    android:id="@+id/buttonFullScreen"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="@color/transparent"
+                    android:layout_margin="@dimen/inside_padding"
+                    android:visibility="gone"
+                    android:src="@drawable/ic_fullscreen_24dp"
+                    app:layout_constraintEnd_toEndOf="@id/videoViewPost"
+                    app:layout_constraintBottom_toBottomOf="@id/videoViewPost"/>
+
                 <ImageButton
                     android:id="@+id/buttonPlayVideo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:visibility="gone"
                     android:src="@drawable/ic_play_video_24dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -58,13 +73,15 @@
 
                 <androidx.core.widget.ContentLoadingProgressBar
                     android:id="@+id/progress_video_loading"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    style="?android:attr/progressBarStyle"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.051"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    android:background="@android:color/transparent"/>
+                    app:layout_constraintVertical_bias="0.95"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
             <LinearLayout
                 android:layout_marginTop="@dimen/padding"
@@ -87,6 +104,7 @@
                     android:text="xxxx"
                     android:textColor="@color/textColor"
                     android:textSize="@dimen/text_size"/>
+
             </LinearLayout>
 
             <TextView
@@ -94,13 +112,13 @@
                 android:layout_marginTop="@dimen/padding"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/title_size_small"
-                android:autoSizeMaxTextSize="@dimen/title_size_small"
+                android:textSize="@dimen/text_size"
+                android:autoSizeMaxTextSize="@dimen/text_size"
                 android:autoSizeMinTextSize="11sp"
                 android:autoSizeStepGranularity="1sp"
                 android:autoSizeTextType="uniform"
-                android:textStyle="bold"
-                android:textColor="@color/lightColor"
+                android:textStyle="normal"
+                android:textColor="@color/textColor"
                 android:text="Video Title"
                 />
         </LinearLayout>

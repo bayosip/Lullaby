@@ -50,13 +50,10 @@ public class RingToneService extends Service {
 
         myPlayer = new MediaPlayer();
         myPlayer.setLooping(true);// Set looping
-        myPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                mp.reset();
-                mp.release();
-                myPlayer=null;
-            }
+        myPlayer.setOnCompletionListener(mp -> {
+            mp.reset();
+            mp.release();
+            myPlayer=null;
         });
         createNotification();
     }

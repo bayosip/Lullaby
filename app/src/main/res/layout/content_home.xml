@@ -10,7 +10,15 @@
     tools:showIn="@layout/activity_main"
     tools:context=".view.activities.Home">
 
-    <androidx.viewpager.widget.ViewPager
+    <SurfaceView
+        android:layout_width="0px"
+        android:layout_height="0px"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <com.clocktower.lullaby.view.NonSwipeableViewPager
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/page_container"
@@ -28,6 +36,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
-
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

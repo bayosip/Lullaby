@@ -8,4 +8,6 @@ public interface ListItemClickListener {
     void onMusicTrackClick(int position);
     Home getListenerContext();
     void likeThisPost(String postID);
+
+    void makeVideoFullScreen(String url, int currentPosition);
 }

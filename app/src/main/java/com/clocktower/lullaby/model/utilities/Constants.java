@@ -26,6 +26,7 @@ public class Constants {
     public static final String USER_DATA = "user_data";
     public static final String URI_DATA = "uri_data";
     public static final String IMAGE_CAPTURE_URI = "image_capture_uri";
+    public static final String FULLSCREEN = "Fullscreen";
 
     //Firebase Ref
     public static final int RC_SIGN_IN = 101;

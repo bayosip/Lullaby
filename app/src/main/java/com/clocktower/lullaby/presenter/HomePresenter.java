@@ -116,23 +116,17 @@ public class HomePresenter extends FirebaseToHomePresenter {
                 player = null;
             }
             player = new MediaPlayer();
-                player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        mp.reset();
-                        mp.release();
-                        player=null;
-                    }
+                player.setOnCompletionListener(mp -> {
+                    mp.reset();
+                    mp.release();
+                    player=null;
                 });
                 player.setDataSource(trackurl);
                 player.prepareAsync();
-                player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                    @Override
-                    public void onPrepared(MediaPlayer mediaPlayer) {
-                        mediaPlayer.start();
-                        isTrackPlaying = true;
-                        interFace.setTrackBarForMusic(mediaPlayer.getDuration());
-                    }
+                player.setOnPreparedListener(mediaPlayer -> {
+                    mediaPlayer.start();
+                    isTrackPlaying = true;
+                    interFace.setTrackBarForMusic(mediaPlayer.getDuration());
                 });
 
 

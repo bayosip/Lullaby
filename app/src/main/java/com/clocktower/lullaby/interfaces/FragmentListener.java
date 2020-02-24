@@ -29,4 +29,5 @@ public interface FragmentListener extends ListItemClickListener {
     void retrieveAllComments(String postId);
     void postACommentOnPostWithId(String postId, String msg);
     void restoreViewsAfterLeavingCommentSection();
+    void removeToolbars();
 }

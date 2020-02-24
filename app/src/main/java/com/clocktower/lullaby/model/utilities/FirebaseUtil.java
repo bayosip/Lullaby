@@ -201,7 +201,7 @@ public class FirebaseUtil {
         if (bitmap == null)return false;
         listener.showPB();
         final StorageReference profileRef = storage.child(Constants.USERS).child(
-                user.getDisplayName().trim() + "_" + filename);
+                user.getUid().trim() + "_" + filename);
         byte[] img = GeneralUtil.compressImgFromUri(bitmap);
         Log.d(TAG, "savePictureOnFireBase: " + img.toString());
         // Create a reference to 'images/profile_pic.jpg'

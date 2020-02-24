@@ -25,7 +25,6 @@ public class BlogFragment extends BaseFragment {
     private RecyclerView blog;
     private BlogListAdapter adapter;
     private List<CozaBlog> posts;
-    private static Post postsarr[];
     private String getName;
     private Boolean reachedBottom = false;
 

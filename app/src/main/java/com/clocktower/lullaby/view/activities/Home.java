@@ -11,8 +11,8 @@ import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,7 +20,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.MediaController;
 import android.widget.TextView;
 
@@ -34,8 +33,10 @@ import com.clocktower.lullaby.model.utilities.Constants;
 import com.clocktower.lullaby.model.utilities.FirebaseUtil;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
 import com.clocktower.lullaby.presenter.HomePresenter;
+import com.clocktower.lullaby.view.NonSwipeableViewPager;
 import com.clocktower.lullaby.view.fragments.home.ChatFragment;
 import com.clocktower.lullaby.view.fragments.home.CommentsFragment;
+import com.clocktower.lullaby.view.fragments.home.FullscreenFragment;
 import com.clocktower.lullaby.view.fragments.home.HomePageFragmentAdapter;
 import com.clocktower.lullaby.view.fragments.home.AlarmSetterFragment;
 import com.clocktower.lullaby.view.fragments.home.BaseFragment;
@@ -66,7 +67,7 @@ import static com.clocktower.lullaby.model.utilities.Constants.PROFILE;
 public class Home extends AppCompatActivity implements HomeViewInterFace, ProfileListener {
 
     private static final String TAG = "Home";
-    private ViewPager pager;
+    private NonSwipeableViewPager pager;
     private FloatingActionButton fab;
     private BottomNavigationView bottomNavigationView;
     private int flag;
@@ -77,6 +78,7 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     private TrackSetterFragment trackFrag;
     private AlarmSetterFragment alarmFrag;
     private CommentsFragment commentFrag;
+    private FullscreenFragment fullFrag;
     private Profile_creation_frag profileFrag;
     private ChatFragment chatFrag;
     private MusicSelectorDialog musicSelectorDialog;
@@ -95,6 +97,7 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme);
+        getWindow().setFormat(PixelFormat.TRANSLUCENT);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initialisePrequisites();
@@ -411,6 +414,20 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     }
 
     @Override
+    public void makeVideoFullScreen(String url, int currentPosition) {
+        pager.setVisibility(View.GONE);
+        removeToolbars();
+        fullFrag = FullscreenFragment.getInstance(url, currentPosition);
+        fullFrag.setMediaController(mediaController);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        fragmentTransaction.add(R.id.home_fragment_container, fullFrag, Constants.FULLSCREEN);
+        fragmentTransaction.commitAllowingStateLoss();
+        commentView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
     public void updateCommentCount(String postId) {
         presenter.getNumberOfComments(postId);
     }
@@ -448,6 +465,13 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     public void restoreViewsAfterLeavingCommentSection() {
         bottomNavigationView.setVisibility(View.VISIBLE);
         pager.setVisibility(View.VISIBLE);
+        toolbar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void removeToolbars() {
+        bottomNavigationView.setVisibility(View.GONE);
+        toolbar.setVisibility(View.GONE);
 
     }
 
