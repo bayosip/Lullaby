@@ -96,10 +96,11 @@ public class BlogFragment extends BaseFragment {
             CozaBlog cb = it.next();
             if(cb.getPost().postId.equals(postId)){
                 posts.get(i).setCommentCount(count);
-                if(adapter!=null)adapter.notifyItemChanged(i);
             }
             i++;
         }
+
+        if(adapter!=null)adapter.notifyItemChanged(i);
     }
 
     public void updateLikeCount(String postId, int count) {
@@ -108,10 +109,11 @@ public class BlogFragment extends BaseFragment {
             CozaBlog cb = it.next();
             if(cb.getPost().postId.equals(postId)){
                 posts.get(i).setLikeCount(count);
-                if(adapter!=null)adapter.notifyItemChanged(i);
             }
             i++;
         }
+
+        if(adapter!=null)adapter.notifyItemChanged(i);
     }
 
     public void updateLikeBtnImg(String id, boolean exists) {
@@ -120,9 +122,9 @@ public class BlogFragment extends BaseFragment {
             CozaBlog cb = it.next();
             if(cb.getPost().postId.equals(id)){
                 posts.get(i).setLiked(exists);
-                if(adapter!=null)adapter.notifyItemChanged(i);
             }
             i++;
         }
+        if(adapter!=null)adapter.notifyItemChanged(i);
     }
 }

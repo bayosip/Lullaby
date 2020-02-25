@@ -1,6 +1,7 @@
 package com.clocktower.lullaby.view.list.blog_list;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,10 +16,13 @@ import com.clocktower.lullaby.interfaces.FragmentListener;
 import com.clocktower.lullaby.model.CozaBlog;
 import com.clocktower.lullaby.model.Post;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.util.List;
 
 public class BlogListAdapter extends RecyclerView.Adapter<BlogVH> {
 
+    private static final String TAG = "BlogListAdapter";
 
     List<CozaBlog> blogPosts;
     Context context;
@@ -51,5 +55,24 @@ public class BlogListAdapter extends RecyclerView.Adapter<BlogVH> {
     @Override
     public int getItemCount() {
         return blogPosts.size();
+    }
+
+    @Override
+    public long getItemId(int position) {
+        CozaBlog blogPost = blogPosts.get(position);
+        String id = blogPost.getPost().postId;
+        byte[] bytes = null;
+        long wrappedID;
+        try {
+            bytes = id.getBytes("US-ASCII");
+            Log.d(TAG, "getItemId: " + bytes.toString());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        if(bytes!=null) {
+            wrappedID = ByteBuffer.wrap(bytes).getLong();
+            Log.d(TAG, "getItemId: "+ wrappedID);
+            return wrappedID;
+        }else return position;
     }
 }

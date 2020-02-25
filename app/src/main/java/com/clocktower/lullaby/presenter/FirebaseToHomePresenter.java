@@ -56,25 +56,22 @@ public class FirebaseToHomePresenter {
     public void firstPageFirstLoad(){
         Query firstQuery = firestore.collection(Constants.POSTS).orderBy(Constants.TIMESTAMP,
                 Query.Direction.DESCENDING).limit(3);
-        firstQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
-                if (!documentSnapshots.isEmpty()) {
-                    if (isFirstPageFirstLoad) {
+        firstQuery.addSnapshotListener((documentSnapshots, e) -> {
+            if (!documentSnapshots.isEmpty()) {
+                if (isFirstPageFirstLoad) {
 
-                        lastVisible = documentSnapshots.getDocuments().get(documentSnapshots.size() - 1);
-                        interFace.clearList();
-                        //blog_list.clear();
-                    }
-                    for (DocumentChange doc : documentSnapshots.getDocumentChanges()) {
-                        if (doc.getType() == DocumentChange.Type.ADDED) {
-                            String blogPostId = doc.getDocument().getId();
-                            Post blogPost = doc.getDocument().toObject(Post.class).withId(blogPostId);
-                            interFace.updateBlogWith(blogPost);
-                        }
-                    }
-                    isFirstPageFirstLoad = false;
+                    lastVisible = documentSnapshots.getDocuments().get(documentSnapshots.size() - 1);
+                    interFace.clearList();
+                    //blog_list.clear();
                 }
+                for (DocumentChange doc : documentSnapshots.getDocumentChanges()) {
+                    if (doc.getType() == DocumentChange.Type.ADDED) {
+                        String blogPostId = doc.getDocument().getId();
+                        Post blogPost = doc.getDocument().toObject(Post.class).withId(blogPostId);
+                        interFace.updateBlogWith(blogPost);
+                    }
+                }
+                isFirstPageFirstLoad = false;
             }
         });
     }
@@ -181,24 +178,21 @@ public class FirebaseToHomePresenter {
                     .startAfter(lastVisible)
                     .limit(3);
 
-            nextQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
-                @Override
-                public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
+            nextQuery.addSnapshotListener((documentSnapshots, e) -> {
 
-                    if (!documentSnapshots.isEmpty()) {
+                if (!documentSnapshots.isEmpty()) {
 
-                        lastVisible = documentSnapshots.getDocuments().get(documentSnapshots.size() - 1);
-                        for (DocumentChange doc : documentSnapshots.getDocumentChanges()) {
+                    lastVisible = documentSnapshots.getDocuments().get(documentSnapshots.size() - 1);
+                    for (DocumentChange doc : documentSnapshots.getDocumentChanges()) {
 
-                            if (doc.getType() == DocumentChange.Type.ADDED) {
-                                String blogPostId = doc.getDocument().getId();
-                                Post blogPost = doc.getDocument().toObject(Post.class).withId(blogPostId);
-                                interFace.updateBlogWith(blogPost);
-                            }
+                        if (doc.getType() == DocumentChange.Type.ADDED) {
+                            String blogPostId = doc.getDocument().getId();
+                            Post blogPost = doc.getDocument().toObject(Post.class).withId(blogPostId);
+                            interFace.updateBlogWith(blogPost);
                         }
                     }
-
                 }
+
             });
         }
     }

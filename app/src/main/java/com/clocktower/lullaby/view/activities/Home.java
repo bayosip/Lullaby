@@ -97,7 +97,7 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme);
-        getWindow().setFormat(PixelFormat.TRANSLUCENT);
+        //getWindow().setFormat(PixelFormat.TRANSLUCENT);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initialisePrequisites();

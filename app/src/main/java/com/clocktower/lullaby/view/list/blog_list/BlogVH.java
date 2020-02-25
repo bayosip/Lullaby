@@ -50,7 +50,6 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
     private void initialiseWidgets(View v){
 
         video = v.findViewById(R.id.videoViewPost);
-        video.setOnClickListener(this);
         imgPost = v.findViewById(R.id.imageViewPost);
         elaspedTime = v.findViewById(R.id.textElaspedTime);
         postTitle = v.findViewById(R.id.textPostTitle);
@@ -129,13 +128,6 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
                     snapOutOfFullscreen();
                 }else {
                     video.pause();
-                }
-                break;
-            case R.id.videoViewPost:
-                // Crashlytics.getInstance().crash();
-                if (video.isPlaying()){
-                    playVideoBtn.setVisibility(View.VISIBLE);
-                    playVideoBtn.setImageResource(R.drawable.ic_play_video_24dp);
                 }
                 break;
             case R.id.post_like_btn:
