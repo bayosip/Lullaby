@@ -2,9 +2,11 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item >
         <shape xmlns:android="http://schemas.android.com/apk/res/android">
-            <solid android:color="@color/title_color" /> />
-            <corners android:radius="0dp" />
-            <padding android:bottom="0dp" android:left="0dp" android:right="0dp" android:top="0dp" />
+           <gradient
+               android:startColor="@color/title_color"
+               android:centerColor="@color/title_color"
+               android:endColor="@color/colorPrimary"
+               android:angle="-135"/>
         </shape>
     </item>
 </selector>

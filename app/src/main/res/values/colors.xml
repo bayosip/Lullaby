@@ -34,6 +34,9 @@
     <color name="pointer_color">#434854</color>
     <color name="off_white_background">#ffffe7</color>
     <color name="app_background_white">#FFFFFF</color>
+    <color name="app_background_white_low">#ccFFFFFF</color>
+    <color name="app_background_white_mid">#1aFFFFFF</color>
+    <color name="app_background_white_high">#66FFFFFF</color>
     <color name="shadow">#50CCCCCC</color>
     <color name="transparent">@android:color/transparent</color>
 </resources>

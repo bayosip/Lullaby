@@ -1,9 +1,12 @@
 package com.clocktower.lullaby.view.list.blog_list;
 
+import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.text.format.DateFormat;
 import android.util.DisplayMetrics;
+import android.util.Size;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -19,9 +22,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.interfaces.FragmentListener;
 import com.clocktower.lullaby.model.CozaBlog;
+import com.clocktower.lullaby.model.utilities.GeneralUtil;
 import com.crashlytics.android.Crashlytics;
 import com.koushikdutta.ion.Ion;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -50,13 +55,6 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
     private void initialiseWidgets(View v){
 
         video = v.findViewById(R.id.videoViewPost);
-        video.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         imgPost = v.findViewById(R.id.imageViewPost);
         elaspedTime = v.findViewById(R.id.textElaspedTime);
         postTitle = v.findViewById(R.id.textPostTitle);
@@ -102,8 +100,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
                 View.GONE: View.VISIBLE);
         video.setVisibility(posts.get(getAdapterPosition()).getPost().getMediaType()==2?
                 View.VISIBLE: View.GONE);
-        imgPost.setVisibility(posts.get(getAdapterPosition()).getPost().getMediaType()==1?
-                View.VISIBLE: View.GONE);
+
         if(posts.get(getAdapterPosition()).getPost().getMediaType()==2) {
             playVideoBtn.setVisibility(View.VISIBLE);
             fullscreen.setVisibility(View.VISIBLE);
@@ -121,6 +118,14 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         }catch (Exception e){
             e.printStackTrace();
         }
+        Bitmap bitmap = null;
+        try {
+            bitmap = GeneralUtil.retriveVideoFrameFromVideo(url);
+            imgPost.setImageBitmap(bitmap);
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+            imgPost.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -130,6 +135,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
                 if (!video.isPlaying()) {
                     playVideoBtn.setImageResource(R.drawable.ic_pause_video_24dp);
                     playVideoBtn.setVisibility(View.GONE);
+                    imgPost.setVisibility(View.GONE);
                     buffering.show();
                     playSelectedVideoFrom(url);
                     snapOutOfFullscreen();
@@ -145,6 +151,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
                 break;
             case R.id.buttonFullScreen:
                 if(video.isPlaying()) {
+                    video.pause();
                     listener.makeVideoFullScreen(url, video.getCurrentPosition());
                 }
                 break;
@@ -172,6 +179,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
                 mediaPlayer.release();
                 playVideoBtn.setImageResource(R.drawable.ic_play_video_24dp);
                 playVideoBtn.setVisibility(View.VISIBLE);
+                imgPost.setVisibility(View.VISIBLE);
             });
 
         }catch (Exception ex){
@@ -188,7 +196,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         DisplayMetrics metrics = new DisplayMetrics();
         listener.getListenerContext().getWindowManager().getDefaultDisplay().getMetrics(metrics);
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) video.getLayoutParams();
-        params.width = ConstraintLayout.LayoutParams.MATCH_PARENT;
+        params.width = metrics.widthPixels;
         params.height = (int)(255*metrics.density);
         params.leftMargin = 0;
         video.setLayoutParams(params);

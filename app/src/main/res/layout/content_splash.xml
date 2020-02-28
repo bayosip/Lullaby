@@ -24,7 +24,7 @@
         android:textSize="@dimen/text_size"
         android:text="sign in"
         android:textColor="@color/app_background_white"
-        android:background="@color/buttonColor"/>
+        android:background="@drawable/simple_btn_dark"/>
 
     <Button
         android:layout_marginTop="@dimen/activity_vertical_margin"
@@ -34,7 +34,7 @@
         android:textSize="@dimen/text_size"
         android:text="Register"
         android:textColor="@color/app_background_white"
-        android:background="@color/lightColor"/>
+        android:background="@drawable/simple_btn"/>
     </LinearLayout>
 
 

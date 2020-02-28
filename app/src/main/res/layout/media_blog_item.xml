@@ -56,8 +56,8 @@
                     android:layout_margin="@dimen/inside_padding"
                     android:visibility="gone"
                     android:src="@drawable/ic_fullscreen_24dp"
-                    app:layout_constraintEnd_toEndOf="@id/videoViewPost"
-                    app:layout_constraintBottom_toBottomOf="@id/videoViewPost"/>
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
 
                 <ImageButton
                     android:id="@+id/buttonPlayVideo"
