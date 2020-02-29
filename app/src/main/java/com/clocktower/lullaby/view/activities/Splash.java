@@ -39,7 +39,7 @@ public class Splash extends AppCompatActivity implements ProfileListener, View.O
     private Profile_creation_frag fragment;
     private RegisterationFragment regFragment;
     private Button signIn, register;
-    private View loginView;
+    private View loginView, frame;
     public static final String PROFILE = "Profile Creation";
     public static final String REGISTRATION = "Register";
 
@@ -59,6 +59,8 @@ public class Splash extends AppCompatActivity implements ProfileListener, View.O
 
     @Override
     public void startProfilePictureFragment(String name){
+
+        frame.setVisibility(View.VISIBLE);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
@@ -68,6 +70,7 @@ public class Splash extends AppCompatActivity implements ProfileListener, View.O
     }
 
     public void startEmailRegFragment(){
+        frame.setVisibility(View.VISIBLE);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
@@ -82,6 +85,7 @@ public class Splash extends AppCompatActivity implements ProfileListener, View.O
         register = findViewById(R.id.buttonRegister);
         register.setOnClickListener(this);
         loginView = findViewById(R.id.loginOptionsView);
+        frame = findViewById(R.id.fragment_container);
     }
 
     @Override
@@ -178,6 +182,7 @@ public class Splash extends AppCompatActivity implements ProfileListener, View.O
                 .getTag();
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(fragTag);
         if(fragTag.equals(REGISTRATION)){
+            frame.setVisibility(View.GONE);
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 

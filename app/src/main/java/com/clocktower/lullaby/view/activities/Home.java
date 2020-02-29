@@ -328,7 +328,9 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
 
     @Override
     public void setAlarmMusic() {
-        presenter.setAlarmTone(chosenSong.getSongUrl());
+        if(chosenSong!=null)
+            presenter.setAlarmTone(chosenSong.getSongUrl());
+        else GeneralUtil.message("Select A Song First...");
     }
 
     @Override

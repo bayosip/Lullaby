@@ -14,18 +14,19 @@
         android:scaleY="0.95"
         android:background="@drawable/reverse_curved_button"
         android:numbersSelectorColor="@color/buttonColor"
-        android:headerBackground="@color/lightColor"
+        android:headerBackground="@drawable/background"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintVertical_bias="0"></TimePicker>
+        app:layout_constraintVertical_bias="0"/>
 
     <Button
         android:id="@+id/buttonSetAlarm"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@drawable/curved_button"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
         android:elevation="@dimen/inside_padding"
         android:text="Set Scheduler"
         android:textColor="@color/app_background_white"

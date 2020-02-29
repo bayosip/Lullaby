@@ -27,6 +27,7 @@ import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.Toast;
 
+import com.blogspot.atifsoftwares.animatoolib.Animatoo;
 import com.clocktower.lullaby.App;
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.view.activities.AppFinish;
@@ -201,19 +202,18 @@ public class GeneralUtil {
     public static void transitionActivity(Activity oldActivity, Class newActivity) {
         Activity activity = oldActivity;
         if (Build.VERSION.SDK_INT >= 21) activity.finishAndRemoveTask();
-        else activity.finish();
 
-        //oldActivity.overridePendingTransition(R.anim.from_middle, R.anim.to_middle);
-        if (Build.VERSION.SDK_INT >= 21)
-            oldActivity.startActivity(new Intent(oldActivity, newActivity),
-                    ActivityOptions.makeSceneTransitionAnimation(activity).toBundle());
-        else oldActivity.startActivity(new Intent(oldActivity, newActivity));
+        else activity.finish();
+        oldActivity.startActivity(new Intent(oldActivity, newActivity));
+        Animatoo.animateFade(oldActivity);
     }
 
     public static void transitionActivity(Activity oldActivity, Intent intent) {
         if (Build.VERSION.SDK_INT >= 21) oldActivity.finishAndRemoveTask();
         else oldActivity.finish();
         oldActivity.startActivity(intent);
+
+        Animatoo.animateFade(oldActivity);
     }
 
     public static boolean isNetworkConnected(Context activity) {

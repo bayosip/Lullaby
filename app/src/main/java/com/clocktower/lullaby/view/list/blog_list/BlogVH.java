@@ -101,6 +101,9 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         video.setVisibility(posts.get(getAdapterPosition()).getPost().getMediaType()==2?
                 View.VISIBLE: View.GONE);
 
+        imgPost.setVisibility(posts.get(getAdapterPosition()).getPost().getMediaType()==1?
+                View.VISIBLE: View.GONE);
+
         if(posts.get(getAdapterPosition()).getPost().getMediaType()==2) {
             playVideoBtn.setVisibility(View.VISIBLE);
             fullscreen.setVisibility(View.VISIBLE);
@@ -118,14 +121,6 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         }catch (Exception e){
             e.printStackTrace();
         }
-        Bitmap bitmap = null;
-        try {
-            bitmap = GeneralUtil.retriveVideoFrameFromVideo(url);
-            imgPost.setImageBitmap(bitmap);
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
-            imgPost.setVisibility(View.GONE);
-        }
     }
 
     @Override
@@ -135,7 +130,6 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
                 if (!video.isPlaying()) {
                     playVideoBtn.setImageResource(R.drawable.ic_pause_video_24dp);
                     playVideoBtn.setVisibility(View.GONE);
-                    imgPost.setVisibility(View.GONE);
                     buffering.show();
                     playSelectedVideoFrom(url);
                     snapOutOfFullscreen();

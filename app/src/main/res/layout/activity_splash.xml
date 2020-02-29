@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/launch_screen"
+    android:background="@drawable/background"
     tools:context=".view.activities.Splash">
 
     <include layout="@layout/content_splash"/>
