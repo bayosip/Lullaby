@@ -44,7 +44,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
     String postId;
     private FragmentListener listener;
     private String title;
-    private boolean isFullScreen;
+    private boolean isPlayClicked = false;
 
 
     public BlogVH(@NonNull View itemView) {
@@ -72,6 +72,17 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         fullscreen = v.findViewById(R.id.buttonFullScreen);
         fullscreen.setOnClickListener(this);
 
+        video.setOnCompletionListener(mediaPlayer -> {
+            mediaPlayer.reset();
+            mediaPlayer.release();
+            playVideoBtn.setImageResource(R.drawable.ic_play_video_24dp);
+            playVideoBtn.setVisibility(View.VISIBLE);
+            imgPost.setVisibility(View.VISIBLE);
+            if(isPlayClicked){
+                isPlayClicked = false;
+                playSelectedVideoFrom(url);
+            }
+        });
     }
 
     public void setMediaController(MediaController mediaController){
@@ -121,6 +132,8 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         }catch (Exception e){
             e.printStackTrace();
         }
+
+        playSelectedVideoFrom(url);
     }
 
     @Override
@@ -128,6 +141,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         switch (view.getId()){
             case R.id.buttonPlayVideo:
                 if (!video.isPlaying()) {
+                    isPlayClicked = true;
                     playVideoBtn.setImageResource(R.drawable.ic_pause_video_24dp);
                     playVideoBtn.setVisibility(View.GONE);
                     buffering.show();
@@ -158,22 +172,19 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
             Uri uri = Uri.parse(url);
             video.setVideoURI(uri);
             video.setOnPreparedListener(mediaPlayer -> {
-                buffering.show();
+                if (isPlayClicked)
+                    buffering.show();
                 mediaPlayer.setLooping(false);
-                video.start();
-                if(mediaPlayer.isPlaying())buffering.hide();
-            });
-
-            if (video.isPlaying()){
-                buffering.hide();
-            }
-
-            video.setOnCompletionListener(mediaPlayer -> {
-                mediaPlayer.reset();
-                mediaPlayer.release();
-                playVideoBtn.setImageResource(R.drawable.ic_play_video_24dp);
-                playVideoBtn.setVisibility(View.VISIBLE);
-                imgPost.setVisibility(View.VISIBLE);
+                mediaPlayer.start();
+                mediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT);
+                if (!isPlayClicked) {
+                    mediaPlayer.seekTo(100);
+                    mediaPlayer.setOnSeekCompleteListener(mediaPlayer1 -> {
+                        mediaPlayer1.pause();
+                    });
+                }else {
+                    if (mediaPlayer.isPlaying()) buffering.hide();
+                }
             });
 
         }catch (Exception ex){

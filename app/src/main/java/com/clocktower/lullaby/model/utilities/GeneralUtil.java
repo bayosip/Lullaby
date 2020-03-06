@@ -205,7 +205,7 @@ public class GeneralUtil {
 
         else activity.finish();
         oldActivity.startActivity(new Intent(oldActivity, newActivity));
-        Animatoo.animateFade(oldActivity);
+        Animatoo.animateFade( oldActivity);
     }
 
     public static void transitionActivity(Activity oldActivity, Intent intent) {
