@@ -74,8 +74,9 @@ public class FullscreenFragment extends BaseFragment implements View.OnClickList
             mediaController.setAnchorView(video);
         }
         playVideoBtn.setVisibility(View.GONE);
-        playSelectedVideoFrom(url, seekTo);
         snapToFullScreen();
+        playSelectedVideoFrom(url, seekTo);
+
     }
 
 
@@ -136,6 +137,13 @@ public class FullscreenFragment extends BaseFragment implements View.OnClickList
     }
 
     private void snapOutOfFullscreen() {
+        DisplayMetrics metrics = new DisplayMetrics();
+        listener.getListenerContext().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) video.getLayoutParams();
+        params.width = metrics.widthPixels;
+        params.height = (int)(255*metrics.density);
+        params.leftMargin = 0;
+        video.setLayoutParams(params);
         listener.getListenerContext().onBackPressed();
     }
 
@@ -148,6 +156,7 @@ public class FullscreenFragment extends BaseFragment implements View.OnClickList
         params.leftMargin = 0;
         video.setLayoutParams(params);
     }
+
 
 
     @Override

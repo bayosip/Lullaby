@@ -158,7 +158,9 @@ public class FirebaseToHomePresenter {
         Map<String, Object> commentsMap = new HashMap<>();
         commentsMap.put("comment", comment_message);
         commentsMap.put("username", user.getDisplayName());
-        commentsMap.put("url", user.getPhotoUrl().toString());
+        if (user.getPhotoUrl()!=null)
+            commentsMap.put("url", user.getPhotoUrl().toString());
+        else commentsMap.put("url", "");
         commentsMap.put("timestamp", FieldValue.serverTimestamp());
 
         firestore.collection("Posts/" + postID+ "/Comments").add(commentsMap)

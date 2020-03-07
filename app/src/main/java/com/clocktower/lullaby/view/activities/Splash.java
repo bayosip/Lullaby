@@ -49,12 +49,7 @@ public class Splash extends AppCompatActivity implements ProfileListener, View.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         initialiseWidgets();
-        GeneralUtil.getHandler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                FirebaseUtil.checkIfUserIsSignedIn(Splash.this);
-            }
-        }, 1000);
+        GeneralUtil.getHandler().post(() -> FirebaseUtil.checkIfUserIsSignedIn(Splash.this));
     }
 
     @Override
@@ -177,18 +172,19 @@ public class Splash extends AppCompatActivity implements ProfileListener, View.O
 
     @Override
     public void onBackPressed() {
+        Fragment fragment= getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if(fragment!=null) {
+            String fragTag = getSupportFragmentManager().findFragmentById(R.id.fragment_container)
+                    .getTag();
+            if (fragTag.equals(REGISTRATION)) {
+                frame.setVisibility(View.GONE);
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-        String fragTag = getSupportFragmentManager().findFragmentById(R.id.fragment_container)
-                .getTag();
-        Fragment fragment = getSupportFragmentManager().findFragmentByTag(fragTag);
-        if(fragTag.equals(REGISTRATION)){
-            frame.setVisibility(View.GONE);
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-            fragmentTransaction.remove(fragment).commitAllowingStateLoss();
-        }else {
-            super.onBackPressed();
+                fragmentTransaction.remove(fragment).commitAllowingStateLoss();
+            } else {
+                super.onBackPressed();
+            }
         }
     }
 

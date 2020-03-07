@@ -44,7 +44,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
     String postId;
     private FragmentListener listener;
     private String title;
-    private boolean isPlayClicked = false;
+    private boolean isPlayClicked = false, isPaused = false;
 
 
     public BlogVH(@NonNull View itemView) {
@@ -77,7 +77,6 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
             mediaPlayer.release();
             playVideoBtn.setImageResource(R.drawable.ic_play_video_24dp);
             playVideoBtn.setVisibility(View.VISIBLE);
-            imgPost.setVisibility(View.VISIBLE);
             if(isPlayClicked){
                 isPlayClicked = false;
                 playSelectedVideoFrom(url);
@@ -134,6 +133,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         }
 
         playSelectedVideoFrom(url);
+        snapOutOfFullscreen();
     }
 
     @Override
@@ -142,6 +142,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
             case R.id.buttonPlayVideo:
                 if (!video.isPlaying()) {
                     isPlayClicked = true;
+                    isPaused = false;
                     playVideoBtn.setImageResource(R.drawable.ic_pause_video_24dp);
                     playVideoBtn.setVisibility(View.GONE);
                     buffering.show();
@@ -149,6 +150,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
                     snapOutOfFullscreen();
                 }else {
                     video.pause();
+                    isPaused = true;
                 }
                 break;
             case R.id.post_like_btn:
@@ -160,6 +162,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
             case R.id.buttonFullScreen:
                 if(video.isPlaying()) {
                     video.pause();
+                    isPaused = true;
                     listener.makeVideoFullScreen(url, video.getCurrentPosition());
                 }
                 break;
@@ -172,7 +175,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
             Uri uri = Uri.parse(url);
             video.setVideoURI(uri);
             video.setOnPreparedListener(mediaPlayer -> {
-                if (isPlayClicked)
+                if (isPlayClicked && !mediaPlayer.isPlaying())
                     buffering.show();
                 mediaPlayer.setLooping(false);
                 mediaPlayer.start();
@@ -185,8 +188,11 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
                 }else {
                     if (mediaPlayer.isPlaying()) buffering.hide();
                 }
+                if (isPaused){
+                    playVideoBtn.setImageResource(R.drawable.ic_play_video_24dp);
+                    playVideoBtn.setVisibility(View.VISIBLE);
+                }
             });
-
         }catch (Exception ex){
             ex.printStackTrace();
         }
