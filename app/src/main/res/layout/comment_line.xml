@@ -13,7 +13,7 @@
         android:background="@drawable/circle_white"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:src="@drawable/ic_person_24dp"
+        app:srcCompat="@drawable/ic_person_24dp"
         app:civ_border_color="@color/hint_color"
         app:civ_border_width="0.5dp"
         app:layout_constraintEnd_toStartOf="@id/textViewUser"/>
@@ -26,7 +26,7 @@
         android:text="Username"
         android:autoSizeTextType="uniform"
         android:autoSizeMinTextSize="12sp"
-        android:autoSizeMaxTextSize="@dimen/question_text_size"
+        android:autoSizeMaxTextSize="@dimen/content_text_size"
         android:autoSizeStepGranularity="1sp"
         android:layout_marginLeft="4dp"
         android:layout_marginStart="4dp"

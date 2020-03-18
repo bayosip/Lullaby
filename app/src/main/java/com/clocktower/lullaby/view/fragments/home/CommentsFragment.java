@@ -1,5 +1,6 @@
 package com.clocktower.lullaby.view.fragments.home;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -7,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,6 +19,7 @@ import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.model.Comments;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
 import com.clocktower.lullaby.view.list.comment_list.CommentListAdapter;
+import com.skyhope.showmoretextview.ShowMoreTextView;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -26,17 +29,20 @@ public class CommentsFragment extends BaseFragment{
     private static final String TAG = CommentsFragment.class.getSimpleName();
     private static final String USERNAME = "username";
     private static final String ID = "id";
+    private static final String TITLE = "title";
     private RecyclerView allComments;
     private CommentListAdapter adapter;
     private EditText commentText;
+    private ShowMoreTextView postTitle;
     private ImageButton sendComment;
     private static List<Comments> comments;
-    private String PID;
+    private String PID, title;
 
-    public static CommentsFragment newInstance(String postID){
+    public static CommentsFragment newInstance(String postID, String title){
         CommentsFragment frag = new CommentsFragment();
         Bundle bundle = new Bundle();
         bundle.putString(ID, postID);
+        bundle.putString(TITLE, title);
         frag.setArguments(bundle);
         return frag;
     }
@@ -52,6 +58,7 @@ public class CommentsFragment extends BaseFragment{
         super.onViewCreated(view, savedInstanceState);
         initialisePrequistes();
         PID = getArguments().getString(ID);
+        title = getArguments().getString(TITLE);
         initialiseWidget(view);
         listener.retrieveAllComments(PID);
     }
@@ -62,6 +69,13 @@ public class CommentsFragment extends BaseFragment{
     }
 
     private void initialiseWidget(View v) {
+        postTitle = v.findViewById(R.id.textPostTitle);
+        postTitle.setText(title);
+        postTitle.setShowingLine(2);
+        postTitle.addShowMoreText("More");
+        postTitle.addShowLessText("Less");
+        postTitle.setShowMoreColor(Color.MAGENTA); // or other color
+        postTitle.setShowLessTextColor(Color.BLACK); // or other color
         allComments = v.findViewById(R.id.recyclerComments);
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(listener.getListenerContext(), RecyclerView.VERTICAL,

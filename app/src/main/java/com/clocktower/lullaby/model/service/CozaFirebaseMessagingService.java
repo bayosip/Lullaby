@@ -3,7 +3,9 @@ package com.clocktower.lullaby.model.service;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -13,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
 import com.clocktower.lullaby.R;
+import com.clocktower.lullaby.view.activities.Home;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -25,7 +28,7 @@ public class CozaFirebaseMessagingService extends FirebaseMessagingService {
     private NotificationCompat.Builder notifyBuilder;
     private Notification notification;
 
-    private static final String TAG = "CozaFirebaseMessagingService";
+    private static final String TAG = "FBMessagingService";
     private NotificationManager notificationManager;
 
     @Override
@@ -56,6 +59,10 @@ public class CozaFirebaseMessagingService extends FirebaseMessagingService {
 
     private void createNotification(Uri uri, String... data) {
 
+        Intent Intent = new Intent(getApplicationContext(), Home.class);
+        Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), REQUEST_CODE,
+                Intent, PendingIntent.FLAG_ONE_SHOT);
         if (Build.VERSION.SDK_INT <= 25) {
             notifyBuilder = new NotificationCompat.Builder(getApplicationContext());
         } else {
@@ -71,6 +78,7 @@ public class CozaFirebaseMessagingService extends FirebaseMessagingService {
         notifyBuilder.setAutoCancel(true);
         notifyBuilder.setSmallIcon(R.mipmap.ic_launcher);
         notifyBuilder.setOngoing(false).setOnlyAlertOnce(true);
+        notifyBuilder.setContentIntent(pendingIntent);
 
         notification = notifyBuilder.build();
         notificationManager.notify(REQUEST_CODE, notification);

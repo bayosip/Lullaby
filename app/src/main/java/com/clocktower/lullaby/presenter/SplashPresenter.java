@@ -74,6 +74,7 @@ public class SplashPresenter {
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
                         .setAvailableProviders(loginProviders)
+                        .setLogo(R.mipmap.ic_coza_logo_round)
                         .setTheme(R.style.AppTheme_Login) // Set theme
                         .build(),
                 Constants.RC_SIGN_IN);

@@ -8,6 +8,18 @@
     android:weightSum="100"
     android:orientation="vertical">
 
+    <com.skyhope.showmoretextview.ShowMoreTextView
+        android:id="@+id/textPostTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/inside_padding"
+        android:gravity="fill_horizontal"
+        android:text="Post Title"
+        android:autoSizeTextType="uniform"
+        android:autoSizeMinTextSize="12sp"
+        android:autoSizeMaxTextSize="@dimen/content_text_size"
+        android:autoSizeStepGranularity="1sp"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerComments"
         android:layout_width="match_parent"
@@ -43,7 +55,7 @@
         android:layout_marginLeft="@dimen/inside_padding"
         android:layout_marginStart="@dimen/inside_padding"
         android:background="@drawable/curved_button"
-        android:src="@drawable/ic_send_comment_24dp"/>
+        app:srcCompat="@drawable/ic_send_comment_24dp"/>
     </LinearLayout>
 
 </LinearLayout>

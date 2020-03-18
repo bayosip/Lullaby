@@ -44,7 +44,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
     String postId;
     private FragmentListener listener;
     private String title;
-    private boolean isPlayClicked = false, isPaused = false;
+    private boolean isPlayClicked = false;
 
 
     public BlogVH(@NonNull View itemView) {
@@ -142,7 +142,6 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
             case R.id.buttonPlayVideo:
                 if (!video.isPlaying()) {
                     isPlayClicked = true;
-                    isPaused = false;
                     playVideoBtn.setImageResource(R.drawable.ic_pause_video_24dp);
                     playVideoBtn.setVisibility(View.GONE);
                     buffering.show();
@@ -150,19 +149,19 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
                     snapOutOfFullscreen();
                 }else {
                     video.pause();
-                    isPaused = true;
                 }
                 break;
             case R.id.post_like_btn:
                 listener.likeThisPost(postId);
                 break;
-            case R.id.post_comment_icon:
+            case R.id.post_comment_icon: case R.id.text_post_comment_count:
                 listener.openCommentSectionOnPostWithId(postId, title);
                 break;
             case R.id.buttonFullScreen:
                 if(video.isPlaying()) {
                     video.pause();
-                    isPaused = true;
+                    playVideoBtn.setImageResource(R.drawable.ic_play_video_24dp);
+                    playVideoBtn.setVisibility(View.VISIBLE);
                     listener.makeVideoFullScreen(url, video.getCurrentPosition());
                 }
                 break;
@@ -187,10 +186,6 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
                     });
                 }else {
                     if (mediaPlayer.isPlaying()) buffering.hide();
-                }
-                if (isPaused){
-                    playVideoBtn.setImageResource(R.drawable.ic_play_video_24dp);
-                    playVideoBtn.setVisibility(View.VISIBLE);
                 }
             });
         }catch (Exception ex){

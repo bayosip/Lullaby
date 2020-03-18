@@ -404,14 +404,14 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
         pager.setVisibility(View.GONE);
         bottomNavigationView.setVisibility(View.GONE);
 
-        commentFrag = CommentsFragment.newInstance(postID);
+        commentFrag = CommentsFragment.newInstance(postID, title);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
         fragmentTransaction.add(R.id.home_fragment_container, commentFrag, COMMENTS);
         fragmentTransaction.commitAllowingStateLoss();
         commentView.setVisibility(View.VISIBLE);
-        this.title.setText(title);
+        this.title.setText("Comments");
         setupOtherActionBar();
     }
 

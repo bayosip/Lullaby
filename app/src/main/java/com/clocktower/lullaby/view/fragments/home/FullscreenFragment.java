@@ -6,6 +6,7 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.ImageButton;
 import android.widget.MediaController;
 import android.widget.VideoView;
@@ -17,10 +18,13 @@ import androidx.core.widget.ContentLoadingProgressBar;
 
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.model.utilities.Constants;
+import com.labo.kaji.fragmentanimations.MoveAnimation;
+import com.labo.kaji.fragmentanimations.PushPullAnimation;
 
 public class FullscreenFragment extends BaseFragment implements View.OnClickListener {
 
     private static final String SEEK_INFO = "Seek";
+    private static final long DURATION = 1000;
     private MediaController mediaController;
     VideoView video;
     ImageButton playVideoBtn;
@@ -79,7 +83,14 @@ public class FullscreenFragment extends BaseFragment implements View.OnClickList
 
     }
 
-
+    @Override
+    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
+        if (enter) {
+            return PushPullAnimation.create(PushPullAnimation.LEFT, enter, DURATION);
+        } else {
+            return PushPullAnimation.create(PushPullAnimation.RIGHT, enter, DURATION);
+        }
+    }
 
     @Override
     public void onClick(View view) {
