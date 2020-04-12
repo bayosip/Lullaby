@@ -601,6 +601,14 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     }
 
     @Override
+    public void changeProfilePic(String url) {
+        Ion.with(this)
+                .load(url)
+                .withBitmap()
+                .intoImageView(homeProfile);
+    }
+
+    @Override
     public void enableScreen() {
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
@@ -621,17 +629,10 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
 
     @Override
     public void saveNewPostInDB(Post post, long type) {
-        if (type ==1) {
-            Bitmap bitmap = null;
-            try {
-                bitmap = Ion.with(Home.this)
-                        .load(post.getUrl()).withBitmap().asBitmap().get();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            presenter.savePostImageInStorage(bitmap, post);
+        if (type>0) {
+            presenter.saveMediaPostAttachmentInStorage(post);
+        }else {
+            presenter.storePostDataInFirestore(null, post);
         }
     }
 

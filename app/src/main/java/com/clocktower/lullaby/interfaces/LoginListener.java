@@ -11,4 +11,5 @@ public interface LoginListener {
     void hidePB();
     void showPB();
     void progressPB(long progress);
+    void changeProfilePic(String url);
 }

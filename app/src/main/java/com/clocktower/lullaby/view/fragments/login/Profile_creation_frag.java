@@ -120,7 +120,7 @@ public class Profile_creation_frag extends Fragment implements View.OnClickListe
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Splash.RESULT_OK && data != null) {
+        if (resultCode == listener.getLoginActivity().RESULT_OK && data != null) {
             switch (requestCode) {
                 case CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE:
                     CropImage.ActivityResult result = CropImage.getActivityResult(data);

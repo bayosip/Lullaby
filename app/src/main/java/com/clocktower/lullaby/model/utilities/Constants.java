@@ -22,11 +22,14 @@ public class Constants {
     public final static int REQUEST_IMAGE_CAPTURE = 234;
     public static final int PLAY_BACK_CODE = 10;
 
+    //file extensions
     public static final String MP4 = ".mp4";
     public static final String MP3 = ".mp3";
     public static final String AAC = ".aac";
     public static final String WAV = ".wav";
     public static final String WMA = ".wma";
+    public static final String PNG = ".png";
+
     public static final String CHANNEL_ID ="Home Lullaby";
     public static final String USER_DATA = "user_data";
     public static final String URI_DATA = "uri_data";

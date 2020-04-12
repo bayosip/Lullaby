@@ -123,13 +123,13 @@ public class ImageCreator {
 
     }
 
-    private void startImagePicker(Activity activity){
+   /* private void startImagePicker(Fragment fragment){
         CropImage.activity()
                 .setGuidelines(CropImageView.Guidelines.ON)
                 .setMinCropResultSize(512, 512)
                 .setAspectRatio(1, 1)
-                .start(activity);
-    }
+                .start(fragment.getContext(), fragment);
+    }*/
 
 
     private void openImageFileChooser(final Fragment fragment){
@@ -140,7 +140,7 @@ public class ImageCreator {
                     .withListener(new PermissionListener() {
                         @Override
                         public void onPermissionGranted(PermissionGrantedResponse response) {
-                            startImagePicker(fragment.getActivity());
+                            startImagePicker(fragment);
                         }
 
                         @Override

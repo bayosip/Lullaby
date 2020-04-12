@@ -1,5 +1,6 @@
 package com.clocktower.lullaby.presenter;
 
+import android.Manifest;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
@@ -27,7 +28,14 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.single.PermissionListener;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,6 +60,7 @@ public class FirebaseToHomePresenter {
     private void initialisePrequisites(){
         user = FirebaseUtil.getmAuth().getCurrentUser();
         firestore = FirebaseUtil.getFirestore();
+        storage = FirebaseUtil.getStorage();
         //Source source = Source.CACHE;
     }
 
@@ -218,38 +227,57 @@ public class FirebaseToHomePresenter {
     }
 
     //Save A Post
-    public void savePostImageInStorage(Bitmap bitmap, final Post post) {
-        // Create a reference to "profile_pic.jpg"
-        if (bitmap == null)return;
-        activity.showPB();
-        final StorageReference imgPostRef = storage.child(Constants.POSTS)
-                .child(GeneralUtil.randomName()+ "_" + ".png");
-        byte[] img = GeneralUtil.compressImgFromBitmap(bitmap);
-        Log.d(TAG, "saveProfilePictureOnFireBase: " + img.toString());
-        // Create a reference to 'images/profile_pic.jpg'
-        //final StorageReference profileImagesRef = storageRef.child("images/"+filename);
+    public void saveMediaPostAttachmentInStorage(final Post newPost){
+
+        Dexter.withActivity(activity)
+                .withPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .withListener(new PermissionListener() {
+                    @Override
+                    public void onPermissionGranted(PermissionGrantedResponse response) {
+                       storeMediaPostAttachmentInStorage(newPost);
+                    }
+
+                    @Override
+                    public void onPermissionDenied(PermissionDeniedResponse response) {
+                        GeneralUtil.showAlertMessage(activity,
+                                activity.getString(R.string.error),"Internal Storage Permission Denied");
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(PermissionRequest permission,
+                                                                   PermissionToken token) {
+                        token.cancelPermissionRequest();
+                    }
+                }).check();
+    }
+    private void storeMediaPostAttachmentInStorage(final Post newPost){
+        Uri file = Uri.fromFile(new File(newPost.getUrl()));
+        String fileExt = newPost.getMediaType() ==1? Constants.PNG:Constants.MP4;
+        final StorageReference newPostRef = storage.child(Constants.POSTS)
+                .child(GeneralUtil.randomName()+ "_" + fileExt);
         final UploadTask uploadTask;
-        uploadTask = imgPostRef.putBytes(img);
+        uploadTask = newPostRef.putFile(file);
         uploadTask.addOnProgressListener(taskSnapshot -> {
-
-
+            activity.showPB();
+            activity.progressPB(FirebaseUtil.calculateFileUploadProgress(taskSnapshot));
         }).continueWithTask(task -> {
             if (!task.isSuccessful()) {
                 throw task.getException();
             }
             // Continue with the task to get the download URL
-            return imgPostRef.getDownloadUrl();
+            return newPostRef.getDownloadUrl();
         }).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 GeneralUtil.message("Post uploaded successfully!");
-                storePostDataInFirestore(task, post);
+                storePostDataInFirestore(task, newPost);
             } else {
                 activity.hidePB();
                 GeneralUtil.getHandler().post(() -> {
+                    task.getException().printStackTrace();
                     //viewImplementation.hidePictureLoaderBar();
                     GeneralUtil.showAlertMessage(activity,
                             activity.getString(R.string.error),
-                            activity.getString(R.string.error_image_msg));
+                            activity.getString(R.string.error_post_msg));
                 });
             }
         });
@@ -257,7 +285,7 @@ public class FirebaseToHomePresenter {
 
 
 
-    private void storePostDataInFirestore(Task<Uri> task, Post newPost) {
+    public void storePostDataInFirestore(Task<Uri> task, Post newPost) {
         String download_uri;
         if(task != null) {
             download_uri = task.getResult().toString();
@@ -276,6 +304,7 @@ public class FirebaseToHomePresenter {
 
             if(task1.isSuccessful()){
                 GeneralUtil.message("Post was added");
+                activity.hidePB();
                 activity.goStraightToHomePage("");
             } else {
 

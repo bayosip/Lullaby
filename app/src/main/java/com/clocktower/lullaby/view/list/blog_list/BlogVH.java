@@ -107,19 +107,21 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         }
         title = posts.get(getAdapterPosition()).getPost().getTitle();
         postTitle.setText(title);
+        //Check Media type
+        long type =posts.get(getAdapterPosition()).getPost().getMediaType();
+        if (type>0){
+            mediaView.setVisibility(View.VISIBLE);
+            if(type ==1){
+                imgPost.setVisibility(View.VISIBLE);
+                video.setVisibility(View.GONE);
+            }else {
+                playVideoBtn.setVisibility(View.VISIBLE);
+                fullscreen.setVisibility(View.VISIBLE);
+                imgPost.setVisibility(View.GONE);
+                video.setVisibility(View.VISIBLE);
+            }
+        }else mediaView.setVisibility(View.GONE);
 
-        mediaView.setVisibility(posts.get(getAdapterPosition()).getPost().getMediaType()==0?
-                View.GONE: View.VISIBLE);
-        video.setVisibility(posts.get(getAdapterPosition()).getPost().getMediaType()==2?
-                View.VISIBLE: View.GONE);
-
-        imgPost.setVisibility(posts.get(getAdapterPosition()).getPost().getMediaType()==1?
-                View.VISIBLE: View.GONE);
-
-        if(posts.get(getAdapterPosition()).getPost().getMediaType()==2) {
-            playVideoBtn.setVisibility(View.VISIBLE);
-            fullscreen.setVisibility(View.VISIBLE);
-        }
         url = posts.get(getAdapterPosition()).getPost().getUrl();
 
         if(posts.get(getAdapterPosition()).getPost().getMediaType()==1)

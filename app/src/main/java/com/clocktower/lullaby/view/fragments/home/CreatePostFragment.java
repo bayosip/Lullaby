@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +38,7 @@ import com.theartofdev.edmodo.cropper.CropImage;
 
 public class CreatePostFragment extends BaseFragment implements View.OnClickListener{
 
-
+    private static final String TAG = "CreatePostFragment";
     private Post newPost;
     private Button uploadVideo, uploadImage, postToBlog;
     private ImageView image;
@@ -123,7 +124,9 @@ public class CreatePostFragment extends BaseFragment implements View.OnClickList
 
                 else uri = "none";
 
-                if((mediaType>0 && !TextUtils.isEmpty(uri))||
+                Log.w(TAG, "onClick: " + uri );
+
+                if((mediaType>0 && !uri.equals("none"))||
                         (mediaType==0 && !TextUtils.isEmpty(desc))) {
                     newPost = new Post(desc, uri, mediaType, null);
                     listener.saveNewPostInDB(newPost, mediaType);
@@ -153,15 +156,17 @@ public class CreatePostFragment extends BaseFragment implements View.OnClickList
 
     private String getImageURI(Uri uri) {
         String path = "";
+        String[] projection = { MediaStore.Images.Media.DATA };
         if (listener.getListenerContext().getContentResolver() != null) {
             Cursor cursor = listener.getListenerContext().getContentResolver()
-                    .query(uri, null, null, null, null);
+                    .query(uri, projection, null, null, null);
             if (cursor != null) {
                 cursor.moveToFirst();
                 int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
                 path = cursor.getString(idx);
                 cursor.close();
             }
+            else path = uri.toString();
         }
         return path;
     }
@@ -205,7 +210,7 @@ public class CreatePostFragment extends BaseFragment implements View.OnClickList
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Splash.RESULT_OK && data != null) {
+        if (resultCode == listener.getListenerContext().RESULT_OK && data != null) {
             switch (requestCode) {
                 case Constants.REQUEST_IMAGE_CAPTURE:
                     Bitmap bMap = (Bitmap) data.getExtras().get("data");

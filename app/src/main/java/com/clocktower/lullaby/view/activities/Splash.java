@@ -179,6 +179,9 @@ public class Splash extends AppCompatActivity implements ProfileListener, View.O
     }
 
     @Override
+    public void changeProfilePic(String url) {}
+
+    @Override
     public Activity getLoginActivity() {
         return Splash.this;
     }

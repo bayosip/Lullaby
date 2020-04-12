@@ -149,20 +149,7 @@ public class FirebaseUtil {
                     listener.goStraightToHomePage(user.getDisplayName());
                 } else {
                     Log.w(TAG, "No such document");
-                    if (user.getPhotoUrl()== null || TextUtils.isEmpty(user.getPhotoUrl().toString())){
-                        listener.startProfilePictureFragment(user.getDisplayName());
-                    }else {
-                        Bitmap bitmap = null;
-                        try {
-                        bitmap = Ion.with(listener.getLoginActivity())
-                                .load(user.getPhotoUrl().toString()).withBitmap().asBitmap().get();
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                        saveProfilePictureOnFireBase(bitmap, user, listener);
-                    }
+                    listener.startProfilePictureFragment(user.getDisplayName());
                 }
             } else {
                 Log.e(TAG, "get failed with ", task.getException());
@@ -194,7 +181,7 @@ public class FirebaseUtil {
         firestore.collection(Constants.USERS).document(user.getUid()).set(userMap).addOnCompleteListener(task1 -> {
             if(task1.isSuccessful()){
                 loginListener.hidePB();
-                //loginListener.goStraightToHomePage(user.getDisplayName());
+                loginListener.changeProfilePic(download_uri.toString());
             } else {
                 loginListener.hidePB();
                 String error = task1.getException().getMessage();

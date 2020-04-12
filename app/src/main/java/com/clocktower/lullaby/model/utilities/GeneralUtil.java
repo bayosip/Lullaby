@@ -95,6 +95,7 @@ public class GeneralUtil {
     }
 
     public static Uri getImageUri(Context inContext, Bitmap inImage, String title) {
+
         String path = CapturePhotoUtils.insertImage(inContext.getContentResolver(), inImage, title, null);
         return Uri.parse(path);
     }
@@ -109,13 +110,13 @@ public class GeneralUtil {
     }
 
     public static String randomName() {
-        String randomString = RandomStringUtils.randomAlphanumeric(16);
+        String randomString = RandomStringUtils.randomAlphanumeric(20);
         if (!TextUtils.isEmpty(randomString))
             return randomString;
         else {
             Random generator = new Random();
             StringBuilder randomStringBuilder = new StringBuilder();
-            int randomLength = generator.nextInt(16);
+            int randomLength = generator.nextInt(20);
             char tempChar;
             for (int i = 0; i < randomLength; i++){
                 tempChar = (char) (generator.nextInt(96) + 32);
@@ -130,7 +131,7 @@ public class GeneralUtil {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         if (bitmap != null) {
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
             byte[] thumbData = baos.toByteArray();
             return thumbData;
         }

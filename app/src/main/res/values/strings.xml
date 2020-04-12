@@ -27,4 +27,5 @@
     <string name="default_notification_channel_id">coza_family_id</string>
     <string name="upload_photo">\tupload photo</string>
     <string name="upload_video">\tupload video</string>
+    <string name="error_post_msg">Post Not Created, Try Again!</string>
 </resources>
