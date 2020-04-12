@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/app_background_white"
-    android:paddingTop="32dp">
+    >
 
     <LinearLayout
         android:layout_width="0dp"
@@ -17,8 +17,19 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0">
 
+        <androidx.core.widget.ContentLoadingProgressBar
+            android:id="@+id/progressBarProfileUpload"
+            android:clickable="true"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:indeterminate="false"
+            android:max="100"
+            android:progress="1"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginTop="32dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center">
@@ -28,7 +39,7 @@
                 android:layout_width="175dp"
                 android:layout_height="175dp"
                 android:contentDescription="User Profile Picture"
-                android:src="@drawable/ic_person_24dp"
+                app:srcCompat="@drawable/ic_person_24dp"
                 app:civ_border_color="@color/lightColor"
                 app:civ_border_width="2dp"
                 app:layout_constraintTop_toTopOf="parent"
@@ -43,7 +54,7 @@
                 android:layout_height="40dp"
                 android:background="@drawable/circle_colored"
                 android:elevation="@dimen/elevation"
-                android:src="@drawable/ic_photo_camera_24dp"
+                app:srcCompat="@drawable/ic_photo_camera_24dp"
                 app:layout_constraintBottom_toBottomOf="@id/imageViewID"
                 app:layout_constraintEnd_toEndOf="@id/imageViewID"
                 app:layout_constraintHorizontal_bias="1"
@@ -66,16 +77,6 @@
             android:padding="12dp"
             android:background="@drawable/edittext_custom"/>
 
-        <androidx.core.widget.ContentLoadingProgressBar
-            android:id="@+id/progressBarProfileUpload"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="64dp"
-            android:layout_marginEnd="32dp"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"/>
     </LinearLayout>
 
     <Button

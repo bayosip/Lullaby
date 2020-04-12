@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,7 +22,7 @@ import androidx.fragment.app.Fragment;
 
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.interfaces.ProfileListener;
-import com.clocktower.lullaby.model.ProfilePicture;
+import com.clocktower.lullaby.model.ImageCreator;
 import com.clocktower.lullaby.model.utilities.Constants;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
 import com.clocktower.lullaby.view.activities.Splash;
@@ -42,7 +41,7 @@ public class Profile_creation_frag extends Fragment implements View.OnClickListe
     private ContentLoadingProgressBar progressBar;
     private String getName;
     private boolean hasName;
-    private ProfilePicture profile;
+    private ImageCreator profile;
     private ProfileListener listener;
     private Intent mImgUri;
     
@@ -67,11 +66,9 @@ public class Profile_creation_frag extends Fragment implements View.OnClickListe
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         getName = getArguments().getString(NAME, null);
-        profile = new ProfilePicture();
+        profile = new ImageCreator();
         initialiseWidgets(view);
     }
-
-
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -107,7 +104,7 @@ public class Profile_creation_frag extends Fragment implements View.OnClickListe
         switch (view.getId()){
             case R.id.buttonAddImage:
                 progressBar.show();
-                profile.changeProfilePic(Profile_creation_frag.this);
+                profile.createAnImage(Profile_creation_frag.this);
                 break;
             case R.id.buttonContinueHome:
                 if (!TextUtils.isEmpty(getName))
@@ -128,7 +125,7 @@ public class Profile_creation_frag extends Fragment implements View.OnClickListe
                 case CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE:
                     CropImage.ActivityResult result = CropImage.getActivityResult(data);
                     Uri uri = result.getUri();
-                    if (listener.savePictureInDb(result.getBitmap()))
+                    if (listener.saveProfilePictureInDb(result.getBitmap()))
                         setImageURI(uri);
                     break;
                 case CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE:
@@ -140,11 +137,11 @@ public class Profile_creation_frag extends Fragment implements View.OnClickListe
                     Log.d(TAG, "onActivityResult: "+ data.toString());
                     Bitmap bMap = (Bitmap)data.getExtras().get("data");
                     profilePic.setImageBitmap(bMap);
-                    listener.savePictureInDb(bMap);
+                    listener.saveProfilePictureInDb(bMap);
                     break;
                 case Constants.PICK_IMAGE_REQUEST:
                     Uri imgUri = data.getData();
-                    if(imgUri!= null && listener.savePictureInDb(imgUri))
+                    if(imgUri!= null && listener.saveProfilePictureInDb(imgUri))
                         setImageURI(imgUri);
                     break;
             }
@@ -161,10 +158,9 @@ public class Profile_creation_frag extends Fragment implements View.OnClickListe
         profilePic.setImageURI(uri);
     }
 
-    private final BroadcastReceiver commsReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            mImgUri = intent;
-        }
-    };
+    public void progressPB(long progress) {
+        getActivity().runOnUiThread(() -> {
+            progressBar.setProgress((int) progress);
+        });
+    }
 }

@@ -15,7 +15,7 @@ import cat.ereza.customactivityoncrash.config.CaocConfig;
 public class App extends Application {
 
     public static Context context;
-    private static final String TAG = "BLE App";
+    private static final String TAG = "Coza Family";
 
     @Override
     public void onCreate()
@@ -32,24 +32,11 @@ public class App extends Application {
                 .apply();
     }
 
-    private static Activity mCurrentActivity = null;
-    public static Activity getCurrentActivity(){
-        return mCurrentActivity;
-    }
-
-    public static void setCurrentActivity(Activity currentActivity){
-        mCurrentActivity = currentActivity;
-    }
-
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
         MultiDex.install(this);
     }
-
-
-
-
 
     @Override
     public void onTerminate() {

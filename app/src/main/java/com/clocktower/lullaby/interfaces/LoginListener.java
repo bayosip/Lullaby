@@ -10,4 +10,5 @@ public interface LoginListener {
     void startProfilePictureFragment(String profileDisplayName);
     void hidePB();
     void showPB();
+    void progressPB(long progress);
 }

@@ -1,5 +1,7 @@
 package com.clocktower.lullaby.interfaces;
 
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Handler;
 import android.widget.MediaController;
 
@@ -23,6 +25,9 @@ public interface FragmentListener extends ListItemClickListener {
 
     void clearList();
 
+    //Post upload Interface Method
+
+    //Blog interface functions
     void updateLikesCount(String postID);
     void updateCommentCount(String postId);
     void openCommentSectionOnPostWithId(String postID, String title);
@@ -30,4 +35,7 @@ public interface FragmentListener extends ListItemClickListener {
     void postACommentOnPostWithId(String postId, String msg);
     void restoreViewsAfterLeavingCommentSection();
     void removeToolbars();
+
+    void saveNewPostInDB(Post post, long type);
+
 }

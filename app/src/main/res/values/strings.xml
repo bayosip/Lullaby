@@ -25,4 +25,6 @@
     <string name="facebook_application_id" translatable="false">801531950349242</string>
     <string name="facebook_login_protocol_scheme" translatable="false">fb801531950349242</string>
     <string name="default_notification_channel_id">coza_family_id</string>
+    <string name="upload_photo">\tupload photo</string>
+    <string name="upload_video">\tupload video</string>
 </resources>

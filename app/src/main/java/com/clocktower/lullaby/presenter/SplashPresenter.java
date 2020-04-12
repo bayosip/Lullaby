@@ -7,41 +7,26 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import com.clocktower.lullaby.App;
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.interfaces.LoginListener;
-import com.clocktower.lullaby.model.ProfilePicture;
 import com.clocktower.lullaby.model.utilities.Constants;
 import com.clocktower.lullaby.model.utilities.FirebaseUtil;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
 import com.clocktower.lullaby.view.activities.Home;
 import com.clocktower.lullaby.view.activities.Splash;
 import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
+
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
 import com.koushikdutta.ion.Ion;
 
 public class SplashPresenter {
@@ -67,6 +52,7 @@ public class SplashPresenter {
         loginProviders = Arrays.asList(
                 new AuthUI.IdpConfig.EmailBuilder().build(),
                 new AuthUI.IdpConfig.GoogleBuilder().build());
+        user = FirebaseUtil.getmAuth().getCurrentUser();
     }
 
     public void initialiseLogin() {
@@ -81,7 +67,6 @@ public class SplashPresenter {
     }
 
     public void checkIfLoginIsSuccessful(){
-        user = FirebaseUtil.getmAuth().getCurrentUser();
 
         if (user != null){
             if(!user.isEmailVerified()) {
@@ -149,15 +134,17 @@ public class SplashPresenter {
         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest
                 .Builder().setDisplayName(name)
                 .build();
-        user.updateProfile(profileUpdates).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                startHomeActivity(name);
-            }
-        });
+        if (user!=null) {
+            user.updateProfile(profileUpdates).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    startHomeActivity(name);
+                }
+            });
+        }
     }
 
     public boolean saveImgInUserProfile(Bitmap bitmap, LoginListener listener) {
-        return FirebaseUtil.savePictureOnFireBase(bitmap, user, listener);
+        return FirebaseUtil.saveProfilePictureOnFireBase(bitmap, user, listener);
     }
 
     public boolean saveImgInUserProfile(Uri uri, LoginListener listener){
@@ -170,6 +157,6 @@ public class SplashPresenter {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return FirebaseUtil.savePictureOnFireBase(bitmap, user, listener);
+        return FirebaseUtil.saveProfilePictureOnFireBase(bitmap, user, listener);
     }
 }

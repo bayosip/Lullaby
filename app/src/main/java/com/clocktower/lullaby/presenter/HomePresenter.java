@@ -89,18 +89,15 @@ public class HomePresenter extends FirebaseToHomePresenter {
     }
 
     public Thread musicPlayerThread(final Handler handler) {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (player != null) {
-                    try {
-                        Message msg = new Message();
-                        msg.what = player.getCurrentPosition();
-                        handler.sendMessage(msg);
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ie) {
+        Thread thread = new Thread(() -> {
+            while (player != null) {
+                try {
+                    Message msg = new Message();
+                    msg.what = player.getCurrentPosition();
+                    handler.sendMessage(msg);
+                    Thread.sleep(1000);
+                } catch (InterruptedException ie) {
 
-                    }
                 }
             }
         });

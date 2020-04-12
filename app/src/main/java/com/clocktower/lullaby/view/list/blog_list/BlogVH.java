@@ -25,6 +25,7 @@ import com.clocktower.lullaby.model.CozaBlog;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
 import com.crashlytics.android.Crashlytics;
 import com.koushikdutta.ion.Ion;
+import com.volokh.danylo.hashtaghelper.HashTagHelper;
 
 import java.io.IOException;
 import java.util.Date;
@@ -82,6 +83,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
                 playSelectedVideoFrom(url);
             }
         });
+
     }
 
     public void setMediaController(MediaController mediaController){
@@ -176,6 +178,10 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
             video.setOnPreparedListener(mediaPlayer -> {
                 if (isPlayClicked && !mediaPlayer.isPlaying())
                     buffering.show();
+                else if (!mediaPlayer.isPlaying()) {
+                    playVideoBtn.setImageResource(R.drawable.ic_play_video_24dp);
+                    playVideoBtn.setVisibility(View.VISIBLE);
+                }
                 mediaPlayer.setLooping(false);
                 mediaPlayer.start();
                 mediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT);
@@ -196,6 +202,9 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
 
     public void setListener(FragmentListener listener) {
         this.listener = listener;
+        HashTagHelper mTextHashTagHelper = HashTagHelper.Creator
+                .create(listener.getListenerContext().getResources().getColor(R.color.lightColor), null);
+        mTextHashTagHelper.handle(postTitle);
     }
 
     private void snapOutOfFullscreen(){

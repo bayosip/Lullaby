@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,7 +14,6 @@ import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.fragment.app.Fragment;
 
 import com.clocktower.lullaby.R;
-import com.clocktower.lullaby.model.ProfilePicture;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
 import com.clocktower.lullaby.view.activities.Splash;
 

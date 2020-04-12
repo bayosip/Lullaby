@@ -15,9 +15,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.NetworkOnMainThreadException;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -92,6 +94,11 @@ public class GeneralUtil {
         return  bmp;
     }
 
+    public static Uri getImageUri(Context inContext, Bitmap inImage, String title) {
+        String path = CapturePhotoUtils.insertImage(inContext.getContentResolver(), inImage, title, null);
+        return Uri.parse(path);
+    }
+
     public static void exitApp(Activity activity) {
         if (Build.VERSION.SDK_INT >= 21) activity.finishAndRemoveTask();
         else activity.finish();
@@ -118,7 +125,7 @@ public class GeneralUtil {
         }
     }
 
-    public static byte[] compressImgFromUri(Bitmap bitmap){
+    public static byte[] compressImgFromBitmap(Bitmap bitmap){
 
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 
 import com.clocktower.lullaby.R;
@@ -106,6 +107,19 @@ public class Splash extends AppCompatActivity implements ProfileListener, View.O
         notificationManager.cancelAll();
     }
 
+    @Override
+    public void progressPB(long progress) {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+
+        if(fragment!= null) {
+            String tag = getSupportFragmentManager().findFragmentById(R.id.fragment_container)
+                    .getTag();
+            Profile_creation_frag knownfrag = (Profile_creation_frag)getSupportFragmentManager()
+                    .findFragmentByTag(tag);
+            knownfrag.progressPB(progress);
+        }
+    }
+
     public void showPB(){
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
 
@@ -140,12 +154,23 @@ public class Splash extends AppCompatActivity implements ProfileListener, View.O
         presenter.startHomeActivity(name);
     }
 
-    public boolean savePictureInDb(Bitmap bitmap) {
+    @Override
+    public void disableScreen() {
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    @Override
+    public void enableScreen() {
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    public boolean saveProfilePictureInDb(Bitmap bitmap) {
         return presenter.saveImgInUserProfile(bitmap, Splash.this);//
     }
 
     @Override
-    public boolean savePictureInDb(Uri uri) {
+    public boolean saveProfilePictureInDb(Uri uri) {
         return presenter.saveImgInUserProfile(uri, Splash.this);
     }
 
@@ -160,7 +185,7 @@ public class Splash extends AppCompatActivity implements ProfileListener, View.O
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+            switch (view.getId()){
             case R.id.buttonSignIn:
                 presenter.initialiseLogin();
                 break;

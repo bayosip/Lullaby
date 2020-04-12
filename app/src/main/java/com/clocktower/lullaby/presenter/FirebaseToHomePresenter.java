@@ -1,10 +1,12 @@
 package com.clocktower.lullaby.presenter;
 
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
+import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.interfaces.HomeViewInterFace;
 import com.clocktower.lullaby.model.Comments;
 import com.clocktower.lullaby.model.Post;
@@ -14,10 +16,8 @@ import com.clocktower.lullaby.model.utilities.GeneralUtil;
 import com.clocktower.lullaby.view.activities.Home;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
@@ -25,7 +25,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.Source;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +41,7 @@ public class FirebaseToHomePresenter {
     private Home activity;
 
     private Boolean isFirstPageFirstLoad = true;
+    private StorageReference storage;
 
     public FirebaseToHomePresenter(HomeViewInterFace interFace) {
         this.interFace = interFace;
@@ -200,22 +202,91 @@ public class FirebaseToHomePresenter {
     }
 
     public void getPostsFromFirebase(){
-        firestore.collection(Constants.POSTS).addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                if(queryDocumentSnapshots!=null){
-                    for(DocumentChange doc: queryDocumentSnapshots.getDocumentChanges()) {
-                        // try {
-                        Log.i(TAG, "onEvent: " +doc.getDocument().getData().get("MediaType").getClass().getSimpleName());
-                        Post aPost = doc.getDocument().toObject(Post.class);
-                        interFace.updateBlogWith(aPost);
-                        /*}catch (NullPointerException ex){
-                            ex.printStackTrace();
-                        }*/
-                    }
+        firestore.collection(Constants.POSTS).addSnapshotListener((queryDocumentSnapshots, e) -> {
+            if(queryDocumentSnapshots!=null){
+                for(DocumentChange doc: queryDocumentSnapshots.getDocumentChanges()) {
+                    // try {
+                    Log.i(TAG, "onEvent: " +doc.getDocument().getData().get("MediaType").getClass().getSimpleName());
+                    Post aPost = doc.getDocument().toObject(Post.class);
+                    interFace.updateBlogWith(aPost);
+                    /*}catch (NullPointerException ex){
+                        ex.printStackTrace();
+                    }*/
                 }
             }
         });
+    }
+
+    //Save A Post
+    public void savePostImageInStorage(Bitmap bitmap, final Post post) {
+        // Create a reference to "profile_pic.jpg"
+        if (bitmap == null)return;
+        activity.showPB();
+        final StorageReference imgPostRef = storage.child(Constants.POSTS)
+                .child(GeneralUtil.randomName()+ "_" + ".png");
+        byte[] img = GeneralUtil.compressImgFromBitmap(bitmap);
+        Log.d(TAG, "saveProfilePictureOnFireBase: " + img.toString());
+        // Create a reference to 'images/profile_pic.jpg'
+        //final StorageReference profileImagesRef = storageRef.child("images/"+filename);
+        final UploadTask uploadTask;
+        uploadTask = imgPostRef.putBytes(img);
+        uploadTask.addOnProgressListener(taskSnapshot -> {
+
+
+        }).continueWithTask(task -> {
+            if (!task.isSuccessful()) {
+                throw task.getException();
+            }
+            // Continue with the task to get the download URL
+            return imgPostRef.getDownloadUrl();
+        }).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                GeneralUtil.message("Post uploaded successfully!");
+                storePostDataInFirestore(task, post);
+            } else {
+                activity.hidePB();
+                GeneralUtil.getHandler().post(() -> {
+                    //viewImplementation.hidePictureLoaderBar();
+                    GeneralUtil.showAlertMessage(activity,
+                            activity.getString(R.string.error),
+                            activity.getString(R.string.error_image_msg));
+                });
+            }
+        });
+    }
+
+
+
+    private void storePostDataInFirestore(Task<Uri> task, Post newPost) {
+        String download_uri;
+        if(task != null) {
+            download_uri = task.getResult().toString();
+        }else {
+            download_uri = "none";
+        }
+
+        Map<String, Object> postMap = new HashMap<>();
+        postMap.put("Title", newPost.getTitle());
+        postMap.put("Url", download_uri);
+        postMap.put("MediaType", newPost.getMediaType());
+        postMap.put("TimeStamp", FieldValue.serverTimestamp());
+
+        firestore.collection("Posts").document("PID-" +GeneralUtil.randomName())
+                .set(postMap).addOnCompleteListener(task1 -> {
+
+            if(task1.isSuccessful()){
+                GeneralUtil.message("Post was added");
+                activity.goStraightToHomePage("");
+            } else {
+
+                GeneralUtil.showAlertMessage(activity, activity.getString(R.string.error),
+                        "Something Went Wrong, Please Try Again!");
+            }
+
+            activity.hidePB();
+
+        });
+
     }
 
 }

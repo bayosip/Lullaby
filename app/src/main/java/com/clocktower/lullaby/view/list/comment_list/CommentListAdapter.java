@@ -1,6 +1,7 @@
 package com.clocktower.lullaby.view.list.comment_list;
 
 import android.app.Activity;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,10 +21,12 @@ public class CommentListAdapter extends RecyclerView.Adapter<CommentListViewHold
     private CommentListViewHolder holder;
     private List<Comments> comments;
     private LayoutInflater inflater;
+    private Context context;
 
     public CommentListAdapter(List<Comments> comments, Activity context) {
         this.comments = comments;
         this.inflater = LayoutInflater.from(context);
+        this.context = context;
     }
 
     @NonNull
@@ -31,6 +34,7 @@ public class CommentListAdapter extends RecyclerView.Adapter<CommentListViewHold
     public CommentListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = inflater.inflate(R.layout.comment_line, parent, false);
         holder = new CommentListViewHolder(view);
+        holder.setContext(context);
         return holder;
     }
 

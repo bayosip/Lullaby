@@ -161,13 +161,22 @@ public class FirebaseUtil {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                        savePictureOnFireBase(bitmap, user, listener);
+                        saveProfilePictureOnFireBase(bitmap, user, listener);
                     }
                 }
             } else {
                 Log.e(TAG, "get failed with ", task.getException());
             }
         });
+    }
+
+    public static long calculateFileUploadProgress(UploadTask.TaskSnapshot snapshot){
+
+        long fileSize = snapshot.getTotalByteCount();
+        long uploadedBytes = snapshot.getBytesTransferred();
+
+        return ((uploadedBytes/fileSize) * 100);
+
     }
 
     private static void storeFirestore(@NonNull Task<Uri> task, final FirebaseUser user, LoginListener loginListener) {
@@ -185,7 +194,7 @@ public class FirebaseUtil {
         firestore.collection(Constants.USERS).document(user.getUid()).set(userMap).addOnCompleteListener(task1 -> {
             if(task1.isSuccessful()){
                 loginListener.hidePB();
-                loginListener.goStraightToHomePage(user.getDisplayName());
+                //loginListener.goStraightToHomePage(user.getDisplayName());
             } else {
                 loginListener.hidePB();
                 String error = task1.getException().getMessage();
@@ -196,19 +205,21 @@ public class FirebaseUtil {
         });
     }
 
-    public static boolean savePictureOnFireBase(Bitmap bitmap, FirebaseUser user, LoginListener listener) {
+    public static boolean saveProfilePictureOnFireBase(Bitmap bitmap, FirebaseUser user, LoginListener listener) {
         // Create a reference to "profile_pic.jpg"
         if (bitmap == null)return false;
         listener.showPB();
         final StorageReference profileRef = storage.child(Constants.USERS).child(
                 user.getUid().trim() + "_" + filename);
-        byte[] img = GeneralUtil.compressImgFromUri(bitmap);
-        Log.d(TAG, "savePictureOnFireBase: " + img.toString());
+        byte[] img = GeneralUtil.compressImgFromBitmap(bitmap);
+        Log.d(TAG, "saveProfilePictureOnFireBase: " + img.toString());
         // Create a reference to 'images/profile_pic.jpg'
         //final StorageReference profileImagesRef = storageRef.child("images/"+filename);
         final UploadTask uploadTask;
         uploadTask = profileRef.putBytes(img);
-        uploadTask.continueWithTask(task -> {
+        uploadTask.addOnProgressListener(snapshot -> {
+            listener.progressPB(calculateFileUploadProgress(snapshot));
+        }).continueWithTask(task -> {
             if (!task.isSuccessful()) {
                 throw task.getException();
             }

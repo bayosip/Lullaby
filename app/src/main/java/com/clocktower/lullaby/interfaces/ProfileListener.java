@@ -6,7 +6,10 @@ import android.net.Uri;
 
 public interface ProfileListener extends LoginListener {
     void goStraightToHomePage(String getName);
+    void disableScreen();
+    void enableScreen();
     void saveUserNameintoDb(String name);
-    boolean savePictureInDb(Bitmap bitmap);
-    boolean savePictureInDb(Uri uri);
+    boolean saveProfilePictureInDb(Bitmap bitmap);
+    boolean saveProfilePictureInDb(Uri uri);
+
 }

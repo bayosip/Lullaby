@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -12,14 +13,15 @@ import androidx.viewpager.widget.ViewPager;
 import android.Manifest;
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.MediaController;
 import android.widget.TextView;
 
@@ -36,6 +38,7 @@ import com.clocktower.lullaby.presenter.HomePresenter;
 import com.clocktower.lullaby.view.NonSwipeableViewPager;
 import com.clocktower.lullaby.view.fragments.home.ChatFragment;
 import com.clocktower.lullaby.view.fragments.home.CommentsFragment;
+import com.clocktower.lullaby.view.fragments.home.CreatePostFragment;
 import com.clocktower.lullaby.view.fragments.home.FullscreenFragment;
 import com.clocktower.lullaby.view.fragments.home.HomePageFragmentAdapter;
 import com.clocktower.lullaby.view.fragments.home.AlarmSetterFragment;
@@ -80,6 +83,7 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     private CommentsFragment commentFrag;
     private FullscreenFragment fullFrag;
     private Profile_creation_frag profileFrag;
+    private CreatePostFragment createFrag;
     private ChatFragment chatFrag;
     private MusicSelectorDialog musicSelectorDialog;
     private MediaController mediaController;
@@ -93,6 +97,7 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     private String mUsername;
     FirebaseUser user;
     private View simple, profile;
+    private ContentLoadingProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,11 +136,18 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
         user_name = findViewById(R.id.textHomeUserName);
         user_name.setText(mUsername);
         homeProfile = findViewById(R.id.imageHomeProfile);
+        progressBar = findViewById(R.id.loading_progress);
+        progressBar.hide();
 
-        Ion.with(homeProfile)
-                .placeholder(R.drawable.ic_person_24dp)
+        Ion.with(this)
                 .load(user.getPhotoUrl()!=null? user.getPhotoUrl().toString():
-                        GeneralUtil.getAppPref(this).getString(Constants.PROFILE, null));
+                        GeneralUtil.getAppPref(this).getString(Constants.PROFILE, null))
+                .withBitmap()
+                .placeholder(R.drawable.ic_person_24dp)
+                .intoImageView(homeProfile);
+
+        Log.w(TAG, "setupActionBar: " +  user.getPhotoUrl().toString() + " // "
+                + GeneralUtil.getAppPref(this).getString(Constants.PROFILE, null));
         bottomNavigationView = findViewById(R.id.navigationView);
 
         simple = findViewById(R.id.simpleToolbarView);
@@ -200,6 +212,9 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
                         case R.id.navigation_home:
                             pager.setCurrentItem(0);
                             return true;
+                        case R.id.navigation_create:
+                            startPostCreationPage();
+                            return  true;
                         case R.id.navigation_alarm:
                             pager.setCurrentItem(1);
                             return true;
@@ -213,6 +228,21 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
                     return false;
                 }
             };
+
+    private void startPostCreationPage() {
+        pager.setVisibility(View.GONE);
+        bottomNavigationView.setVisibility(View.GONE);
+
+        createFrag = CreatePostFragment.newInstance();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        fragmentTransaction.add(R.id.home_fragment_container, createFrag, Constants.CREATE_POST);
+        fragmentTransaction.commitAllowingStateLoss();
+        commentView.setVisibility(View.VISIBLE);
+        this.title.setText("Create Post");
+        setupOtherActionBar();
+    }
 
     private ViewPager.OnPageChangeListener pageChangeListener = new ViewPager.OnPageChangeListener() {
         @Override
@@ -420,6 +450,7 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
         pager.setVisibility(View.GONE);
         removeToolbars();
         fullFrag = FullscreenFragment.getInstance(url, currentPosition);
+        fullFrag.setTargetFragment(blogFrag, Constants.PLAY_BACK_CODE);
         fullFrag.setMediaController(mediaController);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -528,6 +559,8 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     @Override
     public void startProfilePictureFragment(String name){
         pager.setVisibility(View.GONE);
+        setupOtherActionBar();
+        title.setText("Profile");
         bottomNavigationView.setVisibility(View.GONE);
         commentView.setVisibility(View.VISIBLE);
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -557,12 +590,23 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     }
 
     @Override
-    public boolean savePictureInDb(Bitmap bitmap) {
-        return FirebaseUtil.savePictureOnFireBase(bitmap, user, Home.this);
+    public boolean saveProfilePictureInDb(Bitmap bitmap) {
+        return FirebaseUtil.saveProfilePictureOnFireBase(bitmap, user, Home.this);
     }
 
     @Override
-    public boolean savePictureInDb(Uri uri) {
+    public void disableScreen() {
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    @Override
+    public void enableScreen() {
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    @Override
+    public boolean saveProfilePictureInDb(Uri uri) {
         Bitmap bitmap = null;
         try {
             bitmap = Ion.with(Home.this)
@@ -572,7 +616,23 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return FirebaseUtil.savePictureOnFireBase(bitmap, user, Home.this);
+        return FirebaseUtil.saveProfilePictureOnFireBase(bitmap, user, Home.this);
+    }
+
+    @Override
+    public void saveNewPostInDB(Post post, long type) {
+        if (type ==1) {
+            Bitmap bitmap = null;
+            try {
+                bitmap = Ion.with(Home.this)
+                        .load(post.getUrl()).withBitmap().asBitmap().get();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            presenter.savePostImageInStorage(bitmap, post);
+        }
     }
 
     @Override
@@ -586,11 +646,18 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
 
     @Override
     public void hidePB() {
-        profileFrag.hideProgressBar();
+        progressBar.hide();
     }
 
     @Override
     public void showPB() {
-        profileFrag.showProgressBar();
+        progressBar.show();
+    }
+
+    @Override
+    public void progressPB(long progress) {
+        runOnUiThread(() -> {
+            progressBar.setProgress((int) progress);
+        });
     }
 }

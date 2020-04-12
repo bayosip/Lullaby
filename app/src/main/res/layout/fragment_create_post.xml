@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_background_white"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/new_post_media"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="85"
+        android:background="@color/appBackground_dark"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+    <ImageView
+        android:id="@+id/new_post_image"
+        android:layout_width="0dp"
+        android:layout_height="300dp"
+        app:srcCompat="@drawable/ic_image_24dp"
+        android:scaleType="fitXY"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+    <VideoView
+        android:id="@+id/new_post_video"
+        android:layout_width="0dp"
+        android:layout_height="300dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <ImageButton
+            android:id="@+id/buttonPlayVideo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_play_video_24dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:background="@android:color/transparent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <EditText
+        android:id="@+id/new_post_desc"
+        android:layout_width="0dp"
+        android:layout_height="155dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:ems="10"
+        android:hint="Post Description"
+        android:inputType="textMultiLine"
+        android:background="@drawable/edittext_custom_2"
+        android:maxLength="125"
+        android:padding="16dp"
+        android:gravity="top"
+        android:textSize="@dimen/text_size"
+        android:autoSizeMaxTextSize="@dimen/text_size"
+        android:autoSizeMinTextSize="11sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:textStyle="normal"
+        android:textColor="@color/textColor"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/new_post_media" />
+
+    <Button
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:id="@+id/btn_upload_photo"
+        android:layout_width="0dp"
+        android:padding="@dimen/inside_padding"
+        android:paddingLeft="32dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/lightColor"
+        android:text="@string/upload_photo"
+        android:gravity="left|center_vertical"
+        android:background="@drawable/underline_view"
+        android:drawableStart="@drawable/ic_photo_library_24dp"
+        android:drawableLeft="@drawable/ic_photo_library_24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/new_post_desc"/>
+    <Button
+        android:id="@+id/btn_upload_video"
+        android:padding="@dimen/inside_padding"
+        android:paddingLeft="32dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/lightColor"
+        android:text="@string/upload_video"
+        android:gravity="left|center_vertical"
+        android:background="@drawable/underline_view"
+        android:drawableStart="@drawable/ic_videocam_24dp"
+        android:drawableLeft="@drawable/ic_videocam_24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_upload_photo"/>
+
+    <Button
+        android:id="@+id/post_btn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/buttonColor"
+        android:padding="16dp"
+        android:text="Post"
+        android:textStyle="bold"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:textSize="17sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
