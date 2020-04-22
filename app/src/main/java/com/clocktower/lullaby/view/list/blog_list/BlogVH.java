@@ -73,17 +73,6 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         fullscreen = v.findViewById(R.id.buttonFullScreen);
         fullscreen.setOnClickListener(this);
 
-        video.setOnCompletionListener(mediaPlayer -> {
-            mediaPlayer.reset();
-            mediaPlayer.release();
-            playVideoBtn.setImageResource(R.drawable.ic_play_video_24dp);
-            playVideoBtn.setVisibility(View.VISIBLE);
-            if(isPlayClicked){
-                isPlayClicked = false;
-                playSelectedVideoFrom(url);
-            }
-        });
-
     }
 
     public void setMediaController(MediaController mediaController){
@@ -135,6 +124,17 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         }catch (Exception e){
             e.printStackTrace();
         }
+
+        video.setOnCompletionListener(mediaPlayer -> {
+            mediaPlayer.reset();
+            mediaPlayer.release();
+            playVideoBtn.setImageResource(R.drawable.ic_play_video_24dp);
+            playVideoBtn.setVisibility(View.VISIBLE);
+            if(isPlayClicked){
+                isPlayClicked = false;
+                playSelectedVideoFrom(url);
+            }
+        });
 
         playSelectedVideoFrom(url);
         snapOutOfFullscreen();
@@ -218,4 +218,6 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         params.leftMargin = 0;
         video.setLayoutParams(params);
     }
+
+
 }

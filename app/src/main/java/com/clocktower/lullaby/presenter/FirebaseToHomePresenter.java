@@ -24,6 +24,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.StorageReference;
@@ -50,6 +51,7 @@ public class FirebaseToHomePresenter {
 
     private Boolean isFirstPageFirstLoad = true;
     private StorageReference storage;
+    private ListenerRegistration listenerRegistration;
 
     public FirebaseToHomePresenter(HomeViewInterFace interFace) {
         this.interFace = interFace;
@@ -65,15 +67,15 @@ public class FirebaseToHomePresenter {
     }
 
     public void firstPageFirstLoad(){
-        Query firstQuery = firestore.collection(Constants.POSTS).orderBy(Constants.TIMESTAMP,
-                Query.Direction.DESCENDING).limit(3);
-        firstQuery.addSnapshotListener((documentSnapshots, e) -> {
-            if (!documentSnapshots.isEmpty()) {
+        Query firstQuery = firestore.collection(Constants.POSTS)
+                .orderBy(Constants.TIMESTAMP, Query.Direction.DESCENDING)
+                .limit(3);
+        listenerRegistration = firstQuery.addSnapshotListener((documentSnapshots, e) -> {
+            if (documentSnapshots!= null && !documentSnapshots.isEmpty()) {
                 if (isFirstPageFirstLoad) {
 
                     lastVisible = documentSnapshots.getDocuments().get(documentSnapshots.size() - 1);
                     interFace.clearList();
-                    //blog_list.clear();
                 }
                 for (DocumentChange doc : documentSnapshots.getDocumentChanges()) {
                     if (doc.getType() == DocumentChange.Type.ADDED) {
@@ -87,55 +89,66 @@ public class FirebaseToHomePresenter {
         });
     }
 
+    public void loadMorePost(){
+        if(user!= null) {
+            Query nextQuery = firestore.collection(Constants.POSTS)
+                    .orderBy(Constants.TIMESTAMP, Query.Direction.DESCENDING)
+                    .startAfter(lastVisible)
+                    .limit(3);
+            listenerRegistration = nextQuery.addSnapshotListener((documentSnapshots, e) -> {
+                if (documentSnapshots!= null && !documentSnapshots.isEmpty()) {
+                    lastVisible = documentSnapshots.getDocuments().get(documentSnapshots.size() - 1);
+                    for (DocumentChange doc : documentSnapshots.getDocumentChanges()) {
+                        if (doc.getType() == DocumentChange.Type.ADDED) {
+                            String blogPostId = doc.getDocument().getId();
+                            Post blogPost = doc.getDocument().toObject(Post.class).withId(blogPostId);
+                            interFace.updateBlogWith(blogPost);
+                        }
+                    }
+                }
+            });
+        }
+    }
+
     public void likePost(final String postId){
         firestore.collection(Constants.POSTS).document(postId).collection(Constants.LIKES)
-                .document(user.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(!task.getResult().exists()){
-                    Map<String, Object> likesMap = new HashMap<>();
-                    likesMap.put("TimeStamp", FieldValue.serverTimestamp());
-                    firestore.collection(Constants.POSTS).document(postId).collection(Constants.LIKES)
-                            .document(user.getUid()).set(likesMap);
-                }else {
-                    firestore.collection("Posts/" + postId + "/Likes")
-                            .document(user.getUid()).delete();
-                }
-            }
-        });
+                .document(user.getUid()).get().addOnCompleteListener(task -> {
+                    if(!task.getResult().exists()){
+                        Map<String, Object> likesMap = new HashMap<>();
+                        likesMap.put("TimeStamp", FieldValue.serverTimestamp());
+                        firestore.collection(Constants.POSTS).document(postId).collection(Constants.LIKES)
+                                .document(user.getUid()).set(likesMap);
+                    }else {
+                        firestore.collection("Posts/" + postId + "/Likes")
+                                .document(user.getUid()).delete();
+                    }
+                });
     }
 
     public void getLikePostForPost(final String postId){
         firestore.collection(Constants.POSTS).document(postId).collection(Constants.LIKES)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
-                        int count =0;
-                        if(!documentSnapshots.isEmpty()){
+                .addSnapshotListener((documentSnapshots, e) -> {
+                    int count =0;
+                        if (documentSnapshots!= null && !documentSnapshots.isEmpty()) {
                             count = documentSnapshots.size();
                         }
                         interFace.updatePostLikesCount(postId, count);
-                    }
                 });
 
         //Get Likes
-        firestore.collection("Posts/" + postId + "/Likes").document(user.getUid())
-                .addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                    @Override
-                    public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
-                        interFace.updateLikeBtnImg(postId, documentSnapshot.exists());
-                    }
-                });
+        listenerRegistration = firestore.collection("Posts/" + postId + "/Likes").document(user.getUid())
+                .addSnapshotListener((documentSnapshot, e) ->{
+                        if(documentSnapshot!=null)
+                            interFace.updateLikeBtnImg(postId, documentSnapshot.exists());});
 
     }
 
     public void getNumberOfComments(final String postID){
-        firestore.collection(Constants.POSTS).document(postID).collection(Constants.COMMENTS)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
-                        int count =0;
-                        if(!documentSnapshots.isEmpty()){
+        listenerRegistration = firestore.collection(Constants.POSTS).document(postID).collection(Constants.COMMENTS)
+                .addSnapshotListener((documentSnapshots, e) -> {
+                    if(documentSnapshots !=null) {
+                        int count = 0;
+                        if (!documentSnapshots.isEmpty()) {
                             count = documentSnapshots.size();
                         }
                         interFace.updatePostCommentsCount(postID, count);
@@ -144,21 +157,18 @@ public class FirebaseToHomePresenter {
     }
 
     public void loadCommentsForPostWithID(String postID){
-        firestore.collection("Posts/" + postID+ "/Comments")
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
+        listenerRegistration = firestore.collection("Posts/" + postID+ "/Comments")
+                .addSnapshotListener((documentSnapshots, e) -> {
 
-                        if (!documentSnapshots.isEmpty()) {
+                    if (documentSnapshots!= null && !documentSnapshots.isEmpty()) {
 
-                            for (DocumentChange doc : documentSnapshots.getDocumentChanges()) {
+                        for (DocumentChange doc : documentSnapshots.getDocumentChanges()) {
 
-                                if (doc.getType() == DocumentChange.Type.ADDED) {
+                            if (doc.getType() == DocumentChange.Type.ADDED) {
 
-                                    String commentId = doc.getDocument().getId();
-                                    Comments comments = doc.getDocument().toObject(Comments.class);
-                                    interFace.updatePostComments(comments);
-                                }
+                                String commentId = doc.getDocument().getId();
+                                Comments comments = doc.getDocument().toObject(Comments.class);
+                                interFace.updatePostComments(comments);
                             }
                         }
                     }
@@ -180,34 +190,6 @@ public class FirebaseToHomePresenter {
                         GeneralUtil.message( "Error Posting Comment : " + task.getException().getMessage());
                     }
                 });
-    }
-
-    public void loadMorePost(){
-
-        if(user!= null) {
-
-            Query nextQuery = firestore.collection(Constants.POSTS)
-                    .orderBy(Constants.TIMESTAMP, Query.Direction.DESCENDING)
-                    .startAfter(lastVisible)
-                    .limit(3);
-
-            nextQuery.addSnapshotListener((documentSnapshots, e) -> {
-
-                if (!documentSnapshots.isEmpty()) {
-
-                    lastVisible = documentSnapshots.getDocuments().get(documentSnapshots.size() - 1);
-                    for (DocumentChange doc : documentSnapshots.getDocumentChanges()) {
-
-                        if (doc.getType() == DocumentChange.Type.ADDED) {
-                            String blogPostId = doc.getDocument().getId();
-                            Post blogPost = doc.getDocument().toObject(Post.class).withId(blogPostId);
-                            interFace.updateBlogWith(blogPost);
-                        }
-                    }
-                }
-
-            });
-        }
     }
 
     public void getPostsFromFirebase(){
@@ -250,6 +232,7 @@ public class FirebaseToHomePresenter {
                     }
                 }).check();
     }
+
     private void storeMediaPostAttachmentInStorage(final Post newPost){
         Uri file = Uri.fromFile(new File(newPost.getUrl()));
         String fileExt = newPost.getMediaType() ==1? Constants.PNG:Constants.MP4;
@@ -283,8 +266,6 @@ public class FirebaseToHomePresenter {
         });
     }
 
-
-
     public void storePostDataInFirestore(Task<Uri> task, Post newPost) {
         String download_uri;
         if(task != null) {
@@ -311,11 +292,15 @@ public class FirebaseToHomePresenter {
                 GeneralUtil.showAlertMessage(activity, activity.getString(R.string.error),
                         "Something Went Wrong, Please Try Again!");
             }
-
             activity.hidePB();
-
         });
+    }
 
+    public void removeListenerRegistration(){
+        if(listenerRegistration!=null) {
+            listenerRegistration.remove();
+            listenerRegistration = null;
+        }
     }
 
 }

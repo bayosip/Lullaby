@@ -49,7 +49,7 @@ public class CapturePhotoUtils {
             if (source != null) {
                 OutputStream imageOut = cr.openOutputStream(url);
                 try {
-                    source.compress(Bitmap.CompressFormat.JPEG, 100, imageOut);
+                    source.compress(Bitmap.CompressFormat.PNG, 100, imageOut);
                 } finally {
                     imageOut.close();
                 }

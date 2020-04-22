@@ -139,15 +139,16 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
         progressBar = findViewById(R.id.loading_progress);
         progressBar.hide();
 
-        Ion.with(this)
-                .load(user.getPhotoUrl()!=null? user.getPhotoUrl().toString():
-                        GeneralUtil.getAppPref(this).getString(Constants.PROFILE, null))
-                .withBitmap()
-                .placeholder(R.drawable.ic_person_24dp)
-                .intoImageView(homeProfile);
+        if (user.getPhotoUrl()!=null) {
+            Ion.with(this)
+                    .load(user.getPhotoUrl().toString())
+                    .withBitmap()
+                    .placeholder(R.drawable.ic_person_24dp)
+                    .intoImageView(homeProfile);
 
-        Log.w(TAG, "setupActionBar: " +  user.getPhotoUrl().toString() + " // "
-                + GeneralUtil.getAppPref(this).getString(Constants.PROFILE, null));
+            Log.w(TAG, "setupActionBar: " + user.getPhotoUrl().toString() + " // "
+                    + GeneralUtil.getAppPref(this).getString(Constants.PROFILE, null));
+        }
         bottomNavigationView = findViewById(R.id.navigationView);
 
         simple = findViewById(R.id.simpleToolbarView);
@@ -410,23 +411,28 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
 
     @Override
     public void updateBlogWith(Post post) {
-        blogFrag.updateAdapter(post);
+        runOnUiThread(()->
+        blogFrag.updateAdapter(post));
     }
 
     @Override
     public void updatePostLikesCount(String id, int count) {
-        blogFrag.updateLikeCount(id, count);
+        runOnUiThread(()->
+        blogFrag.updateLikeCount(id, count));
     }
 
     @Override
     public void updateLikeBtnImg(String id, boolean exists) {
-        blogFrag.updateLikeBtnImg(id, exists);
+        runOnUiThread(()->
+        blogFrag.updateLikeBtnImg(id, exists));
     }
 
     @Override
-    public void updatePostComments(Comments comments) {
-        if (commentFrag!=null)
-            commentFrag.updateAdapter(comments);
+    public void updatePostComments(final Comments comments) {
+        if (commentFrag!=null) {
+            runOnUiThread(()->
+            commentFrag.updateAdapter(comments));
+        }
     }
 
     @Override
@@ -520,12 +526,14 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
             commentView.setVisibility(View.GONE);
             toolbar.setVisibility(View.VISIBLE);
             setupHomeActionBar();
+            bottomNavigationView.setSelectedItemId(R.id.navigation_home);
 
         }else if ( pager.getCurrentItem() == 0) {
             GeneralUtil.exitApp(Home.this);
         }
         else {
             pager.setCurrentItem(0);
+            bottomNavigationView.setSelectedItemId(R.id.navigation_home);
         }
     }
 
@@ -574,6 +582,7 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     private void logOut() {
         FirebaseUtil.getmAuth().signOut();
         sendToLogin();
+        presenter.removeListenerRegistration();
     }
 
     private void sendToLogin() {
@@ -648,11 +657,13 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     @Override
     public void hidePB() {
         progressBar.hide();
+        enableScreen();
     }
 
     @Override
     public void showPB() {
         progressBar.show();
+        disableScreen();
     }
 
     @Override
@@ -660,5 +671,18 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
         runOnUiThread(() -> {
             progressBar.setProgress((int) progress);
         });
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        presenter.removeListenerRegistration();
     }
 }
