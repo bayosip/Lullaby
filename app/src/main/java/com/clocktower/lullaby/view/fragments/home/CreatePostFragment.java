@@ -34,7 +34,6 @@ import com.clocktower.lullaby.model.ImageCreator;
 import com.clocktower.lullaby.model.Post;
 import com.clocktower.lullaby.model.utilities.Constants;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
-import com.clocktower.lullaby.view.activities.Splash;
 import com.crashlytics.android.Crashlytics;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
@@ -137,10 +136,10 @@ public class CreatePostFragment extends BaseFragment implements View.OnClickList
             case R.id.post_btn:
                 String desc = postTitle.getText().toString();
                 String uri;
-                if (mediaType ==1)uri = getImageURI(postUri);
+                if (mediaType ==1)uri = getMediaPath(postUri, mediaType);
 
                 else if(mediaType ==2) {
-                    uri = getVideoPath(postUri);
+                    uri = getMediaPath(postUri, mediaType);
                 }
 
                 else uri = "none";
@@ -239,63 +238,47 @@ public class CreatePostFragment extends BaseFragment implements View.OnClickList
 
     }
 
-    private String getImageURI(Uri uri) {
-        String path = "";
-        String[] projection = { MediaStore.Images.Media.DATA };
-        if (listener.getListenerContext().getContentResolver() != null) {
-            Cursor cursor = listener.getListenerContext().getContentResolver()
-                    .query(uri, projection, null, null, null);
-            if (cursor != null) {
-                cursor.moveToFirst();
-                int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-                path = cursor.getString(idx);
-                cursor.close();
-            }
-            else path = uri.getLastPathSegment();
-        }
-        return path;
-    }
+
 
     @SuppressLint("ObsoleteSdkInt")
-    private String getVideoPath(Uri uri) {
+    private String getMediaPath(Uri uri, long mediaType) {
 
-            String realPath="";
+            String metadata, meta_id;
+            Uri extUri;
+            if (mediaType ==1){
+                metadata = MediaStore.Images.Media.DATA;
+                extUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                meta_id = MediaStore.Images.Media._ID;
+            } else {
+                metadata =  MediaStore.Video.Media.DATA;
+                extUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                meta_id = MediaStore.Video.Media._ID;
+            }
+
+            String realPath = null;
             // SDK < API11
-            if (Build.VERSION.SDK_INT < 11) {
-                String[] proj = { MediaStore.Video.Media.DATA };
-
-                @SuppressLint("Recycle")
-                Cursor cursor = listener.getListenerContext()
-                        .getContentResolver().query(uri, proj, null, null, null);
-                int column_index = 0;
-                String result="";
-                if (cursor != null) {
-                    column_index = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
-                    realPath=cursor.getString(column_index);
-                }
+        if(mediaType ==1 || Build.VERSION.SDK_INT < 19) {
+            String[] proj = {metadata};
+            CursorLoader cursorLoader = new CursorLoader(listener.getListenerContext(),
+                    uri, proj, null, null, null);
+            Cursor cursor = cursorLoader.loadInBackground();
+            if (cursor != null) {
+                int column_index = cursor.getColumnIndexOrThrow(metadata);
+                cursor.moveToFirst();
+                realPath = cursor.getString(column_index);
+                cursor.close();
             }
-            // SDK >= 11 && SDK < 19
-            else if (Build.VERSION.SDK_INT < 19){
-                String[] proj = { MediaStore.Video.Media.DATA };
-                CursorLoader cursorLoader = new CursorLoader(listener.getListenerContext(),
-                        uri, proj, null, null, null);
-                Cursor cursor = cursorLoader.loadInBackground();
-                if(cursor != null){
-                    int column_index = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
-                    cursor.moveToFirst();
-                    realPath = cursor.getString(column_index);
-                }
-            }
+        }
             // SDK > 19 (Android 4.4)
-            else{
+        if (Build.VERSION.SDK_INT>19 && TextUtils.isEmpty(realPath)){
                 String wholeID = DocumentsContract.getDocumentId(uri);
                 // Split at colon, use second item in the array
                 String id = wholeID.split(":")[1];
-                String[] column = { MediaStore.Video.Media.DATA };
+                String[] column = { metadata};
                 // where id is equal to
-                String sel = MediaStore.Video.Media._ID + "=?";
+                String sel = meta_id + "=?";
                 Cursor cursor = listener.getListenerContext()
-                        .getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                        .getContentResolver().query(extUri,
                                 column, sel, new String[]{ id }, null);
                 int columnIndex = 0;
                 if (cursor != null) {
@@ -305,7 +288,7 @@ public class CreatePostFragment extends BaseFragment implements View.OnClickList
                     }
                     cursor.close();
                 }
-            }
+        }
             return realPath;
     }
 

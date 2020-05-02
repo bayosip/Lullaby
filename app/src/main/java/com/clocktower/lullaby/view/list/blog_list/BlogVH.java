@@ -83,6 +83,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
     public void setBlogItems(List<CozaBlog> posts){
 
         postId = posts.get(getAdapterPosition()).getPost().postId;
+        url = posts.get(getAdapterPosition()).getPost().getUrl();
         listener.updateLikesCount(postId);
         listener.updateCommentCount(postId);
         likeCount.setText(listener.getListenerContext().getString(R.string.like_count,
@@ -103,15 +104,18 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
             if(type ==1){
                 imgPost.setVisibility(View.VISIBLE);
                 video.setVisibility(View.GONE);
+                playVideoBtn.setVisibility(View.GONE);
+                fullscreen.setVisibility(View.GONE);
             }else {
+                imgPost.setVisibility(View.GONE);
                 playVideoBtn.setVisibility(View.VISIBLE);
                 fullscreen.setVisibility(View.VISIBLE);
-                imgPost.setVisibility(View.GONE);
                 video.setVisibility(View.VISIBLE);
+
+                playSelectedVideoFrom(url);
+                snapOutOfFullscreen();
             }
         }else mediaView.setVisibility(View.GONE);
-
-        url = posts.get(getAdapterPosition()).getPost().getUrl();
 
         if(posts.get(getAdapterPosition()).getPost().getMediaType()==1)
             Ion.with(imgPost)
@@ -125,19 +129,6 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
             e.printStackTrace();
         }
 
-        video.setOnCompletionListener(mediaPlayer -> {
-            mediaPlayer.reset();
-            mediaPlayer.release();
-            playVideoBtn.setImageResource(R.drawable.ic_play_video_24dp);
-            playVideoBtn.setVisibility(View.VISIBLE);
-            if(isPlayClicked){
-                isPlayClicked = false;
-                playSelectedVideoFrom(url);
-            }
-        });
-
-        playSelectedVideoFrom(url);
-        snapOutOfFullscreen();
     }
 
     @Override
@@ -157,6 +148,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
                 break;
             case R.id.post_like_btn:
                 listener.likeThisPost(postId);
+                like.setImageResource(R.drawable.ic_like_on_24dp);
                 break;
             case R.id.post_comment_icon: case R.id.text_post_comment_count:
                 listener.openCommentSectionOnPostWithId(postId, title);
@@ -200,6 +192,16 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
             ex.printStackTrace();
         }
         //video.requestFocus();
+        video.setOnCompletionListener(mediaPlayer -> {
+            mediaPlayer.reset();
+            mediaPlayer.release();
+            playVideoBtn.setImageResource(R.drawable.ic_play_video_24dp);
+            playVideoBtn.setVisibility(View.VISIBLE);
+            if(isPlayClicked){
+                isPlayClicked = false;
+                playSelectedVideoFrom(url);
+            }
+        });
     }
 
     public void setListener(FragmentListener listener) {
@@ -218,6 +220,4 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         params.leftMargin = 0;
         video.setLayoutParams(params);
     }
-
-
 }

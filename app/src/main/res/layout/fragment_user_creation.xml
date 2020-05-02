@@ -34,12 +34,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center">
 
-            <de.hdodenhof.circleimageview.CircleImageView
+            <com.mikhaellopez.circularimageview.CircularImageView
                 android:id="@+id/imageViewID"
                 android:layout_width="175dp"
                 android:layout_height="175dp"
                 android:contentDescription="User Profile Picture"
-                app:srcCompat="@drawable/ic_person_24dp"
+                android:src="@drawable/ic_person_24dp"
                 app:civ_border_color="@color/lightColor"
                 app:civ_border_width="2dp"
                 app:layout_constraintTop_toTopOf="parent"
@@ -54,7 +54,7 @@
                 android:layout_height="40dp"
                 android:background="@drawable/circle_colored"
                 android:elevation="@dimen/elevation"
-                app:srcCompat="@drawable/ic_photo_camera_24dp"
+                android:src="@drawable/ic_photo_camera_24dp"
                 app:layout_constraintBottom_toBottomOf="@id/imageViewID"
                 app:layout_constraintEnd_toEndOf="@id/imageViewID"
                 app:layout_constraintHorizontal_bias="1"

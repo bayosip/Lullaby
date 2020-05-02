@@ -9,6 +9,8 @@ import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,6 +18,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.interfaces.LoginListener;
@@ -41,6 +44,7 @@ public class Splash extends AppCompatActivity implements ProfileListener, View.O
     private RegisterationFragment regFragment;
     private Button signIn, register;
     private View loginView, frame;
+    private TextView version;
     public static final String PROFILE = "Profile Creation";
     public static final String REGISTRATION = "Register";
 
@@ -82,6 +86,16 @@ public class Splash extends AppCompatActivity implements ProfileListener, View.O
         register.setOnClickListener(this);
         loginView = findViewById(R.id.loginOptionsView);
         frame = findViewById(R.id.fragment_container);
+        version = findViewById(R.id.textAppVersion);
+
+        try {
+            PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), 0);
+            version.setText(getString(R.string.version, info.versionName ));
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            version.setText("");
+        }
+
     }
 
     @Override

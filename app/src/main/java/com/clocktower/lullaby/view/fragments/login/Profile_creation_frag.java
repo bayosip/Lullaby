@@ -25,17 +25,15 @@ import com.clocktower.lullaby.interfaces.ProfileListener;
 import com.clocktower.lullaby.model.ImageCreator;
 import com.clocktower.lullaby.model.utilities.Constants;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
-import com.clocktower.lullaby.view.activities.Splash;
+import com.mikhaellopez.circularimageview.CircularImageView;
 import com.theartofdev.edmodo.cropper.CropImage;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 
 public class Profile_creation_frag extends Fragment implements View.OnClickListener {
 
     private static final String TAG = "Profile_creation_frag";
     private static final String NAME = "Name";
     private ImageButton addPicture;
-    private CircleImageView profilePic;
+    private CircularImageView profilePic;
     private Button mContinue;
     private EditText enterName;
     private ContentLoadingProgressBar progressBar;

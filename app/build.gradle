@@ -11,9 +11,8 @@ android {
         multiDexEnabled true  //ADD THIS LINE
         targetSdkVersion 29
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
         release {
@@ -41,7 +40,7 @@ dependencies {
     implementation 'cat.ereza:customactivityoncrash:2.2.0'
 
     implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'//image loader
-    implementation 'de.hdodenhof:circleimageview:2.2.0'
+    implementation 'com.mikhaellopez:circularimageview:4.2.0'
     implementation 'id.zelory:compressor:3.0.0'
     implementation 'com.labo.kaji:fragmentanimations:0.1.1'
     api 'com.google.dagger:dagger:2.25.3'

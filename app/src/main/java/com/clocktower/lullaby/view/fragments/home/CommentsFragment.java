@@ -98,13 +98,10 @@ public class CommentsFragment extends BaseFragment{
     }
 
     public void updateAdapter(final Comments comment){
-        GeneralUtil.getHandler().post(new Runnable() {
-            @Override
-            public void run() {
-                comments.add(comment);
-                adapter.notifyItemChanged(0);
-                scrollToBottom();
-            }
+        GeneralUtil.getHandler().post(() -> {
+            comments.add(comment);
+            adapter.notifyItemChanged(0);
+            scrollToBottom();
         });
     }
 

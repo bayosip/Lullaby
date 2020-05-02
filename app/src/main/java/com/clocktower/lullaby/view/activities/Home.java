@@ -16,12 +16,14 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.TextView;
 
@@ -57,12 +59,11 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 import com.koushikdutta.ion.Ion;
+import com.mikhaellopez.circularimageview.CircularImageView;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.clocktower.lullaby.model.utilities.Constants.COMMENTS;
 import static com.clocktower.lullaby.model.utilities.Constants.PROFILE;
@@ -91,7 +92,7 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     private Toolbar toolbar;
     private List<SongInfo> audioFiles;
     private SongInfo chosenSong;
-    private CircleImageView homeProfile;
+    private ImageView homeProfile;
     private TextView user_name;
     private View commentView;
     private String mUsername;
@@ -527,6 +528,14 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
             toolbar.setVisibility(View.VISIBLE);
             setupHomeActionBar();
             bottomNavigationView.setSelectedItemId(R.id.navigation_home);
+            String tag = fragment.getTag();
+            if (!TextUtils.isEmpty(tag) && tag.equals(PROFILE)){
+                Ion.with(Home.this)
+                        .load(user.getPhotoUrl().toString())
+                        .withBitmap()
+                        .placeholder(R.drawable.ic_person_24dp)
+                        .intoImageView(homeProfile);
+            }
 
         }else if ( pager.getCurrentItem() == 0) {
             GeneralUtil.exitApp(Home.this);

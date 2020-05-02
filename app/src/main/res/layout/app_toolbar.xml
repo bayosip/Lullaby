@@ -26,6 +26,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/simpleToolbarView"
             android:layout_width="wrap_content"
@@ -67,14 +68,13 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
 
-            <de.hdodenhof.circleimageview.CircleImageView
+            <ImageView
                 android:id="@+id/imageHomeProfile"
                 android:layout_width="25dp"
                 android:layout_height="match_parent"
-                android:background="@drawable/circle_white"
-                app:srcCompat="@drawable/ic_person_24dp"
-                app:civ_border_color="@color/hint_color"
-                app:civ_border_width="0.15dp"
+                android:background="@drawable/circle"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_person_24dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>

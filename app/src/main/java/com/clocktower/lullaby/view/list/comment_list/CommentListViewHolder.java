@@ -1,9 +1,13 @@
 package com.clocktower.lullaby.view.list.comment_list;
 
 import android.content.Context;
-import android.graphics.Bitmap;
+
+
+
+
 import android.graphics.Color;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -14,12 +18,10 @@ import com.koushikdutta.ion.Ion;
 import java.util.List;
 import java.util.Random;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-
 public class CommentListViewHolder extends RecyclerView.ViewHolder {
 
     private TextView userName, comment;
-    private CircleImageView profilePic;
+    private ImageView profilePic;
     private String tag;
     private Context context;
 
