@@ -34,7 +34,7 @@ public class Profile_creation_frag extends Fragment implements View.OnClickListe
     private static final String NAME = "Name";
     private ImageButton addPicture;
     private CircularImageView profilePic;
-    private Button mContinue;
+    private Button mContinue, saveName;
     private EditText enterName;
     private ContentLoadingProgressBar progressBar;
     private String getName;
@@ -78,15 +78,19 @@ public class Profile_creation_frag extends Fragment implements View.OnClickListe
         addPicture = view.findViewById(R.id.buttonAddImage);
         addPicture.setOnClickListener(this);
         enterName = view.findViewById(R.id.editTextEnterName);
-        if (!TextUtils.isEmpty(getName)){
-            enterName.setText(getName);
-            enterName.setEnabled(false);
-        }
+
         profilePic= view.findViewById(R.id.imageViewID);
         mContinue = view.findViewById(R.id.buttonContinueHome);
+        saveName = view.findViewById(R.id.buttonSaveName);
         progressBar = view.findViewById(R.id.progressBarProfileUpload);
         progressBar.hide();
         mContinue.setOnClickListener(this);
+        saveName.setOnClickListener(this);
+        if (!TextUtils.isEmpty(getName)){
+            enterName.setText(getName);
+            enterName.setEnabled(false);
+            saveName.setVisibility(View.GONE);
+        }
     }
 
     public void showProgressBar(){
@@ -108,9 +112,13 @@ public class Profile_creation_frag extends Fragment implements View.OnClickListe
                 if (!TextUtils.isEmpty(getName))
                     listener.goStraightToHomePage(getName);
                 else{
-                    String name = enterName.getText().toString();
-                    listener.saveUserNameintoDb(name);
+                    GeneralUtil.message("Please Enter Name");
                 }
+                break;
+            case R.id.buttonSaveName:
+                String name = enterName.getText().toString();
+                listener.saveUserNameintoDb(name);
+                enterName.setEnabled(false);
                 break;
         }
     }

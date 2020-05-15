@@ -627,6 +627,10 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     }
 
     @Override
+    public void retryLogin() {
+    }
+
+    @Override
     public void enableScreen() {
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
@@ -694,4 +698,5 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
         super.onPause();
         presenter.removeListenerRegistration();
     }
+
 }

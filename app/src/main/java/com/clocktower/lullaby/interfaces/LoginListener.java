@@ -12,4 +12,5 @@ public interface LoginListener {
     void showPB();
     void progressPB(long progress);
     void changeProfilePic(String url);
+    void retryLogin();
 }

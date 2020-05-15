@@ -52,4 +52,8 @@ public class Constants {
     public static final long IMAGE = 1;
     public static final long VIDEO = 2;
 
+    //Registration fragment type
+    public static final String SIGN_IN = "Sign-In";
+    public static final String REGISTRATION = "Registration";
+
 }

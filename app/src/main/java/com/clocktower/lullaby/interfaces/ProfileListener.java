@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 
 public interface ProfileListener extends LoginListener {
-    void goStraightToHomePage(String getName);
     void disableScreen();
     void enableScreen();
     void saveUserNameintoDb(String name);

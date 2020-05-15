@@ -27,13 +27,11 @@ import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.koushikdutta.ion.Ion;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 public class FirebaseUtil {
 
@@ -136,6 +134,25 @@ public class FirebaseUtil {
         }
     }
 
+    public static void signInWith(String email, String pwd, final LoginListener loginListener) {
+        mAuth.signInWithEmailAndPassword(email, pwd)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d(TAG, "signInWithEmail:success");
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        checkIfUserIsRegisteredOnFireStore(user, loginListener);
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w(TAG, "signInWithEmail:failure", task.getException());
+                        GeneralUtil.message( "Authentication failed.");
+                        loginListener.retryLogin();
+                        // ...
+                    }
+                    // ...
+                });
+    }
+
     public static void checkIfUserIsRegisteredOnFireStore(final FirebaseUser user,
                                                           final LoginListener listener){
         DocumentReference docRef = firestore.collection(Constants.USERS).document(user.getUid());
@@ -163,7 +180,6 @@ public class FirebaseUtil {
         long uploadedBytes = snapshot.getBytesTransferred();
 
         return ((uploadedBytes/fileSize) * 100);
-
     }
 
     private static void storeFirestore(@NonNull Task<Uri> task, final FirebaseUser user, LoginListener loginListener) {

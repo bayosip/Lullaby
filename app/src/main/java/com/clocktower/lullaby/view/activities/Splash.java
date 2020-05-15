@@ -14,14 +14,12 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
 import com.clocktower.lullaby.R;
-import com.clocktower.lullaby.interfaces.LoginListener;
 import com.clocktower.lullaby.interfaces.ProfileListener;
 import com.clocktower.lullaby.model.utilities.Constants;
 import com.clocktower.lullaby.model.utilities.FirebaseUtil;
@@ -29,11 +27,7 @@ import com.clocktower.lullaby.model.utilities.GeneralUtil;
 import com.clocktower.lullaby.presenter.SplashPresenter;
 import com.clocktower.lullaby.view.fragments.login.Profile_creation_frag;
 import com.clocktower.lullaby.view.fragments.login.RegisterationFragment;
-import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
-import com.theartofdev.edmodo.cropper.CropImage;
-
-import java.util.List;
 
 public class Splash extends AppCompatActivity implements ProfileListener, View.OnClickListener {
 
@@ -42,7 +36,7 @@ public class Splash extends AppCompatActivity implements ProfileListener, View.O
     private SplashPresenter presenter;
     private Profile_creation_frag fragment;
     private RegisterationFragment regFragment;
-    private Button signIn, register;
+    private Button signIn, signInGoogle, register;
     private View loginView, frame;
     private TextView version;
     public static final String PROFILE = "Profile Creation";
@@ -60,6 +54,7 @@ public class Splash extends AppCompatActivity implements ProfileListener, View.O
     @Override
     public void startProfilePictureFragment(String name){
 
+        version.setVisibility(View.GONE);
         frame.setVisibility(View.VISIBLE);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -69,25 +64,27 @@ public class Splash extends AppCompatActivity implements ProfileListener, View.O
         fragmentTransaction.commitAllowingStateLoss();
     }
 
-    public void startEmailRegFragment(){
+    public void startEmailRegFragment(String type){
         frame.setVisibility(View.VISIBLE);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-        regFragment = RegisterationFragment.getInstance();
+        regFragment = RegisterationFragment.getInstance(type);
         fragmentTransaction.add(R.id.fragment_container, regFragment, REGISTRATION);
         fragmentTransaction.commitAllowingStateLoss();
     }
 
     private void initialiseWidgets(){
+        signInGoogle = findViewById(R.id.buttonSignInGoogle);
         signIn = findViewById(R.id.buttonSignIn);
-        signIn.setOnClickListener(this);
         register = findViewById(R.id.buttonRegister);
-        register.setOnClickListener(this);
         loginView = findViewById(R.id.loginOptionsView);
         frame = findViewById(R.id.fragment_container);
         version = findViewById(R.id.textAppVersion);
 
+        signIn.setOnClickListener(this);
+        signInGoogle.setOnClickListener(this);
+        register.setOnClickListener(this);
         try {
             PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), 0);
             version.setText(getString(R.string.version, info.versionName ));
@@ -160,7 +157,7 @@ public class Splash extends AppCompatActivity implements ProfileListener, View.O
 
     @Override
     public void initialiseLogin() {
-       loginView.setVisibility(View.VISIBLE);
+        loginView.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -192,6 +189,15 @@ public class Splash extends AppCompatActivity implements ProfileListener, View.O
         presenter.registerUserOnDbWith(email, pwd);
     }
 
+    public void signInUserWith(String email, String pwd){
+        presenter.signInUserOnDbWith(email, pwd);
+    }
+
+    @Override
+    public void retryLogin() {
+        regFragment.enableRetry();
+    }
+
     @Override
     public void changeProfilePic(String url) {}
 
@@ -202,12 +208,15 @@ public class Splash extends AppCompatActivity implements ProfileListener, View.O
 
     @Override
     public void onClick(View view) {
-            switch (view.getId()){
-            case R.id.buttonSignIn:
+        switch (view.getId()){
+            case R.id.buttonSignInGoogle:
                 presenter.initialiseLogin();
                 break;
             case R.id.buttonRegister:
-                startEmailRegFragment();
+                startEmailRegFragment(Constants.REGISTRATION);
+                break;
+            case R.id.buttonSignIn:
+                startEmailRegFragment(Constants.SIGN_IN);
                 break;
         }
     }

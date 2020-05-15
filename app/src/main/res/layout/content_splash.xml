@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     tools:showIn="@layout/activity_splash">
 
-    <ImageButton
+    <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@mipmap/ic_coza_logo_round"
@@ -17,7 +17,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintVertical_bias="0.325"/>
+        app:layout_constraintVertical_bias="0.225"/>
 
     <LinearLayout
         android:id="@+id/loginOptionsView"
@@ -29,24 +29,40 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
-    <Button
-        android:id="@+id/buttonSignIn"
-        android:layout_width="@dimen/button_width"
-        android:layout_height="wrap_content"
-        android:textSize="@dimen/text_size"
-        android:text="sign in"
-        android:textColor="@color/app_background_white"
-        android:background="@drawable/simple_btn_dark"/>
+        <Button
+            android:id="@+id/buttonSignInGoogle"
+            android:layout_width="@dimen/button_width"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_size"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            android:text="@string/fui_sign_in_with_google"
+            android:textColor="@color/app_background_white"
+            android:background="@drawable/simple_btn_dark"/>
 
-    <Button
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:id="@+id/buttonRegister"
-        android:layout_width="@dimen/button_width"
-        android:layout_height="wrap_content"
-        android:textSize="@dimen/text_size"
-        android:text="Register"
-        android:textColor="@color/app_background_white"
-        android:background="@drawable/simple_btn"/>
+        <Button
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:id="@+id/buttonSignIn"
+            android:layout_width="@dimen/button_width"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_size"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            android:text="Sign in with Email"
+            android:textColor="@color/app_background_white"
+            android:background="@drawable/simple_btn"/>
+
+        <Button
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:id="@+id/buttonRegister"
+            android:layout_width="@dimen/button_width"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_size"
+            android:textStyle="bold"
+            android:textAllCaps="false"
+            android:text="Register"
+            android:textColor="@color/app_background_white"
+            android:background="@drawable/simple_btn_light"/>
     </LinearLayout>
 
 

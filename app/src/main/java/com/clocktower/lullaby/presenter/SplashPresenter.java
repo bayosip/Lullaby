@@ -137,7 +137,7 @@ public class SplashPresenter {
         if (user!=null) {
             user.updateProfile(profileUpdates).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    startHomeActivity(name);
+                    GeneralUtil.message("Success!!!");
                 }
             });
         }
@@ -158,5 +158,9 @@ public class SplashPresenter {
             e.printStackTrace();
         }
         return FirebaseUtil.saveProfilePictureOnFireBase(bitmap, user, listener);
+    }
+
+    public void signInUserOnDbWith(String email, String pwd) {
+        FirebaseUtil.signInWith(email, pwd, loginListener);
     }
 }
