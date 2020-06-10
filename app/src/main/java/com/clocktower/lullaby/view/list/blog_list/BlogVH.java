@@ -3,10 +3,8 @@ package com.clocktower.lullaby.view.list.blog_list;
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Build;
 import android.text.format.DateFormat;
 import android.util.DisplayMetrics;
-import android.util.Size;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -22,14 +20,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.interfaces.FragmentListener;
 import com.clocktower.lullaby.model.CozaBlog;
-import com.clocktower.lullaby.model.utilities.GeneralUtil;
-import com.crashlytics.android.Crashlytics;
 import com.koushikdutta.ion.Ion;
 import com.volokh.danylo.hashtaghelper.HashTagHelper;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListener {
 
@@ -43,10 +39,10 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
     ContentLoadingProgressBar buffering;
     String url;
     String postId;
+    Bitmap postBitMap;
     private FragmentListener listener;
     private String title;
     private boolean isPlayClicked = false;
-
 
     public BlogVH(@NonNull View itemView) {
         super(itemView);
@@ -70,8 +66,9 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         buffering = v.findViewById(R.id.progress_video_loading);
         buffering.hide();
         mediaView = v.findViewById(R.id.mediaView);
-        fullscreen = v.findViewById(R.id.buttonFullScreen);
+        fullscreen = v.findViewById(R.id.buttonExitFullScreen);
         fullscreen.setOnClickListener(this);
+        imgPost.setOnClickListener(this);
 
     }
 
@@ -117,10 +114,9 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
             }
         }else mediaView.setVisibility(View.GONE);
 
-        if(posts.get(getAdapterPosition()).getPost().getMediaType()==1)
-            Ion.with(imgPost)
-                    .placeholder(R.drawable.ic_image_24dp)
-                    .load( url);
+        if(posts.get(getAdapterPosition()).getPost().getMediaType()==1) {
+            loadAndResizeImage();
+        }
         try {
             long millisecond = posts.get(getAdapterPosition()).getPost().getTimeStamp().getTime();
             String dateString = DateFormat.format("MMM dd yyyy, HH:mm:ss", new Date(millisecond)).toString();
@@ -128,7 +124,6 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         }catch (Exception e){
             e.printStackTrace();
         }
-
     }
 
     @Override
@@ -153,13 +148,17 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
             case R.id.post_comment_icon: case R.id.text_post_comment_count:
                 listener.openCommentSectionOnPostWithId(postId, title);
                 break;
-            case R.id.buttonFullScreen:
+            case R.id.buttonExitFullScreen:
                 if(video.isPlaying()) {
                     video.pause();
                     playVideoBtn.setImageResource(R.drawable.ic_play_video_24dp);
                     playVideoBtn.setVisibility(View.VISIBLE);
                     listener.makeVideoFullScreen(url, video.getCurrentPosition());
                 }
+                break;
+            case R.id.imageViewPost:
+                if(postBitMap!= null)
+                    listener.makeFullPicture(postBitMap);
                 break;
         }
     }
@@ -219,5 +218,23 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         params.height = (int)(255*metrics.density);
         params.leftMargin = 0;
         video.setLayoutParams(params);
+    }
+
+    private void loadAndResizeImage(){
+        try {
+            Bitmap result = Ion.with(listener.getListenerContext())
+                    .load(url)
+                    .withBitmap()
+                    .asBitmap()
+                    .get();
+            postBitMap = result;
+            imgPost.setImageBitmap(result);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            imgPost.setImageResource(R.drawable.ic_image_24dp);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            imgPost.setImageResource(R.drawable.ic_image_24dp);
+        }
     }
 }

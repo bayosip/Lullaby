@@ -29,4 +29,5 @@
     <string name="upload_video">\tupload video</string>
     <string name="error_post_msg">Post Not Created, Try Again!</string>
     <string name="version">Version: %s</string>
+    <string name="enter_login_details">Please Enter Your Login Details</string>
 </resources>

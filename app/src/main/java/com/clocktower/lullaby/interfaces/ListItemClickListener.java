@@ -1,6 +1,8 @@
 package com.clocktower.lullaby.interfaces;
 
 
+import android.graphics.Bitmap;
+
 import com.clocktower.lullaby.view.activities.Home;
 
 public interface ListItemClickListener {
@@ -10,4 +12,5 @@ public interface ListItemClickListener {
     void likeThisPost(String postID);
 
     void makeVideoFullScreen(String url, int currentPosition);
+    void makeFullPicture(Bitmap bitmap);
 }

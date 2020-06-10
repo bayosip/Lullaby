@@ -69,7 +69,7 @@ public class FirebaseToHomePresenter {
     public void firstPageFirstLoad(){
         Query firstQuery = firestore.collection(Constants.POSTS)
                 .orderBy(Constants.TIMESTAMP, Query.Direction.DESCENDING)
-                .limit(3);
+                .limit(2);
         listenerRegistration = firstQuery.addSnapshotListener((documentSnapshots, e) -> {
             if (documentSnapshots!= null && !documentSnapshots.isEmpty()) {
                 if (isFirstPageFirstLoad) {
@@ -94,7 +94,7 @@ public class FirebaseToHomePresenter {
             Query nextQuery = firestore.collection(Constants.POSTS)
                     .orderBy(Constants.TIMESTAMP, Query.Direction.DESCENDING)
                     .startAfter(lastVisible)
-                    .limit(3);
+                    .limit(2);
             listenerRegistration = nextQuery.addSnapshotListener((documentSnapshots, e) -> {
                 if (documentSnapshots!= null && !documentSnapshots.isEmpty()) {
                     lastVisible = documentSnapshots.getDocuments().get(documentSnapshots.size() - 1);

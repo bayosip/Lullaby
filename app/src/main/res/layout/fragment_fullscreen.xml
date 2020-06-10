@@ -2,51 +2,97 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/darker_gray"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <SurfaceView
+    <!--- ********* Image Layout ************ -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutFullImg"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
-
-    <VideoView
-        android:id="@+id/videoFullscreen"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintBottom_toBottomOf="parent">
 
-    <ImageButton
-        android:id="@+id/buttonFullScreen"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:background="@color/transparent"
-        android:layout_marginBottom="@dimen/inside_padding"
-        android:src="@drawable/ic_fullscreen_exit_24dp"
-        app:layout_constraintEnd_toEndOf="@id/videoFullscreen"
-        app:layout_constraintBottom_toBottomOf="@id/videoFullscreen"/>
+        <ImageButton
+            android:id="@+id/btn_cancel"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="@dimen/activity_vertical_margin"
+            android:src="@drawable/ic_cancel_24dp"
+            android:scaleType="fitXY"
+            android:background="@android:color/transparent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
 
-    <ImageButton
-        android:id="@+id/buttonPlayVideo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_play_video_24dp"
+        <ImageView
+            android:id="@+id/imgViewFull"
+            android:layout_width="0dp"
+            android:layout_height="500dp"
+            android:scaleType="fitXY"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!--- ********* Video Layout ************ -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutFullVid"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:background="@android:color/transparent"/>
+        app:layout_constraintBottom_toBottomOf="parent">
+        <SurfaceView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
 
-    <androidx.core.widget.ContentLoadingProgressBar
-        android:id="@+id/progress_video_loading"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        style="?android:attr/progressBarStyle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        <VideoView
+            android:id="@+id/videoFullscreen"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <ImageButton
+            android:id="@+id/buttonExitFullScreen"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@color/transparent"
+            android:layout_marginBottom="@dimen/inside_padding"
+            android:src="@drawable/ic_fullscreen_exit_24dp"
+            app:layout_constraintEnd_toEndOf="@id/videoFullscreen"
+            app:layout_constraintBottom_toBottomOf="@id/videoFullscreen"/>
+
+        <ImageButton
+            android:id="@+id/buttonPlayVideo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_play_video_24dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:background="@android:color/transparent"/>
+
+        <androidx.core.widget.ContentLoadingProgressBar
+            android:id="@+id/progress_video_loading"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            style="?android:attr/progressBarStyle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

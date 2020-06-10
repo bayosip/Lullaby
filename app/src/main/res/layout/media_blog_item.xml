@@ -34,7 +34,7 @@
                     android:layout_width="0dp"
                     android:layout_height="255dp"
                     android:src="@drawable/ic_image_24dp"
-                    android:scaleType="fitXY"
+                    android:scaleType="fitCenter"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -50,7 +50,7 @@
                     />
 
                 <ImageButton
-                    android:id="@+id/buttonFullScreen"
+                    android:id="@+id/buttonExitFullScreen"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:background="@color/transparent"
@@ -108,12 +108,13 @@
 
             </LinearLayout>
 
-            <TextView
+            <com.clocktower.lullaby.view.custom_views.ExpandableTextView
                 android:id="@+id/textPostTitle"
                 android:layout_marginTop="@dimen/padding"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/text_size"
+                android:maxLines="4"
                 android:autoSizeMaxTextSize="@dimen/text_size"
                 android:autoSizeMinTextSize="11sp"
                 android:autoSizeStepGranularity="1sp"

@@ -92,7 +92,6 @@ public class Splash extends AppCompatActivity implements ProfileListener, View.O
             e.printStackTrace();
             version.setText("");
         }
-
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.clocktower.lullaby.view.fragments.home;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.VideoView;
 
@@ -18,28 +20,42 @@ import androidx.core.widget.ContentLoadingProgressBar;
 
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.model.utilities.Constants;
-import com.labo.kaji.fragmentanimations.MoveAnimation;
 import com.labo.kaji.fragmentanimations.PushPullAnimation;
 
 public class FullscreenFragment extends BaseFragment implements View.OnClickListener {
 
     private static final String SEEK_INFO = "Seek";
     private static final long DURATION = 1000;
+    private static final String BITMAP = "Bitmap";
+    private static final String TYPE = "Type";
     private MediaController mediaController;
+    View videoPostView, imgPostView;
     VideoView video;
-    ImageButton playVideoBtn;
-    ImageButton exitFullscreen;
+    ImageButton playVideoBtn, exitFullscreen, cancel;
+    ImageView fullImg;
     ContentLoadingProgressBar buffering;
+    Bitmap fullBitmap;
     String url;
     int seekTo;
+    Long mediaType;
 
-    public static FullscreenFragment getInstance(String url, int resumeFrom){
+    public static FullscreenFragment getVideoInstance(String url, int resumeFrom){
         FullscreenFragment fragment = new FullscreenFragment();
         Bundle extra =  new Bundle();
         extra.putString(Constants.URI_DATA, url);
         extra.putInt(SEEK_INFO, resumeFrom);
+        extra.putLong(TYPE, Constants.VIDEO);
         fragment.setArguments(extra);
 
+        return  fragment;
+    }
+
+    public static FullscreenFragment getImgInstance (Bitmap bitmap){
+        FullscreenFragment fragment = new FullscreenFragment();
+        Bundle extra =  new Bundle();
+        extra.putParcelable(BITMAP, bitmap);
+        extra.putLong(TYPE, Constants.IMAGE);
+        fragment.setArguments(extra);
         return  fragment;
     }
 
@@ -54,8 +70,13 @@ public class FullscreenFragment extends BaseFragment implements View.OnClickList
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        url = getArguments().getString(Constants.URI_DATA);
-        seekTo = getArguments().getInt(SEEK_INFO);
+        mediaType = getArguments().getLong(TYPE);
+        if ( mediaType== Constants.VIDEO) {
+            url = getArguments().getString(Constants.URI_DATA);
+            seekTo = getArguments().getInt(SEEK_INFO);
+        }else {
+            fullBitmap = (Bitmap)getArguments().getParcelable(BITMAP);
+        }
         initialiseWidgets(view);
     }
 
@@ -64,23 +85,33 @@ public class FullscreenFragment extends BaseFragment implements View.OnClickList
     }
 
     private void initialiseWidgets(View view) {
+        videoPostView = view.findViewById(R.id.layoutFullVid);
+        imgPostView = view.findViewById(R.id.layoutFullImg);
         video = view.findViewById(R.id.videoFullscreen);
         video.setOnClickListener(this);
         playVideoBtn = view.findViewById(R.id.buttonPlayVideo);
         playVideoBtn.setOnClickListener(this);
         buffering = view.findViewById(R.id.progress_video_loading);
         buffering.show();
-        exitFullscreen = view.findViewById(R.id.buttonFullScreen);
+        exitFullscreen = view.findViewById(R.id.buttonExitFullScreen);
         exitFullscreen.setOnClickListener(this);
+        cancel = view.findViewById(R.id.btn_cancel);
+        cancel.setOnClickListener(this);
+        fullImg = view.findViewById(R.id.imgViewFull);
 
-        if (mediaController!=null){
-            video.setMediaController(mediaController);
-            mediaController.setAnchorView(video);
+        if (mediaType == 2) {
+            videoPostView.setVisibility(View.VISIBLE);
+            if (mediaController != null) {
+                video.setMediaController(mediaController);
+                mediaController.setAnchorView(video);
+            }
+            playVideoBtn.setVisibility(View.GONE);
+            snapToFullScreen();
+            playSelectedVideoFrom(url, seekTo);
+        }else {
+            imgPostView.setVisibility(View.VISIBLE);
+            fullImg.setImageBitmap(fullBitmap);
         }
-        playVideoBtn.setVisibility(View.GONE);
-        snapToFullScreen();
-        playSelectedVideoFrom(url, seekTo);
-
     }
 
     @Override
@@ -108,15 +139,16 @@ public class FullscreenFragment extends BaseFragment implements View.OnClickList
                 }
                 break;
             case R.id.videoFullscreen:
-                // Crashlytics.getInstance().crash();
+                // Crashlytics.getVideoInstance().crash();
                 if (video.isPlaying()){
                     playVideoBtn.setVisibility(View.VISIBLE);
                     playVideoBtn.setImageResource(R.drawable.ic_pause_video_24dp);
                 }
                 break;
-            case R.id.buttonFullScreen:
+            case R.id.buttonExitFullScreen: case R.id.btn_cancel:
                 snapOutOfFullscreen();
                 break;
+
     }
 }
 

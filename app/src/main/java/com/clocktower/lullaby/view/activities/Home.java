@@ -59,7 +59,6 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 import com.koushikdutta.ion.Ion;
-import com.mikhaellopez.circularimageview.CircularImageView;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -452,19 +451,31 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
         setupOtherActionBar();
     }
 
-    @Override
-    public void makeVideoFullScreen(String url, int currentPosition) {
+    private void startFullScreenFragment(){
+        fab.hide();
         pager.setVisibility(View.GONE);
         removeToolbars();
-        fullFrag = FullscreenFragment.getInstance(url, currentPosition);
-        fullFrag.setTargetFragment(blogFrag, Constants.PLAY_BACK_CODE);
-        fullFrag.setMediaController(mediaController);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
         fragmentTransaction.add(R.id.home_fragment_container, fullFrag, Constants.FULLSCREEN);
         fragmentTransaction.commitAllowingStateLoss();
         commentView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void makeVideoFullScreen(String url, int currentPosition) {
+
+        fullFrag = FullscreenFragment.getVideoInstance(url, currentPosition);
+        fullFrag.setTargetFragment(blogFrag, Constants.PLAY_BACK_CODE);
+        fullFrag.setMediaController(mediaController);
+        startFullScreenFragment();
+    }
+
+    @Override
+    public void makeFullPicture(Bitmap bitmap) {
+        fullFrag = FullscreenFragment.getImgInstance(bitmap);
+        startFullScreenFragment();
     }
 
     @Override
@@ -512,7 +523,6 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     public void removeToolbars() {
         bottomNavigationView.setVisibility(View.GONE);
         toolbar.setVisibility(View.GONE);
-
     }
 
     @Override
@@ -595,7 +605,8 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     }
 
     private void sendToLogin() {
-        GeneralUtil.transitionActivity(Home.this, Splash.class);
+        GeneralUtil.transitionActivity(Home.this,
+                Splash.class);
     }
 
     @Override

@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,6 +19,8 @@ import com.clocktower.lullaby.model.utilities.Constants;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
 import com.clocktower.lullaby.view.activities.Splash;
 
+import java.util.StringTokenizer;
+
 public class RegisterationFragment extends Fragment {
 
     private static final String TYPE = "type";
@@ -26,6 +29,7 @@ public class RegisterationFragment extends Fragment {
     EditText usernameEditText, passwordEditText, confirmPwd;
     ContentLoadingProgressBar loadingProgressBar;
     Button loginButton;
+    TextView title;
 
     public static RegisterationFragment getInstance(String type) {
 
@@ -51,7 +55,6 @@ public class RegisterationFragment extends Fragment {
         initialiseWidgets(view);
     }
 
-
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -59,7 +62,7 @@ public class RegisterationFragment extends Fragment {
     }
 
     private void initialiseWidgets(View view) {
-
+        title = view.findViewById(R.id.textTitleReg);
         usernameEditText = view.findViewById(R.id.username);
         passwordEditText = view.findViewById(R.id.password);
         confirmPwd = view.findViewById(R.id.passwordConfirm);
@@ -69,6 +72,7 @@ public class RegisterationFragment extends Fragment {
         loadingProgressBar.hide();
 
         if(getType.equals(Constants.SIGN_IN)){
+            title.setText(R.string.enter_login_details);
             confirmPwd.setVisibility(View.GONE);
             loginButton.setText(Constants.SIGN_IN);
         }
