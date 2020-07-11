@@ -19,6 +19,7 @@ public class Constants {
     public static final int MY_CAMERA_PERMISSION_CODE = 100;
     public final static int PICK_IMAGE_REQUEST = 567;
     public static final int PICK_VIDEO_REQUEST = 890;
+    public static final int PICK_AUDIO_REQUEST = 888;
     public final static int REQUEST_IMAGE_CAPTURE = 234;
     public static final int PLAY_BACK_CODE = 10;
 
@@ -38,7 +39,7 @@ public class Constants {
     //Firebase Ref
     public static final int RC_SIGN_IN = 101;
     public static final String POSTS = "Posts";
-    public static final String AUDIO = "Audio";
+    public static final String AUDIO = "SongInfo";
     public static final String USERS = "Users";
 
 
@@ -51,6 +52,7 @@ public class Constants {
     public static final long TEXT = 0;
     public static final long IMAGE = 1;
     public static final long VIDEO = 2;
+    public static final long _AUDIO = 3;
 
     //Registration fragment type
     public static final String SIGN_IN = "Sign-In";

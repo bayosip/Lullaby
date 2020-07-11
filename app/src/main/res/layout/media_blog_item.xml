@@ -34,20 +34,29 @@
                     android:layout_width="0dp"
                     android:layout_height="255dp"
                     android:src="@drawable/ic_image_24dp"
-                    android:scaleType="fitCenter"
+                    android:visibility="gone"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent" />
-                <VideoView
-                    android:id="@+id/videoViewPost"
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/layoutVideoPost"
                     android:layout_width="0dp"
                     android:layout_height="255dp"
+                    android:visibility="gone"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    />
+                    app:layout_constraintBottom_toBottomOf="parent">
+                <VideoView
+                    android:id="@+id/videoViewPost"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
 
                 <ImageButton
                     android:id="@+id/buttonExitFullScreen"
@@ -55,7 +64,6 @@
                     android:layout_height="50dp"
                     android:background="@color/transparent"
                     android:layout_margin="@dimen/inside_padding"
-                    android:visibility="gone"
                     android:src="@drawable/ic_fullscreen_24dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"/>
@@ -64,7 +72,6 @@
                     android:id="@+id/buttonPlayVideo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:visibility="gone"
                     android:src="@drawable/ic_play_video_24dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -83,6 +90,7 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintVertical_bias="0.95"/>
+                </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
             <LinearLayout
                 android:layout_marginTop="@dimen/padding"

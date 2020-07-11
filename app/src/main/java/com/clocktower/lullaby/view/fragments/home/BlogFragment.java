@@ -15,6 +15,7 @@ import com.clocktower.lullaby.model.CozaBlog;
 import com.clocktower.lullaby.model.Post;
 import com.clocktower.lullaby.view.list.blog_list.BlogListAdapter;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,6 +28,7 @@ public class BlogFragment extends BaseFragment {
     private List<CozaBlog> posts;
     private String getName;
     private Boolean reachedBottom = false;
+    private List<String> previousPostIds = new LinkedList<>();
 
 
     public static BlogFragment getInstance(String name){
@@ -57,10 +59,11 @@ public class BlogFragment extends BaseFragment {
     private void initialiseWidgets(View view) {
         //posts = Arrays.asList(postsarr);
         blog = view.findViewById(R.id.post_list);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(listener.getListenerContext(),
+        blog.setItemViewCacheSize(3);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(listener.getViewContext(),
                 RecyclerView.VERTICAL, false);
 
-        adapter = new BlogListAdapter(posts, listener.getListenerContext(), listener.getVideoMediaController());
+        adapter = new BlogListAdapter(posts, listener.getViewContext(), listener.getVideoMediaController());
         //musicList.addItemDecoration(itemDecoration);
         blog.setLayoutManager(layoutManager);
         blog.setAdapter(adapter);
@@ -76,14 +79,18 @@ public class BlogFragment extends BaseFragment {
         });
     }
 
-    public void updateAdapter(final Post post) {
+    public void updateAdapter(final Post post)
+    {if (!previousPostIds.contains(post.postId)) {
         CozaBlog blog = new CozaBlog(post);
-        if(reachedBottom)
+        if(reachedBottom) {
             posts.add(blog);
-        else {
+            previousPostIds.add(post.postId);
+            //Collections.sort(posts, CozaBlog.blogPostComparator);
+        } else {
             posts.add(0, blog);
         }
         adapter.notifyDataSetChanged();
+    }
     }
 
     public void clearList() {

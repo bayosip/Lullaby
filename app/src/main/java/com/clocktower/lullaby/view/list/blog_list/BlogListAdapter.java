@@ -8,13 +8,11 @@ import android.view.ViewGroup;
 import android.widget.MediaController;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.interfaces.FragmentListener;
 import com.clocktower.lullaby.model.CozaBlog;
-import com.clocktower.lullaby.model.Post;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -31,9 +29,10 @@ public class BlogListAdapter extends RecyclerView.Adapter<BlogVH> {
 
     public BlogListAdapter(List<CozaBlog> blogPosts, FragmentListener listener, MediaController mediaController) {
         this.blogPosts = blogPosts;
-        this.context = listener.getListenerContext();
+        this.context = listener.getViewContext();
         this.mediaController = mediaController;
         this.listener = listener;
+        setHasStableIds(true);
     }
 
     @NonNull
@@ -48,6 +47,7 @@ public class BlogListAdapter extends RecyclerView.Adapter<BlogVH> {
 
     @Override
     public void onBindViewHolder(@NonNull BlogVH holder, int position) {
+        //holder.resetViews();
         holder.setBlogItems(blogPosts);
         holder.setMediaController(mediaController);
     }

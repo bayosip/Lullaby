@@ -5,6 +5,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.text.format.DateFormat;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -20,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.interfaces.FragmentListener;
 import com.clocktower.lullaby.model.CozaBlog;
+import com.clocktower.lullaby.model.utilities.GeneralUtil;
 import com.koushikdutta.ion.Ion;
 import com.volokh.danylo.hashtaghelper.HashTagHelper;
 
@@ -29,13 +31,13 @@ import java.util.concurrent.ExecutionException;
 
 public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-
+    private static final String TAG = "BlogVH";
     VideoView video;
     TextView elaspedTime, postTitle;
     TextView likeCount, commentCount;
     ImageView like, comment, imgPost;
     ImageButton playVideoBtn, fullscreen;
-    View mediaView;
+    ConstraintLayout mediaView, videoLayout;
     ContentLoadingProgressBar buffering;
     String url;
     String postId;
@@ -50,7 +52,7 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
     }
 
     private void initialiseWidgets(View v){
-
+        videoLayout = v.findViewById(R.id.layoutVideoPost);
         video = v.findViewById(R.id.videoViewPost);
         imgPost = v.findViewById(R.id.imageViewPost);
         elaspedTime = v.findViewById(R.id.textElaspedTime);
@@ -77,15 +79,22 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
         mediaController.setAnchorView(video);
     }
 
-    public void setBlogItems(List<CozaBlog> posts){
+    public void resetViews(){
+        mediaView.addView(null);
 
+        mediaView.addView(imgPost);
+        mediaView.addView(videoLayout);
+    }
+
+    public void setBlogItems(List<CozaBlog> posts){
         postId = posts.get(getAdapterPosition()).getPost().postId;
         url = posts.get(getAdapterPosition()).getPost().getUrl();
+        Log.d(TAG, "setBlogItems: " + url);
         listener.updateLikesCount(postId);
         listener.updateCommentCount(postId);
-        likeCount.setText(listener.getListenerContext().getString(R.string.like_count,
+        likeCount.setText(listener.getViewContext().getString(R.string.like_count,
                 posts.get(getAdapterPosition()).getLikeCount()));
-        commentCount.setText(listener.getListenerContext().getString(R.string.comment_count,
+        commentCount.setText(listener.getViewContext().getString(R.string.comment_count,
                 posts.get(getAdapterPosition()).getCommentCount()));
         if (posts.get(getAdapterPosition()).isLiked()){
             like.setImageResource(R.drawable.ic_like_on_24dp);
@@ -100,23 +109,14 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
             mediaView.setVisibility(View.VISIBLE);
             if(type ==1){
                 imgPost.setVisibility(View.VISIBLE);
-                video.setVisibility(View.GONE);
-                playVideoBtn.setVisibility(View.GONE);
-                fullscreen.setVisibility(View.GONE);
-            }else {
-                imgPost.setVisibility(View.GONE);
-                playVideoBtn.setVisibility(View.VISIBLE);
-                fullscreen.setVisibility(View.VISIBLE);
-                video.setVisibility(View.VISIBLE);
-
+                loadAndResizeImage();
+            }else if (type==2) {
+                videoLayout.setVisibility(View.VISIBLE);
                 playSelectedVideoFrom(url);
                 snapOutOfFullscreen();
             }
         }else mediaView.setVisibility(View.GONE);
 
-        if(posts.get(getAdapterPosition()).getPost().getMediaType()==1) {
-            loadAndResizeImage();
-        }
         try {
             long millisecond = posts.get(getAdapterPosition()).getPost().getTimeStamp().getTime();
             String dateString = DateFormat.format("MMM dd yyyy, HH:mm:ss", new Date(millisecond)).toString();
@@ -169,12 +169,13 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
             Uri uri = Uri.parse(url);
             video.setVideoURI(uri);
             video.setOnPreparedListener(mediaPlayer -> {
-                if (isPlayClicked && !mediaPlayer.isPlaying())
-                    buffering.show();
-                else if (!mediaPlayer.isPlaying()) {
-                    playVideoBtn.setImageResource(R.drawable.ic_play_video_24dp);
-                    playVideoBtn.setVisibility(View.VISIBLE);
-                }
+
+                mediaPlayer.setOnBufferingUpdateListener((mediaPlayer12, percent) -> {
+                    if (isPlayClicked && (percent<=99))
+                        buffering.show();
+                    else buffering.hide();
+                });
+
                 mediaPlayer.setLooping(false);
                 mediaPlayer.start();
                 mediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT);
@@ -206,13 +207,13 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
     public void setListener(FragmentListener listener) {
         this.listener = listener;
         HashTagHelper mTextHashTagHelper = HashTagHelper.Creator
-                .create(listener.getListenerContext().getResources().getColor(R.color.lightColor), null);
+                .create(listener.getViewContext().getResources().getColor(R.color.lightColor), null);
         mTextHashTagHelper.handle(postTitle);
     }
 
     private void snapOutOfFullscreen(){
         DisplayMetrics metrics = new DisplayMetrics();
-        listener.getListenerContext().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        listener.getViewContext().getWindowManager().getDefaultDisplay().getMetrics(metrics);
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) video.getLayoutParams();
         params.width = metrics.widthPixels;
         params.height = (int)(255*metrics.density);
@@ -221,14 +222,16 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
     }
 
     private void loadAndResizeImage(){
+        imgPost.setImageBitmap(null);
         try {
-            Bitmap result = Ion.with(listener.getListenerContext())
+            Bitmap result = Ion.with(listener.getViewContext())
                     .load(url)
                     .withBitmap()
                     .asBitmap()
                     .get();
             postBitMap = result;
-            imgPost.setImageBitmap(result);
+
+            imgPost.setImageBitmap(GeneralUtil.resizeBitmap(result, imgPost.getMeasuredWidth()));
         } catch (ExecutionException e) {
             e.printStackTrace();
             imgPost.setImageResource(R.drawable.ic_image_24dp);

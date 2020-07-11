@@ -41,6 +41,8 @@
         app:layout_constraintBottom_toTopOf="@id/viewDivider"
         app:layout_constraintVertical_bias="0"
         />
+
+
     <View
         android:id="@+id/viewDivider"
         android:layout_marginTop="@dimen/activity_vertical_margin"

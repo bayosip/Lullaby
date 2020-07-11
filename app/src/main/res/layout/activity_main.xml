@@ -25,7 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:fabSize="normal"
-        app:srcCompat="@drawable/ic_queue_music_24dp"
+        android:src="@drawable/ic_queue_music_24dp"
         app:backgroundTint="@color/buttonColor"
         app:borderWidth="0dp"
         app:elevation="6dp"

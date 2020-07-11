@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 import android.text.TextUtils;
@@ -65,14 +66,9 @@ public class RingToneService extends Service {
             String path = appPref.getString(Constants.TRACK_URL, null);
             if (!TextUtils.isEmpty(path)) {
                 try {
-                    myPlayer.setDataSource(path);
+                    myPlayer.setDataSource(RingToneService.this, Uri.parse(path));
                     myPlayer.prepareAsync();
-                    myPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                        @Override
-                        public void onPrepared(MediaPlayer mediaPlayer) {
-                            mediaPlayer.start();
-                        }
-                    });
+                    myPlayer.setOnPreparedListener(mediaPlayer -> mediaPlayer.start());
                 }catch (IOException e){
                     e.printStackTrace();
                 }

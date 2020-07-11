@@ -7,7 +7,7 @@ android {
     buildToolsVersion "29.0.1"
     defaultConfig {
         applicationId "com.clocktower.lullaby"
-        minSdkVersion 16
+        minSdkVersion 19
         multiDexEnabled true  //ADD THIS LINE
         targetSdkVersion 29
         versionCode 1
@@ -43,7 +43,6 @@ dependencies {
     implementation 'com.mikhaellopez:circularimageview:4.2.0'
     implementation 'id.zelory:compressor:3.0.0'
     implementation 'com.labo.kaji:fragmentanimations:0.1.1'
-    api 'com.google.dagger:dagger:2.25.3'
     implementation 'androidx.annotation:annotation:1.1.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.25.3'
@@ -56,8 +55,11 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     implementation 'com.github.mohammadatif:Animatoo:master'
     implementation 'net.alhazmy13.MediaPicker:libary:2.4.4'
-    api 'com.google.dagger:dagger:2.25.3'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.25.3'
+    api 'com.google.dagger:dagger:2.28.1'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.28.1'
+    api 'com.google.dagger:dagger-android:2.28.1'
+    api 'com.google.dagger:dagger-android-support:2.28.1' // if you use the support libraries
+    annotationProcessor 'com.google.dagger:dagger-android-processor:2.28.1'
     testImplementation 'junit:junit:4.12'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
@@ -83,6 +85,9 @@ dependencies {
     // Required only if Facebook login support is required
     // Find the latest Facebook SDK releases here: https://goo.gl/Ce5L94
     implementation 'com.facebook.android:facebook-android-sdk:[5,6)'
+
+    //ffmpeg library for audio manipulation
+    implementation 'com.writingminds:FFmpegAndroid:0.3.2'
 }
 
 

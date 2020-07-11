@@ -3,6 +3,7 @@ package com.clocktower.lullaby.view.fragments.home;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,18 +14,18 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.widget.ContentLoadingProgressBar;
 
 import com.clocktower.lullaby.R;
 
 import at.markushi.ui.CircleButton;
 
-public class TrackSetterFragment extends BaseFragment {
+public class TrackSetterFragment extends AbstractAudioViewFragment {
 
+    private static final String TAG = "TrackSetterFragment";
     private ImageView musicArt;
-    private CircleButton play_pause, stop;
-    private SeekBar trackBar;
     private Button setMusic;
-    private TextView songName;
+    private ContentLoadingProgressBar progressBar;
 
 
     public static TrackSetterFragment getInstance(){
@@ -46,80 +47,34 @@ public class TrackSetterFragment extends BaseFragment {
     }
 
     private void initialiseWidgets(View view){
-
         musicArt = view.findViewById(R.id.imageTrackImg);
         songName = view.findViewById(R.id.textSongName);
+        songTime = view.findViewById(R.id.textDuration);
         play_pause = view.findViewById(R.id.buttonPlayPause);
-        stop = view.findViewById(R.id.buttonStop);
         trackBar = view.findViewById(R.id.seekMusic);
         setMusic = view.findViewById(R.id.buttonSetAlarmMusic);
+        progressBar = view.findViewById(R.id.musicLoading);
+        progressBar.hide();
 
-        trackBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser) {
-                    listener.seekMusicToPosition(progress);
-                    trackBar.setProgress(progress);
-                }
-            }
+        trackBar.setOnSeekBarChangeListener(this);
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        play_pause.setOnClickListener(btnListener);
-        stop.setOnClickListener(btnListener);
+        play_pause.setOnClickListener(this);
         setMusic.setOnClickListener(btnListener);
-        listener.musicPlayerThread(handler);
     }
 
-    public void selectMusic(String song){
-        songName.setText(song);
-    }
-
-    public void calibrateTrackBarForMusic(int duration){
-        trackBar.setProgress(0);
-        trackBar.setMax(duration);
-    }
-
-    Button.OnClickListener btnListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            switch (view.getId()){
-                case R.id.buttonSetAlarmMusic:
-                    listener.setAlarmMusic();
-                    break;
-                case R.id.buttonPlayPause:
-                    listener.playOrPauseMusic(getChildFragmentManager());
-                    break;
-                case R.id.buttonStop:
-                    listener.stopMusic();
-                    break;
-            }
+    Button.OnClickListener btnListener = view -> {
+        switch (view.getId()){
+            case R.id.buttonSetAlarmMusic:
+                listener.setAlarmMusic();
+                break;
         }
     };
 
-    public void changePlayButtonRes(int resID){
-        play_pause.setImageResource(resID);
+    public void show(){
+        progressBar.show();
     }
 
-    private Handler handler = new Handler(){
-
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            int currentPosition = msg.what;
-            trackBar.setProgress(currentPosition);
-        }
-    };
-
-    public Handler getHandler() {
-        return handler;
+    public void hide(){
+        progressBar.hide();
     }
 }

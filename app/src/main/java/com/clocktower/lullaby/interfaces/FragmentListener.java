@@ -8,22 +8,28 @@ import android.widget.MediaController;
 import androidx.fragment.app.FragmentManager;
 
 import com.clocktower.lullaby.model.Post;
+import com.clocktower.lullaby.model.SongInfo;
 
-public interface FragmentListener extends ListItemClickListener {
+public interface FragmentListener extends BlogItemClickListener {
 
     void setAlarm(int hour, int minute);
     void stopAlarm();
-    void playOrPauseMusic(FragmentManager manager);
+    void playSelectedAudio(SongInfo audio);
+    void playOrPauseMusic(FragmentManager manager, boolean isClicked);
+    void accessFilesFromPhone();
+    void showAudioFromDevice();
     void stopMusic();
     void setAlarmMusic();
-    void seekMusicToPosition(int time);
-    void musicPlayerThread(Handler handler);
+    void seekMusicToPosition(int position);
+    void updateTrackBar(int time);
+    void setTrackDuration(int duration);
+    boolean musicPlaying();
     MediaController getVideoMediaController();
     void startLoadingPostsFromFirebase();
 
     void loadMorePost();
 
-    void clearList();
+    void clearBlogList();
 
     //Post upload Interface Method
 
@@ -37,5 +43,10 @@ public interface FragmentListener extends ListItemClickListener {
     void removeToolbars();
 
     void saveNewPostInDB(Post post, long type);
+    void saveNewAudioInDb(SongInfo audio);
 
+    void updateTrackList(SongInfo audio);
+
+    void showMusicBuffer();
+    void hideMusicBuffer();
 }

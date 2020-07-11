@@ -20,6 +20,7 @@ import androidx.core.widget.ContentLoadingProgressBar;
 
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.model.utilities.Constants;
+import com.clocktower.lullaby.model.utilities.GeneralUtil;
 import com.labo.kaji.fragmentanimations.PushPullAnimation;
 
 public class FullscreenFragment extends BaseFragment implements View.OnClickListener {
@@ -110,7 +111,8 @@ public class FullscreenFragment extends BaseFragment implements View.OnClickList
             playSelectedVideoFrom(url, seekTo);
         }else {
             imgPostView.setVisibility(View.VISIBLE);
-            fullImg.setImageBitmap(fullBitmap);
+
+            fullImg.setImageBitmap(GeneralUtil.resizeBitmap(fullBitmap, fullImg.getMeasuredWidth()));
         }
     }
 
@@ -181,18 +183,18 @@ public class FullscreenFragment extends BaseFragment implements View.OnClickList
 
     private void snapOutOfFullscreen() {
         DisplayMetrics metrics = new DisplayMetrics();
-        listener.getListenerContext().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        listener.getViewContext().getWindowManager().getDefaultDisplay().getMetrics(metrics);
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) video.getLayoutParams();
         params.width = metrics.widthPixels;
         params.height = (int)(255*metrics.density);
         params.leftMargin = 0;
         video.setLayoutParams(params);
-        listener.getListenerContext().onBackPressed();
+        listener.getViewContext().onBackPressed();
     }
 
     private void snapToFullScreen(){
         DisplayMetrics metrics = new DisplayMetrics();
-        listener.getListenerContext().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        listener.getViewContext().getWindowManager().getDefaultDisplay().getMetrics(metrics);
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) video.getLayoutParams();
         params.width = metrics.widthPixels;
         params.height = metrics.heightPixels;

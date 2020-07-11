@@ -7,29 +7,29 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.clocktower.lullaby.R;
+import com.clocktower.lullaby.interfaces.AudioItemClickListener;
 import com.clocktower.lullaby.interfaces.ListItemClickListener;
 import com.clocktower.lullaby.model.SongInfo;
 
-import java.io.File;
 import java.util.List;
 
 public class MusicTrackVH extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     View layout;
     TextView songName, artiste;
-    ListItemClickListener itemClickListener;
+    AudioItemClickListener itemClickListener;
 
     public MusicTrackVH(@NonNull View itemView) {
         super(itemView);
         initialiseWidgets(itemView);
     }
 
-    public void setItemClickListener(ListItemClickListener itemClickListener) {
+    public void setItemClickListener(AudioItemClickListener itemClickListener) {
         this.itemClickListener = itemClickListener;
     }
 
     public void setData (List<SongInfo> songs){
-        songName.setText(songs.get(getAdapterPosition()).getSongName());
+        songName.setText(songs.get(getAdapterPosition()).getTrackName());
         artiste.setText(songs.get(getAdapterPosition()).getArtiste());
     }
 
@@ -42,6 +42,7 @@ public class MusicTrackVH extends RecyclerView.ViewHolder implements View.OnClic
 
     @Override
     public void onClick(View view) {
+        layout.setBackgroundResource(R.color.colorSelect);
         itemClickListener.onMusicTrackClick(getAdapterPosition());
     }
 }

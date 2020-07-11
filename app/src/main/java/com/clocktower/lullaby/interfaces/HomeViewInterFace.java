@@ -10,9 +10,7 @@ import java.util.List;
 
 public interface HomeViewInterFace extends FragmentListener{
 
-    void setTrackBarForMusic(int duration);
     void goToMusicSetter();
-    Home getActivity();
     void updateBlogWith(Post post);
     void updatePostLikesCount(String id, int count);
     void updateLikeBtnImg(String id, boolean exists);

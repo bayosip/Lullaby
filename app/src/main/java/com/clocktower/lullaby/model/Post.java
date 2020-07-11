@@ -13,8 +13,7 @@ public class Post extends PostId{
     private Long MediaType;
     private Date TimeStamp;
 
-
-    public Post() { }
+    public Post(){}
 
     public Post(String Title, String Url, long MediaType, Date TimeStamp) {
         this.Title = Title;

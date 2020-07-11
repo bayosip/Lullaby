@@ -1,32 +1,27 @@
 package com.clocktower.lullaby.presenter;
 
 import android.Manifest;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import com.clocktower.lullaby.R;
+import com.clocktower.lullaby.interfaces.FirebaseDataToHomeInteractor;
 import com.clocktower.lullaby.interfaces.HomeViewInterFace;
 import com.clocktower.lullaby.model.Comments;
 import com.clocktower.lullaby.model.Post;
+import com.clocktower.lullaby.model.SongInfo;
 import com.clocktower.lullaby.model.utilities.Constants;
 import com.clocktower.lullaby.model.utilities.FirebaseUtil;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
 import com.clocktower.lullaby.view.activities.Home;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.karumi.dexter.Dexter;
@@ -40,7 +35,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FirebaseToHomePresenter {
+abstract public class FirebaseToHomePresenter implements FirebaseDataToHomeInteractor {
 
     private static final String TAG = "FirebaseToHomePresenter";
     private FirebaseUser user;
@@ -55,7 +50,7 @@ public class FirebaseToHomePresenter {
 
     public FirebaseToHomePresenter(HomeViewInterFace interFace) {
         this.interFace = interFace;
-        this.activity = interFace.getActivity();
+        this.activity = interFace.getViewContext();
         initialisePrequisites();
     }
 
@@ -66,22 +61,23 @@ public class FirebaseToHomePresenter {
         //Source source = Source.CACHE;
     }
 
+    @Override
     public void firstPageFirstLoad(){
         Query firstQuery = firestore.collection(Constants.POSTS)
                 .orderBy(Constants.TIMESTAMP, Query.Direction.DESCENDING)
-                .limit(2);
+                .limit(3);
         listenerRegistration = firstQuery.addSnapshotListener((documentSnapshots, e) -> {
             if (documentSnapshots!= null && !documentSnapshots.isEmpty()) {
                 if (isFirstPageFirstLoad) {
 
                     lastVisible = documentSnapshots.getDocuments().get(documentSnapshots.size() - 1);
-                    interFace.clearList();
+                    interFace.clearBlogList();
                 }
                 for (DocumentChange doc : documentSnapshots.getDocumentChanges()) {
                     if (doc.getType() == DocumentChange.Type.ADDED) {
                         String blogPostId = doc.getDocument().getId();
-                        Post blogPost = doc.getDocument().toObject(Post.class).withId(blogPostId);
-                        interFace.updateBlogWith(blogPost);
+                        final Post blogPost = doc.getDocument().toObject(Post.class).withId(blogPostId);
+                        GeneralUtil.getHandler().post(() -> interFace.updateBlogWith(blogPost));
                     }
                 }
                 isFirstPageFirstLoad = false;
@@ -89,20 +85,21 @@ public class FirebaseToHomePresenter {
         });
     }
 
+    @Override
     public void loadMorePost(){
         if(user!= null) {
             Query nextQuery = firestore.collection(Constants.POSTS)
                     .orderBy(Constants.TIMESTAMP, Query.Direction.DESCENDING)
                     .startAfter(lastVisible)
-                    .limit(2);
+                    .limit(3);
             listenerRegistration = nextQuery.addSnapshotListener((documentSnapshots, e) -> {
                 if (documentSnapshots!= null && !documentSnapshots.isEmpty()) {
                     lastVisible = documentSnapshots.getDocuments().get(documentSnapshots.size() - 1);
                     for (DocumentChange doc : documentSnapshots.getDocumentChanges()) {
                         if (doc.getType() == DocumentChange.Type.ADDED) {
                             String blogPostId = doc.getDocument().getId();
-                            Post blogPost = doc.getDocument().toObject(Post.class).withId(blogPostId);
-                            interFace.updateBlogWith(blogPost);
+                            final Post blogPost = doc.getDocument().toObject(Post.class).withId(blogPostId);
+                            GeneralUtil.getHandler().post(() -> interFace.updateBlogWith(blogPost));
                         }
                     }
                 }
@@ -110,6 +107,7 @@ public class FirebaseToHomePresenter {
         }
     }
 
+    @Override
     public void likePost(final String postId){
         firestore.collection(Constants.POSTS).document(postId).collection(Constants.LIKES)
                 .document(user.getUid()).get().addOnCompleteListener(task -> {
@@ -125,6 +123,7 @@ public class FirebaseToHomePresenter {
                 });
     }
 
+    @Override
     public void getLikePostForPost(final String postId){
         firestore.collection(Constants.POSTS).document(postId).collection(Constants.LIKES)
                 .addSnapshotListener((documentSnapshots, e) -> {
@@ -143,6 +142,7 @@ public class FirebaseToHomePresenter {
 
     }
 
+    @Override
     public void getNumberOfComments(final String postID){
         listenerRegistration = firestore.collection(Constants.POSTS).document(postID).collection(Constants.COMMENTS)
                 .addSnapshotListener((documentSnapshots, e) -> {
@@ -156,6 +156,7 @@ public class FirebaseToHomePresenter {
                 });
     }
 
+    @Override
     public void loadCommentsForPostWithID(String postID){
         listenerRegistration = firestore.collection("Posts/" + postID+ "/Comments")
                 .addSnapshotListener((documentSnapshots, e) -> {
@@ -175,6 +176,7 @@ public class FirebaseToHomePresenter {
                 });
     }
 
+    @Override
     public void makeCommentOnPostWithID(String postID, String comment_message){
         Map<String, Object> commentsMap = new HashMap<>();
         commentsMap.put("comment", comment_message);
@@ -209,6 +211,7 @@ public class FirebaseToHomePresenter {
     }
 
     //Save A Post
+    @Override
     public void saveMediaPostAttachmentInStorage(final Post newPost){
 
         Dexter.withActivity(activity)
@@ -266,6 +269,7 @@ public class FirebaseToHomePresenter {
         });
     }
 
+    @Override
     public void storePostDataInFirestore(Task<Uri> task, Post newPost) {
         String download_uri;
         if(task != null) {
@@ -280,7 +284,7 @@ public class FirebaseToHomePresenter {
         postMap.put("MediaType", newPost.getMediaType());
         postMap.put("TimeStamp", FieldValue.serverTimestamp());
 
-        firestore.collection("Posts").document("PID-" +GeneralUtil.randomName())
+        firestore.collection(Constants.POSTS).document("PID-" +GeneralUtil.randomName())
                 .set(postMap).addOnCompleteListener(task1 -> {
 
             if(task1.isSuccessful()){
@@ -296,6 +300,89 @@ public class FirebaseToHomePresenter {
         });
     }
 
+    @Override
+    public void loadMusicTracks() {
+        Query firstQuery = firestore.collection(Constants.AUDIO);
+        listenerRegistration = firstQuery.addSnapshotListener((documentSnapshots, e) -> {
+            if (documentSnapshots!= null && !documentSnapshots.isEmpty()) {
+                for (DocumentChange doc : documentSnapshots.getDocumentChanges()) {
+                    if (doc.getType() == DocumentChange.Type.ADDED) {
+                        SongInfo audio = doc.getDocument().toObject(SongInfo.class);
+                        interFace.updateTrackList(audio);
+                    }
+                }
+            }else {
+                GeneralUtil.message("No data to load...!");
+            }
+        });
+    }
+
+    @Override
+    public void saveAudioInStorage(SongInfo newAudio) {
+
+        Uri file = Uri.fromFile(new File(newAudio.getUrl()));
+        String fileExt = ".mp3";
+        final StorageReference newAudioRef = storage.child(Constants.AUDIO)
+                .child(GeneralUtil.randomName()+ "_" + fileExt);
+        final UploadTask uploadTask;
+        uploadTask = newAudioRef.putFile(file);
+        uploadTask.addOnProgressListener(taskSnapshot -> {
+            activity.showPB();
+            activity.progressPB(FirebaseUtil.calculateFileUploadProgress(taskSnapshot));
+        }).continueWithTask(task -> {
+            if (!task.isSuccessful()) {
+                throw task.getException();
+            }
+            // Continue with the task to get the download URL
+            return newAudioRef.getDownloadUrl();
+        }).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                GeneralUtil.message("Post uploaded successfully!");
+                storeAudioDataInFirestore(task, newAudio);
+            } else {
+                activity.hidePB();
+                GeneralUtil.getHandler().post(() -> {
+                    task.getException().printStackTrace();
+                    //viewImplementation.hidePictureLoaderBar();
+                    GeneralUtil.showAlertMessage(activity,
+                            activity.getString(R.string.error),
+                            activity.getString(R.string.error_post_msg));
+                });
+            }
+        });
+    }
+
+    private void storeAudioDataInFirestore(Task<Uri> task, SongInfo newAudio) {
+        String download_uri;
+        if(task != null) {
+            download_uri = task.getResult().toString();
+        }else {
+            download_uri = "none";
+        }
+
+        Map<String, Object> audioMap = new HashMap<>();
+        audioMap.put("SongName", newAudio.getTrackName());
+        audioMap.put("Artiste", newAudio.getArtiste());
+        audioMap.put("Url", download_uri);
+        //audioMap.put("TimeStamp", FieldValue.serverTimestamp());
+
+        firestore.collection(Constants.AUDIO).document("AID-" +GeneralUtil.randomName())
+                .set(audioMap).addOnCompleteListener(task1 -> {
+
+            if(task1.isSuccessful()){
+                GeneralUtil.message("New audio was added");
+                activity.hidePB();
+                activity.goStraightToHomePage("");
+            } else {
+
+                GeneralUtil.showAlertMessage(activity, activity.getString(R.string.error),
+                        "Something Went Wrong, Please Try Again!");
+            }
+            activity.hidePB();
+        });
+    }
+
+    @Override
     public void removeListenerRegistration(){
         if(listenerRegistration!=null) {
             listenerRegistration.remove();

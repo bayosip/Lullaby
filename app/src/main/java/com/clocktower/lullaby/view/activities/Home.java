@@ -60,6 +60,7 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 import com.koushikdutta.ion.Ion;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -89,7 +90,7 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     private MediaController mediaController;
     private HomePresenter presenter;
     private Toolbar toolbar;
-    private List<SongInfo> audioFiles;
+    private List<SongInfo> audioFiles = new ArrayList<>();
     private SongInfo chosenSong;
     private ImageView homeProfile;
     private TextView user_name;
@@ -195,8 +196,8 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
         fab.hide();
         fab.setOnClickListener(view -> {
             if (audioFiles != null) {
+                MusicSelectorDialog.setAudioFiles(audioFiles);
                 musicSelectorDialog.show(getSupportFragmentManager());
-
             } else GeneralUtil.showAlertMessage(Home.this, "Error!",
                     "No Audio Files Found");
         });
@@ -264,9 +265,9 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
                 fab.setImageResource(R.drawable.ic_queue_music_24dp);
                 flag = Constants.TRACK_SELECTOR_FLAG;
                 setupOtherActionBar();
-                accessFilesFromPhone();
+                audioFiles.clear();
+                presenter.loadMusicTracks();
                 title.setText(Constants.MUSIC_SELECTOR);
-                musicPlayerThread(trackFrag.getHandler());
                 fab.show();
             }else if (adapter.getPageTitle(position).equals(Constants.FORUM)){
                 fab.hide();
@@ -276,21 +277,22 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
 
         @Override
         public void onPageScrollStateChanged(int state) {
-
         }
     };
 
+    @Override
+    public void updateTrackList(SongInfo audio) {
+        audioFiles.add(audio);
+    }
 
-    private void accessFilesFromPhone() {
+
+    public void accessFilesFromPhone() {
         Dexter.withActivity(Home.this)
                 .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
                 .withListener(new PermissionListener() {
-
                     @Override
                     public void onPermissionGranted(PermissionGrantedResponse response) {
-
                         audioFiles= presenter.loadSongs();
-                        MusicSelectorDialog.setAudioFiles(audioFiles);
                     }
 
                     @Override
@@ -306,10 +308,21 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     }
 
     @Override
-    public void onMusicTrackClick(int position) {
-        chosenSong = audioFiles.get(position);
-        trackFrag.selectMusic(chosenSong.getSongName());
-        presenter.startNewMusic(chosenSong.getSongUrl());
+    public void showAudioFromDevice() {
+        if (audioFiles != null) {
+            MusicSelectorDialog.setAudioFiles(audioFiles);
+            musicSelectorDialog.show(getSupportFragmentManager());
+
+        } else{
+            createFrag.selectAudioOrVideoMedia(Constants._AUDIO);
+        }
+    }
+
+    @Override
+    public void playSelectedAudio(SongInfo audio) {
+        chosenSong = audio;
+        trackFrag.selectMusic(chosenSong.getTrackName());
+        presenter.startNewMusic(chosenSong.getUrl());
         trackFrag.changePlayButtonRes(R.drawable.ic_pause_24dp);
         musicSelectorDialog.dismiss();
     }
@@ -325,9 +338,9 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     }
 
     @Override
-    public void playOrPauseMusic(FragmentManager manager) {
+    public void playOrPauseMusic(FragmentManager manager, boolean isClicked) {
         if (!presenter.musicIsPlaying()) {
-            if (chosenSong!= null) {
+            if (chosenSong != null) {
                 presenter.playMusic();
                 trackFrag.changePlayButtonRes(R.drawable.ic_pause_24dp);
             }else {
@@ -342,14 +355,24 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     }
 
     @Override
+    public void showMusicBuffer() {
+        trackFrag.show();
+    }
+
+    @Override
+    public void hideMusicBuffer() {
+        trackFrag.hide();
+    }
+
+    @Override
     public void stopMusic() {
         presenter.stopMusic();
         trackFrag.changePlayButtonRes(R.drawable.ic_play_arrow_24dp);
     }
 
     @Override
-    public void musicPlayerThread(Handler handler) {
-        presenter.musicPlayerThread(handler);
+    public boolean musicPlaying() {
+        return presenter.musicIsPlaying();
     }
 
     @Override
@@ -360,17 +383,22 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     @Override
     public void setAlarmMusic() {
         if(chosenSong!=null)
-            presenter.setAlarmTone(chosenSong.getSongUrl());
+            presenter.setAlarmTone(chosenSong.getUrl());
         else GeneralUtil.message("Select A Song First...");
     }
 
     @Override
-    public void seekMusicToPosition(int time) {
-        presenter.seekMusic(time);
+    public void seekMusicToPosition(int position) {
+        presenter.seekMusic(position);
     }
 
     @Override
-    public Home getListenerContext() {
+    public void updateTrackBar(int time) {
+        trackFrag.setTrackBarProgress(time);
+    }
+
+    @Override
+    public Home getViewContext() {
         return Home.this;
     }
 
@@ -385,18 +413,13 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     }
 
     @Override
-    public void setTrackBarForMusic(int duration) {
+    public void setTrackDuration(int duration) {
         trackFrag.calibrateTrackBarForMusic(duration);
     }
 
     @Override
     public void goToMusicSetter() {
         pager.setCurrentItem(2);
-    }
-
-    @Override
-    public Home getActivity() {
-        return Home.this;
     }
 
     @Override
@@ -499,7 +522,7 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     }
 
     @Override
-    public void clearList() {
+    public void clearBlogList() {
         blogFrag.clearList();
     }
 
@@ -667,6 +690,11 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
         }else {
             presenter.storePostDataInFirestore(null, post);
         }
+    }
+
+    @Override
+    public void saveNewAudioInDb(SongInfo audio) {
+        presenter.saveAudioInStorage(audio);
     }
 
     @Override

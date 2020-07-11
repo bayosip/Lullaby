@@ -1,29 +1,30 @@
 package com.clocktower.lullaby.model;
 
-import javax.inject.Inject;
+
+import com.google.firebase.firestore.PropertyName;
 
 public class SongInfo {
 
-    String songName;
-    String artiste;
-    String songUrl;
+    private String TrackName, Artiste, Url;
 
-    @Inject
-    public SongInfo(String songName, String artiste, String songUrl) {
-        this.songName = songName;
-        this.artiste = artiste;
-        this.songUrl = songUrl;
+    public SongInfo() {}
+
+    public SongInfo(String TrackName, String Artiste, String Url) {
+        this.TrackName = TrackName;
+        this.Artiste = Artiste;
+        this.Url = Url;
     }
 
-    public String getSongName() {
-        return songName;
+    public String getTrackName() {
+        return TrackName;
     }
 
+    @PropertyName("artiste")
     public String getArtiste() {
-        return artiste;
+        return Artiste;
     }
 
-    public String getSongUrl() {
-        return songUrl;
+    public String getUrl() {
+        return Url;
     }
 }

@@ -1,6 +1,7 @@
 package com.clocktower.lullaby.presenter;
 
 import android.app.AlarmManager;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -10,9 +11,11 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
-import android.os.Message;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.fragment.app.DialogFragment;
 
 import com.clocktower.lullaby.interfaces.HomeViewInterFace;
 import com.clocktower.lullaby.model.SongInfo;
@@ -20,12 +23,15 @@ import com.clocktower.lullaby.model.service.WakeTimeReceiver;
 import com.clocktower.lullaby.model.utilities.Constants;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
 import com.clocktower.lullaby.model.utilities.ServiceUtil;
+import com.clocktower.lullaby.view.fragments.home.MusicSelectorDialog;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import static android.content.Intent.FLAG_INCLUDE_STOPPED_PACKAGES;
@@ -48,6 +54,8 @@ public class HomePresenter extends FirebaseToHomePresenter {
     private String trackurl;
     private boolean isTrackPlaying = false;
     private boolean isAlarmSet = false;
+    private Handler handler;
+    private String track_name = null;
 
 
     private static final int REQUEST_CODE = 100;
@@ -61,10 +69,11 @@ public class HomePresenter extends FirebaseToHomePresenter {
     }
 
     private void initialisePrequisites(){
-        appPref = GeneralUtil.getAppPref(interFace.getListenerContext());
+        handler = new Handler();
+        appPref = GeneralUtil.getAppPref(interFace.getViewContext());
         editor = appPref.edit();
         calendar = Calendar.getInstance();
-        alarmManager = (AlarmManager) this.interFace.getListenerContext()
+        alarmManager = (AlarmManager) this.interFace.getViewContext()
                 .getSystemService(Context.ALARM_SERVICE);
     }
 
@@ -88,55 +97,71 @@ public class HomePresenter extends FirebaseToHomePresenter {
         return fileList.size()>0? fileList: null;
     }
 
-    public Thread musicPlayerThread(final Handler handler) {
-        Thread thread = new Thread(() -> {
-            while (player != null) {
-                try {
-                    Message msg = new Message();
-                    msg.what = player.getCurrentPosition();
-                    handler.sendMessage(msg);
-                    Thread.sleep(1000);
-                } catch (InterruptedException ie) {
+    public void changeTrackBarProgress(){
+        interFace.updateTrackBar(player.getCurrentPosition());
+        if(player.isPlaying()) {
+            Runnable runnable = () -> {
+                changeTrackBarProgress();
+            };
+            handler.postDelayed(runnable, 1000);
+        }
+    }
 
-                }
+    public void playMusic(){
+        isTrackPlaying = true;
+        if(player!=null) {
+            if (TextUtils.isEmpty(track_name)) {
+                player.setOnPreparedListener(mediaPlayer -> {
+                   mediaPlayer.setOnBufferingUpdateListener((mediaPlayer1, percent) -> {
+                        if (percent<=99)interFace.showMusicBuffer();
+
+                        else interFace.hideMusicBuffer();
+                    });
+                    interFace.setTrackDuration(mediaPlayer.getDuration());
+                    mediaPlayer.start();
+                    changeTrackBarProgress();
+                });
+                player.setOnCompletionListener(mp -> {
+                    mp.reset();
+                    mp.release();
+                    player = null;
+                });
+                track_name = "play";
             }
-        });
-        return thread;
+            else {
+                player.start();
+                changeTrackBarProgress();
+                isTrackPlaying = true;
+            }
+        }else {
+            startNewMusic("");
+        }
     }
 
     public void startNewMusic(String trackurl){
-        try {
+       try {
             if (player!=null) {
                 player.stop();
                 player.reset();
                 player.release();
                 player = null;
             }
+
             player = new MediaPlayer();
-                player.setOnCompletionListener(mp -> {
-                    mp.reset();
-                    mp.release();
-                    player=null;
-                });
-                player.setDataSource(trackurl);
-                player.prepareAsync();
-                player.setOnPreparedListener(mediaPlayer -> {
-                    mediaPlayer.start();
-                    isTrackPlaying = true;
-                    interFace.setTrackBarForMusic(mediaPlayer.getDuration());
-                });
-
-
-
+            player.setDataSource(interFace.getViewContext(),
+                    Uri.parse(trackurl));
+           player.prepareAsync();
+        playMusic();
         } catch (IOException e) {
             e.printStackTrace();
+            //player = MediaPlayer.create(interFace.getViewContext(), R.raw.test_track);
+           //player.setDataSource(trackurl);
         }
     }
 
-    public void playMusic(){
-        if(player!=null && !isTrackPlaying){
-            player.start();
-            isTrackPlaying = true;
+    public void seekMusic(int progress){
+        if(player!=null && isTrackPlaying){
+            player.seekTo(progress);
         }
     }
 
@@ -161,7 +186,7 @@ public class HomePresenter extends FirebaseToHomePresenter {
         if(minute<10)min = "0"+minute;
         if(hour<10)hr =  "0"+hour;
        dateTime = hr+":"+min;
-       alarm = calendar.getTimeInMillis();
+       alarm = calendar.getTimeInMillis() - 60;
 
        if(appPref.contains(Constants.TRACK_URL)){
            setLullabyAlarm();
@@ -172,20 +197,14 @@ public class HomePresenter extends FirebaseToHomePresenter {
         GeneralUtil.message("Schedule Set to - "+ hr +":" + min);
     }
 
-
-    public void seekMusic(int progress){
-        if(player!=null)player.seekTo(progress);
-    }
-
-
     private void setLullabyAlarm() {
         isAlarmSet = true;
-        Intent alarmIntent = new Intent(interFace.getListenerContext(), WakeTimeReceiver.class);
+        Intent alarmIntent = new Intent(interFace.getViewContext(), WakeTimeReceiver.class);
         alarmIntent.putExtra("Message", message);
         alarmIntent.putExtra("Home", alarm);
         alarmIntent.setFlags(FLAG_INCLUDE_STOPPED_PACKAGES);
 
-        pendingIntent = PendingIntent.getBroadcast(interFace.getListenerContext(), REQUEST_CODE,
+        pendingIntent = PendingIntent.getBroadcast(interFace.getViewContext(), REQUEST_CODE,
                 alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 
 
@@ -204,31 +223,29 @@ public class HomePresenter extends FirebaseToHomePresenter {
         alarm = 0;
         isAlarmSet = false;
         alarmManager.cancel(pendingIntent);
-        if(ServiceUtil.isServiceAlreadyRunningAPI16(interFace.getListenerContext()))
-            ServiceUtil.stopService(interFace.getListenerContext());
+        if(ServiceUtil.isServiceAlreadyRunningAPI16(interFace.getViewContext()))
+            ServiceUtil.stopService(interFace.getViewContext());
         GeneralUtil.message("Home Cancelled!");
     }
 
     public List<SongInfo> loadSongs(){
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String selection = MediaStore.Audio.Media.IS_MUSIC + "!=0";
-        Cursor cursor = interFace.getListenerContext().getContentResolver().query(uri,
+        Cursor cursor = interFace.getViewContext().getContentResolver().query(uri,
                 null, selection, null, null);
         List<SongInfo> songInfoList = new ArrayList<>();
         if(cursor!=null){
             try{
                 if(cursor.moveToFirst()){
-
-                   while (cursor.moveToNext()){
-
-                       String songName = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
-                       Log.w("Songs", songName);
-                       String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-                       String url = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
-                       SongInfo info = new SongInfo(songName, artist, url);
-                       songInfoList.add(info);
-                   }
-               }
+                    while (cursor.moveToNext()){
+                        String songName = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
+                        Log.w("Songs", songName);
+                        String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
+                        String url = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
+                        SongInfo info = new SongInfo(songName, artist, url);
+                        songInfoList.add(info);
+                    }
+                }
             }finally {
                 cursor.close();
             }
@@ -238,15 +255,17 @@ public class HomePresenter extends FirebaseToHomePresenter {
 
     public void stopMusic() {
         if(player!=null && isTrackPlaying){
-            player.stop();
             isTrackPlaying = false;
+            //interFace.updateTrackBar(0);
+            player.stop();
+            player.reset();
         }
     }
 
     public void setAlarmTone(String path) {
 
-        if(ServiceUtil.isServiceAlreadyRunningAPI16(interFace.getListenerContext()))
-            ServiceUtil.stopService(interFace.getListenerContext());
+        if(ServiceUtil.isServiceAlreadyRunningAPI16(interFace.getViewContext()))
+            ServiceUtil.stopService(interFace.getViewContext());
 
         if(appPref.contains(Constants.TRACK_URL)){
             editor.remove(Constants.TRACK_URL);

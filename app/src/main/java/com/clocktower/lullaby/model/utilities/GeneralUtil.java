@@ -51,7 +51,7 @@ import id.zelory.compressor.Compressor;
  * Created by BABY v2.0 on 10/11/2016.
  */
 
-public class GeneralUtil {
+public class GeneralUtil extends RealPathUtil {
     private Context context;
     private Toast toast;
     private static final String APP_PREFS_NAME = "com.clocktower.lullaby.app_pref";
@@ -92,6 +92,40 @@ public class GeneralUtil {
             e.printStackTrace();
         }
         return  bmp;
+    }
+
+    public static Bitmap resizeBitmap(Bitmap source, int maxLength) {
+        try {
+            if (source.getHeight() >= source.getWidth()) {
+                int targetHeight = maxLength;
+                if (source.getHeight() <= targetHeight) { // if image already smaller than the required height
+                    return source;
+                }
+
+                double aspectRatio = (double) source.getWidth() / (double) source.getHeight();
+                int targetWidth = (int) (targetHeight * aspectRatio);
+
+                Bitmap result = Bitmap.createScaledBitmap(source, targetWidth, targetHeight, false);
+                return result;
+            } else {
+                int targetWidth = maxLength;
+
+                if (source.getWidth() <= targetWidth) { // if image already smaller than the required height
+                    return source;
+                }
+
+                double aspectRatio = ((double) source.getHeight()) / ((double) source.getWidth());
+                int targetHeight = (int) (targetWidth * aspectRatio);
+
+                Bitmap result = Bitmap.createScaledBitmap(source, targetWidth, targetHeight, false);
+                return result;
+
+            }
+        }
+        catch (Exception e)
+        {
+            return source;
+        }
     }
 
     public static Uri getImageUri(Context inContext, Bitmap inImage, String title) {

@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -78,7 +77,7 @@ public class CommentsFragment extends BaseFragment{
         postTitle.setShowLessTextColor(Color.BLACK); // or other color
         allComments = v.findViewById(R.id.recyclerComments);
         LinearLayoutManager layoutManager
-                = new LinearLayoutManager(listener.getListenerContext(), RecyclerView.VERTICAL,
+                = new LinearLayoutManager(listener.getViewContext(), RecyclerView.VERTICAL,
                 false);
         allComments.setLayoutManager(layoutManager);
         allComments.setAdapter(adapter);
