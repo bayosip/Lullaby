@@ -146,7 +146,6 @@ public class HomePresenter extends FirebaseToHomePresenter {
                 player.release();
                 player = null;
             }
-
             player = new MediaPlayer();
             player.setDataSource(interFace.getViewContext(),
                     Uri.parse(trackurl));
