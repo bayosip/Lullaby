@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -26,7 +27,7 @@ public class RegisterationFragment extends Fragment {
     private static final String TYPE = "type";
     private Splash activity;
     private String getType;
-    EditText usernameEditText, passwordEditText, confirmPwd;
+    private EditText usernameEditText, passwordEditText, confirmPwd;
     ContentLoadingProgressBar loadingProgressBar;
     Button loginButton;
     TextView title;
@@ -68,6 +69,7 @@ public class RegisterationFragment extends Fragment {
         confirmPwd = view.findViewById(R.id.passwordConfirm);
         loginButton = view.findViewById(R.id.login);
 
+
         loadingProgressBar = view.findViewById(R.id.loading);
         loadingProgressBar.hide();
 
@@ -80,7 +82,6 @@ public class RegisterationFragment extends Fragment {
         loginButton.setOnClickListener(view1 -> {
             loginButton.setEnabled(false);
                 registerOrSignInUser();
-
         });
     }
 
@@ -91,8 +92,9 @@ public class RegisterationFragment extends Fragment {
         String email = usernameEditText.getText().toString();
         if (email.contains("@")){
             if(getType.equals(Constants.REGISTRATION)) {
-               if(pwd.equals(cPwd))
+               if(pwd.equals(cPwd)) {
                    activity.registerUserWith(email, pwd);
+               }
                else {
                    GeneralUtil.message("Registration Error, check email or password");
                    loginButton.setEnabled(true);
@@ -117,5 +119,4 @@ public class RegisterationFragment extends Fragment {
         usernameEditText.setEnabled(true);
         loginButton.setEnabled(true);
     }
-
 }

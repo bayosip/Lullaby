@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -17,6 +18,7 @@ import android.util.Log;
 
 import androidx.fragment.app.DialogFragment;
 
+import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.interfaces.HomeViewInterFace;
 import com.clocktower.lullaby.model.SongInfo;
 import com.clocktower.lullaby.model.service.WakeTimeReceiver;
@@ -38,6 +40,7 @@ import static android.content.Intent.FLAG_INCLUDE_STOPPED_PACKAGES;
 
 public class HomePresenter extends FirebaseToHomePresenter {
 
+    private static final String TAG = "HomePresenter";
     private HomeViewInterFace interFace;
 
     private AlarmManager alarmManager;
@@ -55,7 +58,7 @@ public class HomePresenter extends FirebaseToHomePresenter {
     private boolean isTrackPlaying = false;
     private boolean isAlarmSet = false;
     private Handler handler;
-    private String track_name = null;
+    private volatile String track_name = null;
 
 
     private static final int REQUEST_CODE = 100;
@@ -98,35 +101,57 @@ public class HomePresenter extends FirebaseToHomePresenter {
     }
 
     public void changeTrackBarProgress(){
-        interFace.updateTrackBar(player.getCurrentPosition());
-        if(player.isPlaying()) {
-            Runnable runnable = () -> {
-                changeTrackBarProgress();
-            };
-            handler.postDelayed(runnable, 1000);
+        try {
+            if (player != null && player.isPlaying()) {
+                interFace.updateTrackBar(player.getCurrentPosition());
+                if (player.isPlaying()) {
+                    Runnable runnable = () -> {
+                        changeTrackBarProgress();
+                    };
+                    handler.postDelayed(runnable, 1000);
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            player.reset();
+            changeTrackBarProgress();
         }
     }
 
-    public void playMusic(){
+    public void playMusic(String trackurl){
         isTrackPlaying = true;
         if(player!=null) {
             if (TextUtils.isEmpty(track_name)) {
-                player.setOnPreparedListener(mediaPlayer -> {
-                   mediaPlayer.setOnBufferingUpdateListener((mediaPlayer1, percent) -> {
-                        if (percent<=99)interFace.showMusicBuffer();
-
-                        else interFace.hideMusicBuffer();
-                    });
-                    interFace.setTrackDuration(mediaPlayer.getDuration());
-                    mediaPlayer.start();
-                    changeTrackBarProgress();
-                });
-                player.setOnCompletionListener(mp -> {
-                    mp.reset();
-                    mp.release();
-                    player = null;
-                });
                 track_name = "play";
+                try {
+                    player.reset();
+                    player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                    player.setDataSource(trackurl);
+                    player.prepareAsync();
+                    player.setOnPreparedListener(mediaPlayer -> {
+                        mediaPlayer.setOnBufferingUpdateListener((mediaPlayer1, percent) -> {
+                            if (percent<=99)interFace.showMusicBuffer();
+
+                            else interFace.hideMusicBuffer();
+                        });
+                        interFace.setTrackDuration(mediaPlayer.getDuration());
+                        mediaPlayer.setLooping(false);
+                        mediaPlayer.start();
+                        changeTrackBarProgress();
+                    });
+                    player.setOnCompletionListener(mp -> {
+                        mp.stop();
+                        mp.reset();
+                        //mp.setNextMediaPlayer();
+                        track_name = null;
+                        interFace.changePlayButtonIcon(R.drawable.ic_play_arrow_24dp);
+                    });
+                } catch (IOException e) {
+                    Log.e(TAG, "playMusic: ",e );
+                    e.printStackTrace();
+                    //player = MediaPlayer.create(interFace.getViewContext(), R.raw.test_track);
+                    //player.setDataSource(trackurl);
+                }
             }
             else {
                 player.start();
@@ -134,28 +159,28 @@ public class HomePresenter extends FirebaseToHomePresenter {
                 isTrackPlaying = true;
             }
         }else {
-            startNewMusic("");
+            Log.w(TAG, "playMusic: mediaplayer null restarting" );
+            Log.w(TAG, "playMusic: " + trackurl );
+            startNewMusic(trackurl);
+        }
+    }
+
+    public void clearMediaPlayer(){
+        if (player!=null) {
+            player.stop();
+            player.reset();
+            player.release();
+            player = null;
         }
     }
 
     public void startNewMusic(String trackurl){
-       try {
-            if (player!=null) {
-                player.stop();
-                player.reset();
-                player.release();
-                player = null;
-            }
+
+        if (player== null)
             player = new MediaPlayer();
-            player.setDataSource(interFace.getViewContext(),
-                    Uri.parse(trackurl));
-           player.prepareAsync();
-        playMusic();
-        } catch (IOException e) {
-            e.printStackTrace();
-            //player = MediaPlayer.create(interFace.getViewContext(), R.raw.test_track);
-           //player.setDataSource(trackurl);
-        }
+
+        playMusic(trackurl);
+
     }
 
     public void seekMusic(int progress){
@@ -184,15 +209,15 @@ public class HomePresenter extends FirebaseToHomePresenter {
         String hr = String.valueOf(hour);
         if(minute<10)min = "0"+minute;
         if(hour<10)hr =  "0"+hour;
-       dateTime = hr+":"+min;
-       alarm = calendar.getTimeInMillis() - 60;
+        dateTime = hr+":"+min;
+        alarm = calendar.getTimeInMillis() - 60;
 
-       if(appPref.contains(Constants.TRACK_URL)){
-           setLullabyAlarm();
-       }else {
-           interFace.goToMusicSetter();
-           GeneralUtil.message("Please set Song For Schedule");
-       }
+        if(appPref.contains(Constants.TRACK_URL)){
+            setLullabyAlarm();
+        }else {
+            interFace.goToMusicSetter();
+            GeneralUtil.message("Please set Song For Schedule");
+        }
         GeneralUtil.message("Schedule Set to - "+ hr +":" + min);
     }
 
@@ -228,8 +253,8 @@ public class HomePresenter extends FirebaseToHomePresenter {
     }
 
     public List<SongInfo> loadSongs(){
-        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        String selection = MediaStore.Audio.Media.IS_MUSIC + "!=0";
+        Uri uri = MediaStore.Audio.Media.INTERNAL_CONTENT_URI;
+        String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         Cursor cursor = interFace.getViewContext().getContentResolver().query(uri,
                 null, selection, null, null);
         List<SongInfo> songInfoList = new ArrayList<>();

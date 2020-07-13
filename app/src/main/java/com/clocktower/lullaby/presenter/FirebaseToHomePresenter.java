@@ -10,6 +10,7 @@ import com.clocktower.lullaby.interfaces.HomeViewInterFace;
 import com.clocktower.lullaby.model.Comments;
 import com.clocktower.lullaby.model.Post;
 import com.clocktower.lullaby.model.SongInfo;
+import com.clocktower.lullaby.model.Users;
 import com.clocktower.lullaby.model.utilities.Constants;
 import com.clocktower.lullaby.model.utilities.FirebaseUtil;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
@@ -17,6 +18,7 @@ import com.clocktower.lullaby.view.activities.Home;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -62,6 +64,18 @@ abstract public class FirebaseToHomePresenter implements FirebaseDataToHomeInter
     }
 
     @Override
+    public void checkIfUserIsAdmin(String uuid) {
+        DocumentReference docRef = firestore.collection(Constants.USERS).document(uuid);
+
+        docRef.get().addOnSuccessListener(documentSnapshot -> {
+           Users user = documentSnapshot.toObject(Users.class);
+            Log.w(TAG, "checkIfUserIsAdmin: " + user.toString() );
+           interFace.removeBNBItemIfNoAdmin(user.isUserIsAdmin());
+        });
+
+    }
+
+    @Override
     public void firstPageFirstLoad(){
         Query firstQuery = firestore.collection(Constants.POSTS)
                 .orderBy(Constants.TIMESTAMP, Query.Direction.DESCENDING)
@@ -69,7 +83,6 @@ abstract public class FirebaseToHomePresenter implements FirebaseDataToHomeInter
         listenerRegistration = firstQuery.addSnapshotListener((documentSnapshots, e) -> {
             if (documentSnapshots!= null && !documentSnapshots.isEmpty()) {
                 if (isFirstPageFirstLoad) {
-
                     lastVisible = documentSnapshots.getDocuments().get(documentSnapshots.size() - 1);
                     interFace.clearBlogList();
                 }
@@ -302,8 +315,8 @@ abstract public class FirebaseToHomePresenter implements FirebaseDataToHomeInter
 
     @Override
     public void loadMusicTracks() {
-        Query firstQuery = firestore.collection(Constants.AUDIO);
-        listenerRegistration = firstQuery.addSnapshotListener((documentSnapshots, e) -> {
+        Query audioQuery = firestore.collection(Constants.AUDIO);
+        listenerRegistration = audioQuery.addSnapshotListener((documentSnapshots, e) -> {
             if (documentSnapshots!= null && !documentSnapshots.isEmpty()) {
                 for (DocumentChange doc : documentSnapshots.getDocumentChanges()) {
                     if (doc.getType() == DocumentChange.Type.ADDED) {

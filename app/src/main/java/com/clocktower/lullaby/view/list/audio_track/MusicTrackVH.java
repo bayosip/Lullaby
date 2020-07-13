@@ -18,9 +18,11 @@ public class MusicTrackVH extends RecyclerView.ViewHolder implements View.OnClic
     View layout;
     TextView songName, artiste;
     AudioItemClickListener itemClickListener;
+    AudioItemClickListener.RefreshItem refreshItem;
 
-    public MusicTrackVH(@NonNull View itemView) {
+    public MusicTrackVH(@NonNull View itemView, AudioItemClickListener.RefreshItem refreshItem) {
         super(itemView);
+        this.refreshItem = refreshItem;
         initialiseWidgets(itemView);
     }
 
@@ -42,7 +44,16 @@ public class MusicTrackVH extends RecyclerView.ViewHolder implements View.OnClic
 
     @Override
     public void onClick(View view) {
-        layout.setBackgroundResource(R.color.colorSelect);
+        refreshItem.setSelectedPosition( getAdapterPosition());
         itemClickListener.onMusicTrackClick(getAdapterPosition());
+
+    }
+
+    public void changeItemBackground(boolean shouldChange){
+        if (shouldChange)
+            layout.setBackgroundResource(R.color.colorSelect);
+        else {
+            layout.setBackgroundResource(R.color.app_background_white);
+        }
     }
 }

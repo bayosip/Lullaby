@@ -190,9 +190,10 @@ public class FirebaseUtil {
             download_uri = user.getPhotoUrl();
         }
 
-        Map<String, String> userMap = new HashMap<>();
+        Map<String, Object> userMap = new HashMap<>();
         userMap.put("name", user.getDisplayName());
         userMap.put("image", download_uri.toString());
+        userMap.put("userIsAdmin", false);
 
         firestore.collection(Constants.USERS).document(user.getUid()).set(userMap).addOnCompleteListener(task1 -> {
             if(task1.isSuccessful()){
@@ -263,17 +264,10 @@ public class FirebaseUtil {
         StorageReference audioRef = storage.child("audio/"+audioName);
 
         File localFile = File.createTempFile(audioName, "mp3");
-
-        audioRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                // Local temp file has been created
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // Handle any errors
-            }
+        audioRef.getFile(localFile).addOnSuccessListener(taskSnapshot -> {
+            // Local temp file has been created
+        }).addOnFailureListener(exception -> {
+            // Handle any errors
         });
     }
 }

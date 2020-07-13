@@ -130,5 +130,6 @@ public class MusicSelectorDialog extends DialogFragment implements AudioItemClic
     public void onMusicTrackClick(int position) {
 
         audio =audioFiles.get(position);
+        adapter.notifyDataSetChanged();
     }
 }

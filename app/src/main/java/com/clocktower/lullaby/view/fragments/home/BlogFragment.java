@@ -7,12 +7,14 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.model.CozaBlog;
 import com.clocktower.lullaby.model.Post;
+import com.clocktower.lullaby.model.utilities.GeneralUtil;
 import com.clocktower.lullaby.view.list.blog_list.BlogListAdapter;
 
 import java.util.Collections;
@@ -27,6 +29,8 @@ public class BlogFragment extends BaseFragment {
     private BlogListAdapter adapter;
     private List<CozaBlog> posts;
     private String getName;
+    private ContentLoadingProgressBar progressBar;
+    private View dummyView;
     private Boolean reachedBottom = false;
     private List<String> previousPostIds = new LinkedList<>();
 
@@ -58,6 +62,8 @@ public class BlogFragment extends BaseFragment {
 
     private void initialiseWidgets(View view) {
         //posts = Arrays.asList(postsarr);
+        progressBar = view.findViewById(R.id.blogLoading);
+        dummyView = view.findViewById(R.id.dummyLayout);
         blog = view.findViewById(R.id.post_list);
         blog.setItemViewCacheSize(3);
         LinearLayoutManager layoutManager = new LinearLayoutManager(listener.getViewContext(),
@@ -79,17 +85,20 @@ public class BlogFragment extends BaseFragment {
         });
     }
 
-    public void updateAdapter(final Post post)
-    {if (!previousPostIds.contains(post.postId)) {
+    public void updateAdapter(final Post post) {
+        GeneralUtil.collapse(dummyView);
+
+        if (!previousPostIds.contains(post.postId)) {
         CozaBlog blog = new CozaBlog(post);
         if(reachedBottom) {
             posts.add(blog);
-            previousPostIds.add(post.postId);
             //Collections.sort(posts, CozaBlog.blogPostComparator);
         } else {
             posts.add(0, blog);
         }
+        previousPostIds.add(post.postId);
         adapter.notifyDataSetChanged();
+        progressBar.hide();
     }
     }
 

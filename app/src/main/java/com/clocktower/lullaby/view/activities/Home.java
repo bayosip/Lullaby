@@ -66,6 +66,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static com.clocktower.lullaby.model.utilities.Constants.COMMENTS;
+import static com.clocktower.lullaby.model.utilities.Constants.CREATE_POST;
 import static com.clocktower.lullaby.model.utilities.Constants.PROFILE;
 
 public class Home extends AppCompatActivity implements HomeViewInterFace, ProfileListener {
@@ -99,6 +100,7 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     FirebaseUser user;
     private View simple, profile;
     private ContentLoadingProgressBar progressBar;
+    private boolean isUserAdmin = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,10 +153,23 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
                     + GeneralUtil.getAppPref(this).getString(Constants.PROFILE, null));
         }
         bottomNavigationView = findViewById(R.id.navigationView);
-
         simple = findViewById(R.id.simpleToolbarView);
         profile = findViewById(R.id.profileToolbarView);
+
+        presenter.checkIfUserIsAdmin(FirebaseUtil.getmAuth().getCurrentUser().getUid());
         setupHomeActionBar();
+    }
+
+    @Override
+    public void removeBNBItemIfNoAdmin(boolean isAdmin) {
+        isUserAdmin = isAdmin;
+        if(!isAdmin)
+            bottomNavigationView.getMenu().removeItem(R.id.navigation_create);
+    }
+
+    @Override
+    public boolean isUserAdmin() {
+        return isUserAdmin;
     }
 
     private void setupHomeActionBar() {
@@ -232,18 +247,21 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
             };
 
     private void startPostCreationPage() {
-        pager.setVisibility(View.GONE);
-        bottomNavigationView.setVisibility(View.GONE);
+        fab.hide();
+        if(isUserAdmin) {
+            pager.setVisibility(View.GONE);
+            bottomNavigationView.setVisibility(View.GONE);
 
-        createFrag = CreatePostFragment.newInstance();
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            createFrag = CreatePostFragment.newInstance();
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-        fragmentTransaction.add(R.id.home_fragment_container, createFrag, Constants.CREATE_POST);
-        fragmentTransaction.commitAllowingStateLoss();
-        commentView.setVisibility(View.VISIBLE);
-        this.title.setText("Create Post");
-        setupOtherActionBar();
+            fragmentTransaction.add(R.id.home_fragment_container, createFrag, Constants.CREATE_POST);
+            fragmentTransaction.commitAllowingStateLoss();
+            commentView.setVisibility(View.VISIBLE);
+            this.title.setText("Create Post");
+            setupOtherActionBar();
+        }
     }
 
     private ViewPager.OnPageChangeListener pageChangeListener = new ViewPager.OnPageChangeListener() {
@@ -319,11 +337,24 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     }
 
     @Override
+    public void changePlayButtonIcon(int resID) {
+        if(createFrag == null) {
+            trackFrag.changePlayButtonRes(resID);
+        }else {
+            createFrag.changePlayButtonRes(resID);
+        }
+    }
+
+    @Override
     public void playSelectedAudio(SongInfo audio) {
         chosenSong = audio;
-        trackFrag.selectMusic(chosenSong.getTrackName());
+        if(createFrag == null) {
+            trackFrag.selectMusic(chosenSong.getTrackName());
+        }else {
+            createFrag.selectMusic(audio.getTrackName());
+        }
+        changePlayButtonIcon(R.drawable.ic_pause_24dp);
         presenter.startNewMusic(chosenSong.getUrl());
-        trackFrag.changePlayButtonRes(R.drawable.ic_pause_24dp);
         musicSelectorDialog.dismiss();
     }
 
@@ -341,8 +372,8 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     public void playOrPauseMusic(FragmentManager manager, boolean isClicked) {
         if (!presenter.musicIsPlaying()) {
             if (chosenSong != null) {
-                presenter.playMusic();
-                trackFrag.changePlayButtonRes(R.drawable.ic_pause_24dp);
+                presenter.playMusic(chosenSong.getUrl());
+                changePlayButtonIcon(R.drawable.ic_pause_24dp);
             }else {
                 if (audioFiles != null) {
                     musicSelectorDialog.show(manager);
@@ -350,7 +381,7 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
             }
         } else {
             presenter.pauseMusic();
-            trackFrag.changePlayButtonRes(R.drawable.ic_play_arrow_24dp);
+            changePlayButtonIcon(R.drawable.ic_play_arrow_24dp);
         }
     }
 
@@ -394,7 +425,10 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
 
     @Override
     public void updateTrackBar(int time) {
-        trackFrag.setTrackBarProgress(time);
+        if(createFrag==null)
+            trackFrag.setTrackBarProgress(time);
+        else
+            createFrag.setTrackBarProgress(time);
     }
 
     @Override
@@ -414,7 +448,10 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
 
     @Override
     public void setTrackDuration(int duration) {
-        trackFrag.calibrateTrackBarForMusic(duration);
+        if(createFrag==null)
+            trackFrag.calibrateTrackBarForMusic(duration);
+        else
+            createFrag.calibrateTrackBarForMusic(duration);
     }
 
     @Override
@@ -549,64 +586,6 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     }
 
     @Override
-    public void onBackPressed() {
-        Fragment fragment= getSupportFragmentManager().findFragmentById(R.id.home_fragment_container);
-        if(fragment!=null){
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-            fragmentTransaction.remove(fragment).commitAllowingStateLoss();
-            restoreViewsAfterLeavingCommentSection();
-            commentView.setVisibility(View.GONE);
-            toolbar.setVisibility(View.VISIBLE);
-            setupHomeActionBar();
-            bottomNavigationView.setSelectedItemId(R.id.navigation_home);
-            String tag = fragment.getTag();
-            if (!TextUtils.isEmpty(tag) && tag.equals(PROFILE)){
-                Ion.with(Home.this)
-                        .load(user.getPhotoUrl().toString())
-                        .withBitmap()
-                        .placeholder(R.drawable.ic_person_24dp)
-                        .intoImageView(homeProfile);
-            }
-
-        }else if ( pager.getCurrentItem() == 0) {
-            GeneralUtil.exitApp(Home.this);
-        }
-        else {
-            pager.setCurrentItem(0);
-            bottomNavigationView.setSelectedItemId(R.id.navigation_home);
-        }
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu ( Menu menu ) {
-        MenuInflater inflater = getMenuInflater () ;
-        inflater.inflate (R.menu.home_menu, menu );
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.home_account:
-                startProfilePictureFragment(mUsername);
-                return true;
-            case R.id.home_log_out:
-                logOut();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
     public void startProfilePictureFragment(String name){
         pager.setVisibility(View.GONE);
         setupOtherActionBar();
@@ -694,7 +673,8 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
 
     @Override
     public void saveNewAudioInDb(SongInfo audio) {
-        presenter.saveAudioInStorage(audio);
+        if (audio!=null)chosenSong = audio;
+        presenter.saveAudioInStorage(chosenSong);
     }
 
     @Override
@@ -736,6 +716,67 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     protected void onPause() {
         super.onPause();
         presenter.removeListenerRegistration();
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        Fragment fragment= getSupportFragmentManager().findFragmentById(R.id.home_fragment_container);
+        if(fragment!=null){
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+            fragmentTransaction.remove(fragment).commitAllowingStateLoss();
+            restoreViewsAfterLeavingCommentSection();
+            commentView.setVisibility(View.GONE);
+            toolbar.setVisibility(View.VISIBLE);
+            setupHomeActionBar();
+            bottomNavigationView.setSelectedItemId(R.id.navigation_home);
+            String tag = fragment.getTag();
+            if (!TextUtils.isEmpty(tag) && tag.equals(PROFILE)){
+                Ion.with(Home.this)
+                        .load(user.getPhotoUrl().toString())
+                        .withBitmap()
+                        .placeholder(R.drawable.ic_person_24dp)
+                        .intoImageView(homeProfile);
+            }else if(!TextUtils.isEmpty(tag) && tag.equals(CREATE_POST)){
+                createFrag = null;
+            }
+
+        }else if ( pager.getCurrentItem() == 0) {
+            GeneralUtil.exitApp(Home.this);
+        }
+        else {
+            pager.setCurrentItem(0);
+            bottomNavigationView.setSelectedItemId(R.id.navigation_home);
+        }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu ( Menu menu ) {
+        MenuInflater inflater = getMenuInflater () ;
+        inflater.inflate (R.menu.home_menu, menu );
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.home_account:
+                startProfilePictureFragment(mUsername);
+                return true;
+            case R.id.home_log_out:
+                logOut();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 }

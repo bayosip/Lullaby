@@ -12,10 +12,12 @@ import com.clocktower.lullaby.model.SongInfo;
 
 public interface FragmentListener extends BlogItemClickListener {
 
+    boolean isUserAdmin();
     void setAlarm(int hour, int minute);
     void stopAlarm();
     void playSelectedAudio(SongInfo audio);
     void playOrPauseMusic(FragmentManager manager, boolean isClicked);
+    void changePlayButtonIcon(int resID);
     void accessFilesFromPhone();
     void showAudioFromDevice();
     void stopMusic();

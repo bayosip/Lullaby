@@ -63,10 +63,10 @@ public class CreatePostFragment extends AbstractAudioViewFragment{
     private EditText postTitle;
     ImageButton playVideoBtn;
     ImageCreator imgCreator;
-    Uri postUri;
+    Uri postUri = null;
     long mediaType = 0;
     String videoPath;
-    private SongInfo audio;
+    private SongInfo audio = null;
 
     View mediaView;
     private boolean isPlayClicked = false;
@@ -147,6 +147,7 @@ public class CreatePostFragment extends AbstractAudioViewFragment{
                 video.setVisibility(View.GONE);
                 image.setVisibility(View.VISIBLE);
                 imgCreator.createAnImage(CreatePostFragment.this);
+                postToBlog.setText("Post");
                 break;
             case R.id.btn_upload_video:
                 Crashlytics.log("Admin clicked on upload video");
@@ -156,43 +157,53 @@ public class CreatePostFragment extends AbstractAudioViewFragment{
                 image.setVisibility(View.GONE);
                 video.setVisibility(View.VISIBLE);
                 selectAudioOrVideoMedia(Constants.VIDEO);
+                postToBlog.setText("Post");
                 break;
             case R.id.btn_upload_music:
+                mediaType = Constants._AUDIO;
                 Crashlytics.log("Admin clicked on upload audio");
+                postToBlog.setText("Upload Audio");
                 listener.showAudioFromDevice();
                 audioTestLayout.setVisibility(View.VISIBLE);
                 postTitle.setVisibility(View.INVISIBLE);
                 break;
             case R.id.post_btn:
-                String desc = postTitle.getText().toString();
-                String uri;
-                if (mediaType != Constants.TEXT)
-                    uri = getMediaPath(postUri, mediaType);
-                else uri = "none";
+                if(listener.isUserAdmin()) {
+                    String desc = postTitle.getText().toString();
+                    String uri;
+                    if (mediaType != Constants.TEXT){
+                        if(mediaType == Constants._AUDIO && postUri ==null){
+                            listener.saveNewAudioInDb(null);
+                            return;
+                        } else {
+                            uri = getMediaPath(postUri, mediaType);
+                        }
+                    } else uri = "none";
 
-                if(postUri!=null && TextUtils.isEmpty(uri)) uri = postUri.toString();
-                Log.w(TAG, "onClick: " + uri );
-                Crashlytics.log("Admin tried to upload media of type: " + mediaType);
+                    if (postUri != null && TextUtils.isEmpty(uri))
+                        uri = postUri.getLastPathSegment();
 
-                if(TextUtils.isEmpty(uri)) GeneralUtil.message("Something went wrong! Please try again");
+                    Log.w(TAG, "onClick: " + uri);
+                    Crashlytics.log("Admin tried to upload media of type: " + mediaType);
+
+                    if (TextUtils.isEmpty(uri))
+                        GeneralUtil.message("Something went wrong! Please try again");
 
 
-                else if((mediaType>0 && !uri.equals("none"))||
-                        (mediaType==0 && !TextUtils.isEmpty(desc))) {
-                    if(mediaType!=3) {
-                        newPost = new Post(desc, uri, mediaType, null);
-                        listener.saveNewPostInDB(newPost, mediaType);
-                    }else{
-                        listener.saveNewAudioInDb(audio);
+                    else if ((mediaType > 0 && !uri.equals("none")) ||
+                            (mediaType == 0 && !TextUtils.isEmpty(desc))) {
+                        if (mediaType != 3) {
+                            newPost = new Post(desc, uri, mediaType, null);
+                            listener.saveNewPostInDB(newPost, mediaType);
+                        } else {
+                            listener.saveNewAudioInDb(audio);
+                        }
+                    } else {
+                        GeneralUtil.message("Post a Message, an Image or a Video.");
                     }
-                }else {
-                    GeneralUtil.message("Post a Message, an Image or a Video.");
                 }
                 break;
         }
-        if (mediaType == 3){
-            postToBlog.setText("Upload Audio");
-        }else postToBlog.setText("Post");
     };
 
     private void playSelectedVideoFrom(){
@@ -493,6 +504,7 @@ public class CreatePostFragment extends AbstractAudioViewFragment{
                         listener.playSelectedAudio(audio);
                     break;
             }
+            Log.w(TAG, "onActivityResult: " + postUri.getLastPathSegment() );
         } else {
             //Log.e(TAG, "onActivityResult: " + resultCode);
             GeneralUtil.message("Error Occured " + resultCode);

@@ -7,6 +7,7 @@ import com.clocktower.lullaby.model.SongInfo;
 import com.google.android.gms.tasks.Task;
 
 public interface FirebaseDataToHomeInteractor {
+   void checkIfUserIsAdmin(String uuid);
    void firstPageFirstLoad();
    void loadMorePost();
    void likePost(final String postId);

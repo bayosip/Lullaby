@@ -17,6 +17,7 @@ import com.clocktower.lullaby.view.activities.Home;
 import com.clocktower.lullaby.view.activities.Splash;
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.ActionCodeSettings;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
@@ -118,11 +119,14 @@ public class SplashPresenter {
 
     public void registerUserOnDbWith(String email, String pwd) {
        final FirebaseAuth auth = FirebaseUtil.getmAuth();
+        ActionCodeSettings actionCodeSettings = ActionCodeSettings.newBuilder()
+                //.setUrl(url)
+                .build();
        auth.createUserWithEmailAndPassword(email, pwd).addOnCompleteListener(task ->
                auth.getCurrentUser().sendEmailVerification().addOnCompleteListener(task1 -> {
                    if (task1.isSuccessful()){
                        GeneralUtil.showAlertMessage(activity, "Success!!!",
-                               "Please on the link in your email to complete verification");
+                               "Please on the link in your email to complete verification, and Sign In");
                        activity.onBackPressed();
                    }else {
                        GeneralUtil.message("Registration Unsuccessful... Check and try again.");

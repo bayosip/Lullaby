@@ -10,6 +10,7 @@ import java.util.List;
 
 public interface HomeViewInterFace extends FragmentListener{
 
+    void removeBNBItemIfNoAdmin(boolean isAdmin);
     void goToMusicSetter();
     void updateBlogWith(Post post);
     void updatePostLikesCount(String id, int count);

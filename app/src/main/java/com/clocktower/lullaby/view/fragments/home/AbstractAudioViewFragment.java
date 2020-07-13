@@ -18,6 +18,7 @@ public abstract class AbstractAudioViewFragment extends BaseFragment implements 
     protected TextView songName, songTime;
     protected CircleButton play_pause;
     protected boolean isPlayClicked = false;
+    protected boolean isAudioLoaded = false;
 
     @Override
     public void calibrateTrackBarForMusic(int duration) {
@@ -44,6 +45,7 @@ public abstract class AbstractAudioViewFragment extends BaseFragment implements 
 
     @Override
     public void selectMusic(String song) {
+        isAudioLoaded = true;
         songName.setText(song);
     }
 
