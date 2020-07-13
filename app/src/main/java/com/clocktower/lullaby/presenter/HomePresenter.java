@@ -253,7 +253,7 @@ public class HomePresenter extends FirebaseToHomePresenter {
     }
 
     public List<SongInfo> loadSongs(){
-        Uri uri = MediaStore.Audio.Media.INTERNAL_CONTENT_URI;
+        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         Cursor cursor = interFace.getViewContext().getContentResolver().query(uri,
                 null, selection, null, null);

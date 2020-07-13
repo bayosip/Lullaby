@@ -368,7 +368,10 @@ public class CreatePostFragment extends AbstractAudioViewFragment{
                 final String type = split[0];
 
                 if ("primary".equalsIgnoreCase(type)) {
-                    return Environment.getExternalStorageDirectory() + "/" + split[1];
+                    String aPath = Environment.getExternalStorageDirectory() + "/" + split[1];
+                    audio = new SongInfo("unknown", "unknown",
+                            aPath);
+                    return aPath;
                 }
 
                 // TODO handle non-primary volumes
@@ -415,7 +418,7 @@ public class CreatePostFragment extends AbstractAudioViewFragment{
                 };
 
 
-                audio = RealPathUtil.geSongInfo(context, contentUri, null, null);
+                audio = RealPathUtil.geSongInfo(context, contentUri, selection, selectionArgs);
 
                 return RealPathUtil.getDataColumn(context, contentUri, selection, selectionArgs);
             }
@@ -499,8 +502,10 @@ public class CreatePostFragment extends AbstractAudioViewFragment{
                     Log.w(TAG, "onActivityResult: " + data.toString() );
                     Log.d(TAG, "onActivityResult: debuging music" );
                     mediaType = Constants._AUDIO;
+                    postUri = data.getData();
                     getMediaPath(data.getData(), Constants._AUDIO);
-                    if(audio!=null)
+                    if(audio==null)audio = new SongInfo("unknown", "unknown",
+                            postUri.getLastPathSegment());
                         listener.playSelectedAudio(audio);
                     break;
             }
