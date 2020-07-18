@@ -15,7 +15,6 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -43,7 +42,8 @@ import com.clocktower.lullaby.view.fragments.home.CommentsFragment;
 import com.clocktower.lullaby.view.fragments.home.CreatePostFragment;
 import com.clocktower.lullaby.view.fragments.home.FullscreenFragment;
 import com.clocktower.lullaby.view.fragments.home.HomePageFragmentAdapter;
-import com.clocktower.lullaby.view.fragments.home.AlarmSetterFragment;
+import com.clocktower.lullaby.view.fragments.home.RandomFragment;
+import com.clocktower.lullaby.view.fragments.home.SchedulerSetterFragment;
 import com.clocktower.lullaby.view.fragments.home.BaseFragment;
 import com.clocktower.lullaby.view.fragments.home.BlogFragment;
 import com.clocktower.lullaby.view.fragments.home.MusicSelectorDialog;
@@ -81,7 +81,7 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     private TextView title;
     private BlogFragment blogFrag;
     private TrackSetterFragment trackFrag;
-    private AlarmSetterFragment alarmFrag;
+    private SchedulerSetterFragment alarmFrag;
     private CommentsFragment commentFrag;
     private FullscreenFragment fullFrag;
     private Profile_creation_frag profileFrag;
@@ -120,7 +120,7 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
         fragmentList = new LinkedList<>();
         blogFrag = BlogFragment.getInstance(mUsername);
         chatFrag = ChatFragment.getInstance(mUsername);
-        alarmFrag = AlarmSetterFragment.getInstance();
+        alarmFrag = SchedulerSetterFragment.getInstance();
         trackFrag = TrackSetterFragment.getInstance();
         musicSelectorDialog = MusicSelectorDialog.getInstance();
         mediaController = new MediaController(this);
@@ -129,6 +129,7 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
         fragmentList.add(alarmFrag);
         fragmentList.add(trackFrag);
         fragmentList.add(chatFrag);
+        fragmentList.add(new RandomFragment());
 
         adapter = new HomePageFragmentAdapter(getSupportFragmentManager(), fragmentList);
     }
@@ -249,18 +250,22 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
     private void startPostCreationPage() {
         fab.hide();
         if(isUserAdmin) {
-            pager.setVisibility(View.GONE);
-            bottomNavigationView.setVisibility(View.GONE);
+            pager.setCurrentItem(4);
+            GeneralUtil.getHandler().postDelayed(() -> {
+                pager.setVisibility(View.GONE);
+                bottomNavigationView.setVisibility(View.GONE);
 
-            createFrag = CreatePostFragment.newInstance();
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                createFrag = CreatePostFragment.newInstance();
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-            fragmentTransaction.add(R.id.home_fragment_container, createFrag, Constants.CREATE_POST);
-            fragmentTransaction.commitAllowingStateLoss();
-            commentView.setVisibility(View.VISIBLE);
-            this.title.setText("Create Post");
-            setupOtherActionBar();
+                fragmentTransaction.add(R.id.home_fragment_container, createFrag, Constants.CREATE_POST);
+                fragmentTransaction.commitAllowingStateLoss();
+                commentView.setVisibility(View.VISIBLE);
+                title.setText("Create Post");
+                setupOtherActionBar();
+            }, 300);
+
         }
     }
 
@@ -272,6 +277,7 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
         @Override
         public void onPageSelected(int position) {
             if (adapter.getPageTitle(position).equals(Constants.HOME)) {
+                blogFrag.clearList();
                 setupHomeActionBar();
                 fab.hide();
             }else if (adapter.getPageTitle(position).equals(Constants.ALARM_SETTER)){
@@ -290,6 +296,9 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
             }else if (adapter.getPageTitle(position).equals(Constants.FORUM)){
                 fab.hide();
                 setupHomeActionBar();
+            }else if (adapter.getPageTitle(position).equals(Constants.RANDOM)){
+                fab.hide();
+                setupOtherActionBar();
             }
         }
 
@@ -731,15 +740,18 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
             commentView.setVisibility(View.GONE);
             toolbar.setVisibility(View.VISIBLE);
             setupHomeActionBar();
+
             bottomNavigationView.setSelectedItemId(R.id.navigation_home);
             String tag = fragment.getTag();
             if (!TextUtils.isEmpty(tag) && tag.equals(PROFILE)){
+                blogFrag.clearList();
                 Ion.with(Home.this)
                         .load(user.getPhotoUrl().toString())
                         .withBitmap()
                         .placeholder(R.drawable.ic_person_24dp)
                         .intoImageView(homeProfile);
             }else if(!TextUtils.isEmpty(tag) && tag.equals(CREATE_POST)){
+                blogFrag.clearList();
                 createFrag = null;
             }
 

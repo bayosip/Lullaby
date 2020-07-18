@@ -18,6 +18,7 @@ import com.clocktower.lullaby.model.utilities.GeneralUtil;
 import com.clocktower.lullaby.view.list.blog_list.BlogListAdapter;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,6 +34,7 @@ public class BlogFragment extends BaseFragment {
     private View dummyView;
     private Boolean reachedBottom = false;
     private List<String> previousPostIds = new LinkedList<>();
+    private Date previousDate = null;
 
 
     public static BlogFragment getInstance(String name){
@@ -83,27 +85,29 @@ public class BlogFragment extends BaseFragment {
                 }
             }
         });
+
     }
 
     public void updateAdapter(final Post post) {
         GeneralUtil.collapse(dummyView);
 
         if (!previousPostIds.contains(post.postId)) {
-        CozaBlog blog = new CozaBlog(post);
-        if(reachedBottom) {
-            posts.add(blog);
-            //Collections.sort(posts, CozaBlog.blogPostComparator);
-        } else {
-            posts.add(0, blog);
+            CozaBlog blog = new CozaBlog(post);
+            if(previousDate == null){
+                posts.add(0, blog);
+                previousDate = blog.getPost().getTimeStamp();
+            }else {
+                posts.add(blog);
+            }
+            previousPostIds.add(post.postId);
+            adapter.notifyDataSetChanged();
+            progressBar.hide();
         }
-        previousPostIds.add(post.postId);
-        adapter.notifyDataSetChanged();
-        progressBar.hide();
-    }
     }
 
     public void clearList() {
         posts.clear();
+        previousPostIds.clear();
     }
 
     public void updateCommentCount(String postId, int count){

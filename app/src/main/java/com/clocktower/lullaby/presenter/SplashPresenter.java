@@ -119,9 +119,6 @@ public class SplashPresenter {
 
     public void registerUserOnDbWith(String email, String pwd) {
        final FirebaseAuth auth = FirebaseUtil.getmAuth();
-        ActionCodeSettings actionCodeSettings = ActionCodeSettings.newBuilder()
-                //.setUrl(url)
-                .build();
        auth.createUserWithEmailAndPassword(email, pwd).addOnCompleteListener(task ->
                auth.getCurrentUser().sendEmailVerification().addOnCompleteListener(task1 -> {
                    if (task1.isSuccessful()){

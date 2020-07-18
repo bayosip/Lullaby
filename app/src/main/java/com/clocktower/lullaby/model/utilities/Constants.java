@@ -59,5 +59,5 @@ public class Constants {
     public static final String REGISTRATION = "Registration";
 
 
-
+    public static final String RANDOM = "Random";
 }

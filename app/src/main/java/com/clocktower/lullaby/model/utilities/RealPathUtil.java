@@ -168,15 +168,13 @@ abstract public class RealPathUtil {
 
         Cursor cursor = null;
         final String column = "_data";
-        final String[] projection = {
-                column
-        };
-
+        final String[] projection = {column};
         try {
-            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
-                    null);
-            if (cursor != null && cursor.moveToFirst()) {
+            CursorLoader cursorLoader = new CursorLoader(context, uri, projection, selection, selectionArgs,null);
+            cursor = cursorLoader.loadInBackground();
+            if (cursor != null ) {
                 final int index = cursor.getColumnIndexOrThrow(column);
+                cursor.moveToFirst();
                 return cursor.getString(index);
             }
         } finally {
@@ -189,7 +187,7 @@ abstract public class RealPathUtil {
     public static SongInfo geSongInfo(Context context, Uri uri, String selection,
                                       String[] selectionArgs){
         Cursor cursor = null;
-        final String column = "_data";
+        final String column = MediaStore.Audio.AudioColumns.DATA;
         final String[] projection = {column};
 
         try {
@@ -198,9 +196,9 @@ abstract public class RealPathUtil {
             if (cursor != null && cursor.moveToFirst()) {
                 final int index = cursor.getColumnIndexOrThrow(column);
                 String url = cursor.getString(index);
-                String songName = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
+                String songName = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.DISPLAY_NAME));
                 Log.w("Songs", songName);
-                String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
+                String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.ARTIST));
                 return  new SongInfo(songName, artist, url);
             }
         } finally {

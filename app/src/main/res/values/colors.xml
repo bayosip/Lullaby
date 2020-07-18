@@ -37,6 +37,7 @@
     <color name="app_background_white_low">#ccFFFFFF</color>
     <color name="app_background_white_mid">#1aFFFFFF</color>
     <color name="app_background_white_high">#66FFFFFF</color>
+    <color name="app_background_dark_high">#cc000000</color>
     <color name="colorSelect">#66AF1CB9</color>
     <color name="shadow">#50CCCCCC</color>
     <color name="transparent">@android:color/transparent</color>

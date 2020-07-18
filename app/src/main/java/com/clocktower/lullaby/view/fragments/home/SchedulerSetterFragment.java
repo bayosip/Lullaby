@@ -13,12 +13,12 @@ import androidx.annotation.Nullable;
 
 import com.clocktower.lullaby.R;
 
-public class AlarmSetterFragment extends BaseFragment {
+public class SchedulerSetterFragment extends BaseFragment {
     private Button stopAlarm, setAlarm;
     private TimePicker timePicker;
 
-    public static AlarmSetterFragment getInstance(){
-        AlarmSetterFragment fragment = new AlarmSetterFragment();
+    public static SchedulerSetterFragment getInstance(){
+        SchedulerSetterFragment fragment = new SchedulerSetterFragment();
         return  fragment;
     }
 

@@ -7,7 +7,7 @@ import androidx.fragment.app.Fragment;
 
 import com.clocktower.lullaby.interfaces.FragmentListener;
 
-public class BaseFragment extends Fragment {
+public abstract class BaseFragment extends Fragment {
 
     protected FragmentListener listener;
 

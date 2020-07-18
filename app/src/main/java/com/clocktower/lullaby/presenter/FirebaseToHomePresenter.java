@@ -90,7 +90,7 @@ abstract public class FirebaseToHomePresenter implements FirebaseDataToHomeInter
                     if (doc.getType() == DocumentChange.Type.ADDED) {
                         String blogPostId = doc.getDocument().getId();
                         final Post blogPost = doc.getDocument().toObject(Post.class).withId(blogPostId);
-                        GeneralUtil.getHandler().post(() -> interFace.updateBlogWith(blogPost));
+                        interFace.updateBlogWith(blogPost);
                     }
                 }
                 isFirstPageFirstLoad = false;
@@ -111,8 +111,9 @@ abstract public class FirebaseToHomePresenter implements FirebaseDataToHomeInter
                     for (DocumentChange doc : documentSnapshots.getDocumentChanges()) {
                         if (doc.getType() == DocumentChange.Type.ADDED) {
                             String blogPostId = doc.getDocument().getId();
-                            final Post blogPost = doc.getDocument().toObject(Post.class).withId(blogPostId);
-                            GeneralUtil.getHandler().post(() -> interFace.updateBlogWith(blogPost));
+                            final Post blogPost = doc.getDocument().toObject(Post.class)
+                                    .withId(blogPostId);
+                           interFace.updateBlogWith(blogPost);
                         }
                     }
                 }
@@ -205,22 +206,6 @@ abstract public class FirebaseToHomePresenter implements FirebaseDataToHomeInter
                         GeneralUtil.message( "Error Posting Comment : " + task.getException().getMessage());
                     }
                 });
-    }
-
-    public void getPostsFromFirebase(){
-        firestore.collection(Constants.POSTS).addSnapshotListener((queryDocumentSnapshots, e) -> {
-            if(queryDocumentSnapshots!=null){
-                for(DocumentChange doc: queryDocumentSnapshots.getDocumentChanges()) {
-                    // try {
-                    Log.i(TAG, "onEvent: " +doc.getDocument().getData().get("MediaType").getClass().getSimpleName());
-                    Post aPost = doc.getDocument().toObject(Post.class);
-                    interFace.updateBlogWith(aPost);
-                    /*}catch (NullPointerException ex){
-                        ex.printStackTrace();
-                    }*/
-                }
-            }
-        });
     }
 
     //Save A Post
