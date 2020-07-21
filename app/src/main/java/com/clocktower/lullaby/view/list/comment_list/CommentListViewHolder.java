@@ -3,8 +3,7 @@ package com.clocktower.lullaby.view.list.comment_list;
 import android.content.Context;
 
 
-
-
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.view.View;
 import android.widget.ImageView;
@@ -17,6 +16,7 @@ import com.koushikdutta.ion.Ion;
 
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 public class CommentListViewHolder extends RecyclerView.ViewHolder {
 
@@ -54,11 +54,18 @@ public class CommentListViewHolder extends RecyclerView.ViewHolder {
         userName.setText(comments.get(getAdapterPosition()).getUsername());
         getUsernameColor();
         comment.setText(comments.get(getAdapterPosition()).getComment());
-        Ion.with(context)
-                .load( comments.get(getAdapterPosition()).getUrl())
-                .withBitmap()
-                .placeholder(R.drawable.ic_person_24dp)
-                .intoImageView(profilePic);
+        try {
+            Bitmap result = Ion.with(context)
+                    .load( comments.get(getAdapterPosition()).getUrl())
+                    .withBitmap()
+                    .asBitmap()
+                    .get();
+            profilePic.setImageBitmap(result);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setContext(Context context) {

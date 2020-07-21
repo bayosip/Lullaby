@@ -24,9 +24,13 @@ import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.interfaces.ProfileListener;
 import com.clocktower.lullaby.model.ImageCreator;
 import com.clocktower.lullaby.model.utilities.Constants;
+import com.clocktower.lullaby.model.utilities.FirebaseUtil;
 import com.clocktower.lullaby.model.utilities.GeneralUtil;
+import com.koushikdutta.ion.Ion;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.theartofdev.edmodo.cropper.CropImage;
+
+import java.util.concurrent.ExecutionException;
 
 public class Profile_creation_frag extends Fragment implements View.OnClickListener {
 
@@ -80,6 +84,21 @@ public class Profile_creation_frag extends Fragment implements View.OnClickListe
         enterName = view.findViewById(R.id.editTextEnterName);
 
         profilePic= view.findViewById(R.id.imageViewID);
+        Uri profUri = FirebaseUtil.getmAuth().getCurrentUser().getPhotoUrl();
+        if (profUri!=null){
+            try {
+                Bitmap result = Ion.with(listener.getLoginActivity())
+                        .load(profUri.toString())
+                        .withBitmap()
+                        .asBitmap()
+                        .get();
+                profilePic.setImageBitmap(result);
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         mContinue = view.findViewById(R.id.buttonContinueHome);
         saveName = view.findViewById(R.id.buttonSaveName);
         progressBar = view.findViewById(R.id.progressBarProfileUpload);

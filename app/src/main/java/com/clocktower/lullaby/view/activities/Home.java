@@ -289,7 +289,11 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
                 fab.setImageResource(R.drawable.ic_queue_music_24dp);
                 flag = Constants.TRACK_SELECTOR_FLAG;
                 setupOtherActionBar();
-                audioFiles.clear();
+                if(audioFiles!=null)
+                    audioFiles.clear();
+                else {
+                    audioFiles = new ArrayList<>();
+                }
                 presenter.loadMusicTracks();
                 title.setText(Constants.MUSIC_SELECTOR);
                 fab.show();

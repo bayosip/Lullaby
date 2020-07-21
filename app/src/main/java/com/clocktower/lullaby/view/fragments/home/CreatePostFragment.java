@@ -142,35 +142,6 @@ public class CreatePostFragment extends AbstractAudioViewFragment{
                     video.pause();
                 }
                 break;
-            case R.id.btn_upload_photo:
-                Crashlytics.log("Admin clicked on upload image");
-                postTitle.setVisibility(View.VISIBLE);
-                mediaView.setVisibility(View.VISIBLE);
-                audioTestLayout.setVisibility(View.GONE);
-                playVideoBtn.setVisibility(View.GONE);
-                video.setVisibility(View.GONE);
-                image.setVisibility(View.VISIBLE);
-                imgCreator.createAnImage(CreatePostFragment.this);
-                postToBlog.setText("Post");
-                break;
-            case R.id.btn_upload_video:
-                Crashlytics.log("Admin clicked on upload video");
-                postTitle.setVisibility(View.VISIBLE);
-                mediaView.setVisibility(View.VISIBLE);
-                audioTestLayout.setVisibility(View.GONE);
-                image.setVisibility(View.GONE);
-                video.setVisibility(View.VISIBLE);
-                selectAudioOrVideoMedia(Constants.VIDEO);
-                postToBlog.setText("Post");
-                break;
-            case R.id.btn_upload_music:
-                mediaType = Constants._AUDIO;
-                Crashlytics.log("Admin clicked on upload audio");
-                postToBlog.setText("Upload Audio");
-                listener.showAudioFromDevice();
-                audioTestLayout.setVisibility(View.VISIBLE);
-                postTitle.setVisibility(View.INVISIBLE);
-                break;
             case R.id.post_btn:
                 if(listener.isUserAdmin()) {
                     String desc = postTitle.getText().toString();
@@ -206,6 +177,37 @@ public class CreatePostFragment extends AbstractAudioViewFragment{
                         GeneralUtil.message("Post a Message, an Image or a Video.");
                     }
                 }
+                break;
+            default:
+                postUri = null;
+            case R.id.btn_upload_photo:
+                Crashlytics.log("Admin clicked on upload image");
+                postTitle.setVisibility(View.VISIBLE);
+                mediaView.setVisibility(View.VISIBLE);
+                audioTestLayout.setVisibility(View.GONE);
+                playVideoBtn.setVisibility(View.GONE);
+                video.setVisibility(View.GONE);
+                image.setVisibility(View.VISIBLE);
+                imgCreator.createAnImage(CreatePostFragment.this);
+                postToBlog.setText("Post");
+                break;
+            case R.id.btn_upload_video:
+                Crashlytics.log("Admin clicked on upload video");
+                postTitle.setVisibility(View.VISIBLE);
+                mediaView.setVisibility(View.VISIBLE);
+                audioTestLayout.setVisibility(View.GONE);
+                image.setVisibility(View.GONE);
+                video.setVisibility(View.VISIBLE);
+                selectAudioOrVideoMedia(Constants.VIDEO);
+                postToBlog.setText("Post");
+                break;
+            case R.id.btn_upload_music:
+                mediaType = Constants._AUDIO;
+                Crashlytics.log("Admin clicked on upload audio");
+                postToBlog.setText("Upload Audio");
+                listener.showAudioFromDevice();
+                audioTestLayout.setVisibility(View.VISIBLE);
+                postTitle.setVisibility(View.INVISIBLE);
                 break;
         }
     };
@@ -322,7 +324,7 @@ public class CreatePostFragment extends AbstractAudioViewFragment{
         String realPath = null;
 
         try{
-        // SDK > 19 (Android 4.4)
+            // SDK > 19 (Android 4.4)
             String wholeID = DocumentsContract.getDocumentId(uri);
             // Split at colon, use second item in the array
             String id = wholeID.split(":")[1];
@@ -363,16 +365,16 @@ public class CreatePostFragment extends AbstractAudioViewFragment{
 
         // SDK < API11
         //if(mediaType ==1 || Build.VERSION.SDK_INT < 19) {
-            String[] proj = {metadata};
-            CursorLoader cursorLoader = new CursorLoader(listener.getViewContext(),
-                    uri, proj, null, null, null);
-            Cursor cursor = cursorLoader.loadInBackground();
-            if (cursor != null) {
-                int column_index = cursor.getColumnIndexOrThrow(metadata);
-                cursor.moveToFirst();
-                realPath = cursor.getString(column_index);
-                cursor.close();
-            }
+        String[] proj = {metadata};
+        CursorLoader cursorLoader = new CursorLoader(listener.getViewContext(),
+                uri, proj, null, null, null);
+        Cursor cursor = cursorLoader.loadInBackground();
+        if (cursor != null) {
+            int column_index = cursor.getColumnIndexOrThrow(metadata);
+            cursor.moveToFirst();
+            realPath = cursor.getString(column_index);
+            cursor.close();
+        }
         //}
         // SDK > 19 (Android 4.4)
 
@@ -408,7 +410,7 @@ public class CreatePostFragment extends AbstractAudioViewFragment{
                     uriString = Environment.getExternalStorageDirectory() + "/" + split[1];
                     if (mediaType ==Constants._AUDIO)
                         audio = new SongInfo("unknown", "unknown",
-                            uriString);
+                                uriString);
                     return uriString;
                 }
 
@@ -428,8 +430,8 @@ public class CreatePostFragment extends AbstractAudioViewFragment{
                     Uri contentUri = ContentUris.withAppendedId(Uri.parse(contentUriPrefix), Long.valueOf(id));
                     try {
                         if (mediaType ==Constants._AUDIO)
-                         audio = RealPathUtil.geSongInfo(context, contentUri, null, null);
-                       return RealPathUtil.getDataColumn(context, contentUri, null, null);
+                            audio = RealPathUtil.geSongInfo(context, contentUri, null, null);
+                        return RealPathUtil.getDataColumn(context, contentUri, null, null);
                     } catch (Exception e) {
                         Log.e(TAG, "getRealPathFromURI_API19: wrong folder - " + contentUriPrefix);
                     }
@@ -510,7 +512,6 @@ public class CreatePostFragment extends AbstractAudioViewFragment{
                         playVideoBtn.setVisibility(View.VISIBLE);
                         adjustVideoSize();
                     }
-
                     break;
                 case Constants.PICK_AUDIO_REQUEST:
                     Log.w(TAG, "onActivityResult: " + data.toString() );
@@ -522,9 +523,9 @@ public class CreatePostFragment extends AbstractAudioViewFragment{
                         getMediaPathRetry(postUri, mediaType);
                         if (audio==null)
                             audio = new SongInfo("unknown", "unknown",
-                                postUri.getLastPathSegment());
+                                    postUri.getLastPathSegment());
                     }
-                        listener.playSelectedAudio(audio);
+                    listener.playSelectedAudio(audio);
                     break;
             }
         } else {

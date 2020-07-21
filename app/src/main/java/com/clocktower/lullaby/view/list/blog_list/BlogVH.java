@@ -109,9 +109,11 @@ public class BlogVH extends RecyclerView.ViewHolder implements View.OnClickListe
             mediaView.setVisibility(View.VISIBLE);
             if(type ==1){
                 imgPost.setVisibility(View.VISIBLE);
+                videoLayout.setVisibility(View.GONE);
                 loadAndResizeImage();
             }else if (type==2) {
                 videoLayout.setVisibility(View.VISIBLE);
+                imgPost.setVisibility(View.GONE);
                 playSelectedVideoFrom(url);
                 snapOutOfFullscreen();
             }

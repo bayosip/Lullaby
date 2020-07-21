@@ -69,8 +69,10 @@ abstract public class FirebaseToHomePresenter implements FirebaseDataToHomeInter
 
         docRef.get().addOnSuccessListener(documentSnapshot -> {
            Users user = documentSnapshot.toObject(Users.class);
-            Log.w(TAG, "checkIfUserIsAdmin: " + user.toString() );
-           interFace.removeBNBItemIfNoAdmin(user.isUserIsAdmin());
+           if(user!=null) {
+               Log.w(TAG, "checkIfUserIsAdmin: " + user.toString());
+               interFace.removeBNBItemIfNoAdmin(user.isUserIsAdmin());
+           }
         });
 
     }
