@@ -161,7 +161,7 @@ public class FirebaseUtil {
                 DocumentSnapshot document = task.getResult();
                 if (document.exists()) {
                     Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                    GeneralUtil.getAppPref(App.context).edit().putString("PROFILE",
+                    GeneralUtil.getAppPref().edit().putString("PROFILE",
                             user.getPhotoUrl().toString()).apply();
                     listener.goStraightToHomePage(user.getDisplayName());
                 } else {
@@ -231,7 +231,7 @@ public class FirebaseUtil {
             return profileRef.getDownloadUrl();
         }).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                GeneralUtil.getAppPref(listener.getLoginActivity()).edit().putString(Constants.PROFILE,
+                GeneralUtil.getAppPref().edit().putString(Constants.PROFILE,
                         task.getResult().toString()).apply();
                 GeneralUtil.message("Profile Changed");
                 firebaseSave = true;

@@ -67,8 +67,8 @@ public class GeneralUtil extends RealPathUtil {
         Toast.makeText(App.context, message, Toast.LENGTH_SHORT).show();
     }
 
-    public static SharedPreferences getAppPref(Context context) {
-        if (appPref == null) appPref = context.getSharedPreferences(APP_PREFS_NAME,
+    public static SharedPreferences getAppPref() {
+        if (appPref == null) appPref = App.context.getSharedPreferences(APP_PREFS_NAME,
                 Context.MODE_PRIVATE);
 
         return appPref;

@@ -43,7 +43,7 @@ public class RingToneService extends Service {
     public void onCreate() {
         GeneralUtil.message("Service Created");
 
-        appPref = GeneralUtil.getAppPref(getApplicationContext());
+        appPref = GeneralUtil.getAppPref();
         editor = appPref.edit();
         notificationManager = (NotificationManager) getApplicationContext().
                 getSystemService(Context.NOTIFICATION_SERVICE);

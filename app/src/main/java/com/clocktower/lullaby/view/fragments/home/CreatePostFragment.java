@@ -151,8 +151,9 @@ public class CreatePostFragment extends AbstractAudioViewFragment{
                             listener.saveNewAudioInDb(null);
                             return;
                         } else {
-                            uri = getMediaPath(postUri, mediaType);
-                            if (TextUtils.isEmpty(uri))uri =getMediaPathRetry(postUri, mediaType);
+                            uri = (String) RealPathUtil.getMediaPath(listener.getViewContext(), postUri, mediaType);
+                            if (TextUtils.isEmpty(uri))uri =(String) RealPathUtil
+                                    .getMediaPathRetry(listener.getViewContext(),postUri, mediaType);
                         }
                     } else uri = "none";
 
@@ -301,186 +302,6 @@ public class CreatePostFragment extends AbstractAudioViewFragment{
 
     }
 
-
-    @SuppressLint("ObsoleteSdkInt")
-    private String getMediaPathRetry(Uri uri, long mediaType) {
-
-        String metadata, meta_id;
-        Uri extUri;
-        if (mediaType == Constants.IMAGE){
-            metadata = MediaStore.Images.Media.DATA;
-            extUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-            meta_id = MediaStore.Images.Media._ID;
-        } else if (mediaType == Constants.VIDEO) {
-            metadata =  MediaStore.Video.Media.DATA;
-            extUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-            meta_id = MediaStore.Video.Media._ID;
-        }else {
-            metadata =  MediaStore.Audio.Media.DATA;
-            extUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-            meta_id = MediaStore.Audio.Media._ID;
-        }
-
-        String realPath = null;
-
-        try{
-            // SDK > 19 (Android 4.4)
-            String wholeID = DocumentsContract.getDocumentId(uri);
-            // Split at colon, use second item in the array
-            String id = wholeID.split(":")[1];
-            String[] column = { metadata};
-            // where id is equal to
-            String sel = meta_id + "=?";
-            if (mediaType == Constants._AUDIO)
-                audio = RealPathUtil
-                        .geSongInfo(listener.getViewContext(), extUri, sel, new String[]{ id });
-            realPath =RealPathUtil
-                    .getDataColumn(listener.getViewContext(), extUri, sel, new String[]{ id });
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return realPath;
-    }
-
-    @SuppressLint("ObsoleteSdkInt")
-    private String getMediaPath(Uri uri, long mediaType) {
-
-        String metadata, meta_id;
-        Uri extUri;
-        if (mediaType == Constants.IMAGE){
-            metadata = MediaStore.Images.Media.DATA;
-            extUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-            meta_id = MediaStore.Images.Media._ID;
-        } else if (mediaType == Constants.VIDEO) {
-            metadata =  MediaStore.Video.Media.DATA;
-            extUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-            meta_id = MediaStore.Video.Media._ID;
-        }else {
-            metadata =  MediaStore.Audio.Media.DATA;
-            extUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-            meta_id = MediaStore.Audio.Media._ID;
-        }
-
-        String realPath = null;
-
-        // SDK < API11
-        //if(mediaType ==1 || Build.VERSION.SDK_INT < 19) {
-        String[] proj = {metadata};
-        CursorLoader cursorLoader = new CursorLoader(listener.getViewContext(),
-                uri, proj, null, null, null);
-        Cursor cursor = cursorLoader.loadInBackground();
-        if (cursor != null) {
-            int column_index = cursor.getColumnIndexOrThrow(metadata);
-            cursor.moveToFirst();
-            realPath = cursor.getString(column_index);
-            cursor.close();
-        }
-        //}
-        // SDK > 19 (Android 4.4)
-
-        if (TextUtils.isEmpty(realPath)){
-            getRealPathFromURI_API19(listener.getViewContext(), uri);
-        }
-        return realPath;
-    }
-
-    /**
-     * Get a file path from a Uri. This will get the the path for Storage Access
-     * Framework Documents, as well as the _data field for the MediaStore and
-     * other file-based ContentProviders.
-     *
-     * @param context The context.
-     * @param uri     The Uri to query.
-     * @author paulburke
-     */
-    @SuppressLint("NewApi")
-    public String getRealPathFromURI_API19(final Context context, final Uri uri) {
-
-        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
-        String uriString;
-        // DocumentProvider
-        if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
-            // ExternalStorageProvider
-            if (RealPathUtil.isExternalStorageDocument(uri)) {
-                final String docId = DocumentsContract.getDocumentId(uri);
-                final String[] split = docId.split(":");
-                final String type = split[0];
-
-                if ("primary".equalsIgnoreCase(type)) {
-                    uriString = Environment.getExternalStorageDirectory() + "/" + split[1];
-                    if (mediaType ==Constants._AUDIO)
-                        audio = new SongInfo("unknown", "unknown",
-                                uriString);
-                    return uriString;
-                }
-
-                // TODO handle non-primary volumes
-            }
-            // DownloadsProvider
-            else if (RealPathUtil.isDownloadsDocument(uri)) {
-
-                final String id = DocumentsContract.getDocumentId(uri);
-                String[] contentUriPrefixesToTry = new String[]{
-                        "content://downloads/my_downloads",
-                        "content://downloads/all_downloads",
-                        "content://downloads/public_downloads"
-                };
-
-                for (String contentUriPrefix : contentUriPrefixesToTry) {
-                    Uri contentUri = ContentUris.withAppendedId(Uri.parse(contentUriPrefix), Long.valueOf(id));
-                    try {
-                        if (mediaType ==Constants._AUDIO)
-                            audio = RealPathUtil.geSongInfo(context, contentUri, null, null);
-                        return RealPathUtil.getDataColumn(context, contentUri, null, null);
-                    } catch (Exception e) {
-                        Log.e(TAG, "getRealPathFromURI_API19: wrong folder - " + contentUriPrefix);
-                    }
-                }
-            }
-            // MediaProvider
-            else if (RealPathUtil.isMediaDocument(uri)) {
-                final String docId = DocumentsContract.getDocumentId(uri);
-                final String[] split = docId.split(":");
-                final String type = split[0];
-
-                Uri contentUri = null;
-                if ("image".equals(type)) {
-                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                } else if ("video".equals(type)) {
-                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-                } else if ("audio".equals(type)) {
-                    contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-                }
-
-                final String selection = "_id=?";
-                final String[] selectionArgs = new String[]{
-                        split[1]
-                };
-
-                if (mediaType ==Constants._AUDIO)
-                    audio = RealPathUtil.geSongInfo(context, contentUri, selection, selectionArgs);
-
-                return RealPathUtil.getDataColumn(context, contentUri, selection, selectionArgs);
-            }
-        }
-        // MediaStore (and general)
-        else if ("content".equalsIgnoreCase(uri.getScheme())) {
-            // Return the remote address
-            if ( mediaType== Constants._AUDIO)
-                audio = RealPathUtil.geSongInfo(context, uri, null, null);
-            return RealPathUtil.getDataColumn(context, uri, null, null);
-        }
-        // File
-        else if ("file".equalsIgnoreCase(uri.getScheme())) {
-            if (mediaType ==Constants._AUDIO)
-                audio = new SongInfo("", "", uri.getPath());
-            return uri.getPath();
-        }
-
-        return null;
-    }
-
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -508,7 +329,9 @@ public class CreatePostFragment extends AbstractAudioViewFragment{
                     mediaType = Constants.VIDEO;
                     if (data.getData()!= null) {
                         playSelectedVideoFrom();
-                        Log.i(TAG, "onActivityResult: " +getMediaPathRetry(postUri, Constants.VIDEO));
+                        Log.i(TAG, "onActivityResult: " +  RealPathUtil
+                                .getMediaPathRetry(listener.getViewContext(), postUri,
+                                        Constants.VIDEO));
                         playVideoBtn.setVisibility(View.VISIBLE);
                         adjustVideoSize();
                     }
@@ -518,9 +341,9 @@ public class CreatePostFragment extends AbstractAudioViewFragment{
                     Log.d(TAG, "onActivityResult: debugging music" );
                     mediaType = Constants._AUDIO;
                     postUri = data.getData();
-                    getMediaPath(data.getData(), Constants._AUDIO);
+                    RealPathUtil.getMediaPath(listener.getViewContext(), data.getData(), Constants._AUDIO);
                     if(audio==null){
-                        getMediaPathRetry(postUri, mediaType);
+                        audio = (SongInfo)RealPathUtil.getMediaPathRetry(listener.getViewContext(),postUri, mediaType);
                         if (audio==null)
                             audio = new SongInfo("unknown", "unknown",
                                     postUri.getLastPathSegment());

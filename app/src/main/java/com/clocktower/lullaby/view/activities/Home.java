@@ -151,7 +151,7 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
                     .intoImageView(homeProfile);
 
             Log.w(TAG, "setupActionBar: " + user.getPhotoUrl().toString() + " // "
-                    + GeneralUtil.getAppPref(this).getString(Constants.PROFILE, null));
+                    + GeneralUtil.getAppPref().getString(Constants.PROFILE, null));
         }
         bottomNavigationView = findViewById(R.id.navigationView);
         simple = findViewById(R.id.simpleToolbarView);
@@ -364,7 +364,7 @@ public class Home extends AppCompatActivity implements HomeViewInterFace, Profil
         if(createFrag == null) {
             trackFrag.selectMusic(chosenSong.getTrackName());
         }else {
-            createFrag.selectMusic(audio.getTrackName());
+            createFrag.selectMusic(chosenSong.getTrackName());
         }
         changePlayButtonIcon(R.drawable.ic_pause_24dp);
         presenter.startNewMusic(chosenSong.getUrl());

@@ -18,6 +18,7 @@ import android.util.Log;
 
 import androidx.fragment.app.DialogFragment;
 
+import com.clocktower.lullaby.App;
 import com.clocktower.lullaby.R;
 import com.clocktower.lullaby.interfaces.HomeViewInterFace;
 import com.clocktower.lullaby.model.SongInfo;
@@ -73,11 +74,10 @@ public class HomePresenter extends FirebaseToHomePresenter {
 
     private void initialisePrequisites(){
         handler = new Handler();
-        appPref = GeneralUtil.getAppPref(interFace.getViewContext());
+        appPref = GeneralUtil.getAppPref();
         editor = appPref.edit();
         calendar = Calendar.getInstance();
-        alarmManager = (AlarmManager) this.interFace.getViewContext()
-                .getSystemService(Context.ALARM_SERVICE);
+        alarmManager = (AlarmManager) App.context.getSystemService(Context.ALARM_SERVICE);
     }
 
 
@@ -219,6 +219,7 @@ public class HomePresenter extends FirebaseToHomePresenter {
             GeneralUtil.message("Please set Song For Schedule");
         }
         GeneralUtil.message("Schedule Set to - "+ hr +":" + min);
+        isAlarmSet = true;
     }
 
     private void setLullabyAlarm() {
@@ -246,7 +247,8 @@ public class HomePresenter extends FirebaseToHomePresenter {
     public void cancelAlarm(){
         alarm = 0;
         isAlarmSet = false;
-        alarmManager.cancel(pendingIntent);
+        if (alarmManager!=null && pendingIntent != null)
+            alarmManager.cancel(pendingIntent);
         if(ServiceUtil.isServiceAlreadyRunningAPI16(interFace.getViewContext()))
             ServiceUtil.stopService(interFace.getViewContext());
         GeneralUtil.message("Home Cancelled!");
@@ -297,5 +299,9 @@ public class HomePresenter extends FirebaseToHomePresenter {
         editor.putString(Constants.TRACK_URL, path);
         editor.commit();
         if(alarm>0)setLullabyAlarm();
+        if(isAlarmSet){
+            GeneralUtil.message("You are All Set");
+
+        }
     }
 }

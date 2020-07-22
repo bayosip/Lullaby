@@ -9,27 +9,111 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.loader.content.CursorLoader;
 
 import com.clocktower.lullaby.model.SongInfo;
+import com.crashlytics.android.Crashlytics;
 
 abstract public class RealPathUtil {
 
-    public static String getRealPath( Context context, Uri fileUri) {
-        String realPath;
+    private static final String TAG = "RealPathUtil";
+
+    public static Object getMediaPath(Context context, Uri uri, long mediaType) {
+
+        String metadata, meta_id;
+        Uri extUri;
+        if (mediaType == Constants.IMAGE){
+            metadata = MediaStore.Images.Media.DATA;
+            extUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+            meta_id = MediaStore.Images.Media._ID;
+        } else if (mediaType == Constants.VIDEO) {
+            metadata =  MediaStore.Video.Media.DATA;
+            extUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+            meta_id = MediaStore.Video.Media._ID;
+        }else {
+            metadata =  MediaStore.Audio.Media.DATA;
+            extUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+            meta_id = MediaStore.Audio.Media._ID;
+        }
+
+        String realPath = null;
+
         // SDK < API11
-        if (Build.VERSION.SDK_INT < 11) {
-            realPath = RealPathUtil.getRealPathFromURI_BelowAPI11(context, fileUri);
+        //if(mediaType ==1 || Build.VERSION.SDK_INT < 19) {
+        String[] proj = {metadata};
+        CursorLoader cursorLoader = new CursorLoader(context,
+                uri, proj, null, null, null);
+        Cursor cursor = cursorLoader.loadInBackground();
+        if (cursor != null) {
+            int column_index = cursor.getColumnIndexOrThrow(metadata);
+            cursor.moveToFirst();
+            realPath = cursor.getString(column_index);
+            if(mediaType == Constants._AUDIO){
+                String songName = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
+                String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
+                return new SongInfo(songName, artist, realPath);
+            }
+
+            cursor.close();
         }
-        // SDK >= 11 && SDK < 19
-        else if (Build.VERSION.SDK_INT < 19) {
-            realPath = RealPathUtil.getRealPathFromURI_API11to18(context, fileUri);
+        //}
+        // SDK > 19 (Android 4.4)
+
+        if (TextUtils.isEmpty(realPath)){
+            return getRealPathFromURI_API19(context, uri, mediaType);
         }
-        // SDK > 19 (Android 4.4) and up
-        else {
-            realPath = RealPathUtil.getRealPathFromURI_API19( context, fileUri);
+        return realPath;
+    }
+
+    /**
+     * Get a file path from a Uri. This will get the the path for Storage Access
+     * Framework Documents, as well as the _data field for the MediaStore and
+     * other file-based ContentProviders.
+     *
+     * @param context The context.
+     * @param uri     The Uri to query.
+     * @author paulburke
+     */
+    @SuppressLint("ObsoleteSdkInt")
+    public static Object getMediaPathRetry(Context context, Uri uri, long mediaType) {
+
+        String metadata, meta_id;
+        Uri extUri;
+        if (mediaType == Constants.IMAGE){
+            metadata = MediaStore.Images.Media.DATA;
+            extUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+            meta_id = MediaStore.Images.Media._ID;
+        } else if (mediaType == Constants.VIDEO) {
+            metadata =  MediaStore.Video.Media.DATA;
+            extUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+            meta_id = MediaStore.Video.Media._ID;
+        }else {
+            metadata =  MediaStore.Audio.Media.DATA;
+            extUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+            meta_id = MediaStore.Audio.Media._ID;
+        }
+
+        String realPath = null;
+
+        try{
+            // SDK > 19 (Android 4.4)
+            String wholeID = DocumentsContract.getDocumentId(uri);
+            // Split at colon, use second item in the array
+            String id = wholeID.split(":")[1];
+            String[] column = { metadata};
+            // where id is equal to
+            String sel = meta_id + "=?";
+            if (mediaType == Constants._AUDIO)
+                return RealPathUtil
+                        .geSongInfo(context, extUri, sel, new String[]{ id });
+
+            realPath =RealPathUtil
+                    .getDataColumn(context, extUri, sel, new String[]{ id });
+        }catch (Exception e){
+            e.printStackTrace();
         }
         return realPath;
     }
@@ -77,44 +161,52 @@ abstract public class RealPathUtil {
      * @author paulburke
      */
     @SuppressLint("NewApi")
-    public static String getRealPathFromURI_API19( final Context context, final Uri uri) {
+    public static Object getRealPathFromURI_API19(final Context context, final Uri uri, long mediaType) {
 
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
-
+        String uriString;
         // DocumentProvider
         if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
             // ExternalStorageProvider
-            if (isExternalStorageDocument(uri)) {
+            if (RealPathUtil.isExternalStorageDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");
                 final String type = split[0];
 
                 if ("primary".equalsIgnoreCase(type)) {
-                    return Environment.getExternalStorageDirectory() + "/" + split[1];
+                    uriString = Environment.getExternalStorageDirectory() + "/" + split[1];
+                    if (mediaType ==Constants._AUDIO)
+                        return new SongInfo("unknown", "unknown",
+                                uriString);
+
+                    return uriString;
                 }
 
                 // TODO handle non-primary volumes
             }
             // DownloadsProvider
-            else if (isDownloadsDocument(uri)) {
+            else if (RealPathUtil.isDownloadsDocument(uri)) {
 
+                final String id = DocumentsContract.getDocumentId(uri);
                 String[] contentUriPrefixesToTry = new String[]{
                         "content://downloads/my_downloads",
                         "content://downloads/all_downloads",
-                        "content://downloads/public_downloads"};
-                final String id = DocumentsContract.getDocumentId(uri);
+                        "content://downloads/public_downloads"
+                };
+
                 for (String contentUriPrefix : contentUriPrefixesToTry) {
                     Uri contentUri = ContentUris.withAppendedId(Uri.parse(contentUriPrefix), Long.valueOf(id));
                     try {
-                        String path = getDataColumn(context, contentUri, null, null);
-                        if (path != null) {
-                            return path;
-                        }
-                    } catch (Exception e) {}
+                        if (mediaType ==Constants._AUDIO)
+                            return RealPathUtil.geSongInfo(context, contentUri, null, null);
+                        return RealPathUtil.getDataColumn(context, contentUri, null, null);
+                    } catch (Exception e) {
+                        Log.e(TAG, "getRealPathFromURI_API19: wrong folder - " + contentUriPrefix);
+                    }
                 }
             }
             // MediaProvider
-            else if (isMediaDocument(uri)) {
+            else if (RealPathUtil.isMediaDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");
                 final String type = split[0];
@@ -133,26 +225,29 @@ abstract public class RealPathUtil {
                         split[1]
                 };
 
-                return getDataColumn(context, contentUri, selection, selectionArgs);
+                if (mediaType ==Constants._AUDIO)
+                    return RealPathUtil.geSongInfo(context, contentUri, selection, selectionArgs);
+
+                return RealPathUtil.getDataColumn(context, contentUri, selection, selectionArgs);
             }
         }
         // MediaStore (and general)
         else if ("content".equalsIgnoreCase(uri.getScheme())) {
-
             // Return the remote address
-            if (isGooglePhotosUri(uri))
-                return uri.getLastPathSegment();
+            if ( mediaType== Constants._AUDIO)
+                return RealPathUtil.geSongInfo(context, uri, null, null);
 
-            return getDataColumn(context, uri, null, null);
+            return RealPathUtil.getDataColumn(context, uri, null, null);
         }
         // File
         else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            if (mediaType ==Constants._AUDIO)
+                return new SongInfo("", "", uri.getPath());
             return uri.getPath();
         }
 
         return null;
     }
-
     /**
      * Get the value of the data column for this Uri. This is useful for
      * MediaStore Uris, and other file-based ContentProviders.
@@ -201,7 +296,9 @@ abstract public class RealPathUtil {
                 String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.ARTIST));
                 return  new SongInfo(songName, artist, url);
             }
-        } finally {
+        }catch (Exception e){
+            Crashlytics.log(e.getLocalizedMessage());
+        }finally {
             if (cursor != null)
                 cursor.close();
         }

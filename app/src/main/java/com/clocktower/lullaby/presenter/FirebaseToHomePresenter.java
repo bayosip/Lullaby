@@ -81,7 +81,7 @@ abstract public class FirebaseToHomePresenter implements FirebaseDataToHomeInter
     public void firstPageFirstLoad(){
         Query firstQuery = firestore.collection(Constants.POSTS)
                 .orderBy(Constants.TIMESTAMP, Query.Direction.DESCENDING)
-                .limit(3);
+                .limit(5);
         listenerRegistration = firstQuery.addSnapshotListener((documentSnapshots, e) -> {
             if (documentSnapshots!= null && !documentSnapshots.isEmpty()) {
                 if (isFirstPageFirstLoad) {

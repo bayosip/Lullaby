@@ -28,6 +28,7 @@ import com.clocktower.lullaby.interfaces.AudioItemClickListener;
 import com.clocktower.lullaby.interfaces.FragmentListener;
 import com.clocktower.lullaby.interfaces.ListItemClickListener;
 import com.clocktower.lullaby.model.SongInfo;
+import com.clocktower.lullaby.model.utilities.GeneralUtil;
 import com.clocktower.lullaby.view.activities.Home;
 import com.clocktower.lullaby.view.list.audio_track.MusicTrackListAdapter;
 
@@ -98,7 +99,9 @@ public class MusicSelectorDialog extends DialogFragment implements AudioItemClic
         musicList.setAdapter(adapter);
 
         select.setOnClickListener(view1 -> {
-            listener.playSelectedAudio(audio);
+            if (audio!=null)
+                listener.playSelectedAudio(audio);
+            else GeneralUtil.message("Select An Audio File");
         });
     }
 
